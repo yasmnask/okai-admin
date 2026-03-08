@@ -1,7 +1,7 @@
-const API_URL = "http://localhost/okai-api";
+const API_URL = "http://localhost:8000/okai-api";
 
 export async function loginAdmin(data) {
-  const response = await fetch(`${API_URL}/auth/login.php`, {
+  const response = await fetch(`${API_URL}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
