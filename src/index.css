@@ -1,3 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Memasukkan palet warna dari image_8126ac.png */
+  --color-primary: #E65100;
+  --color-surface: #F5F5F5;
+  --color-dark-brown: #3E2723;
+  --color-accent-red: #D32F2F;
+}
+
+/* Opsional: Menghapus background dark default Vite */
+:root {
+  background-color: #F5F5F5;
+  color: #3E2723;
+}
