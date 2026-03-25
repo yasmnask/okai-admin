@@ -1,26 +1,52 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { loginAdmin, getGoogleLoginUrl } from "../services/api"; // Hanya memanggil jalur reguler
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      console.log("Login attempt:", { email, password });
+      // Mengirim email dan kata sandi ke backend Laravel
+      const result = await loginAdmin({ email, password });
+
+      if (result && result.success) {
+        // Menyimpan data identitas ke dalam penyimpanan peramban (browser)
+        localStorage.setItem("okai_admin", JSON.stringify(result.user));
+        // Berpindah langsung ke halaman Dashboard
+        navigate("/dashboard");
+      } else {
+        alert("❌ Login gagal! Silakan periksa kembali email dan password Anda.");
+      }
     } catch (error) {
       console.error("Login error:", error);
+      alert("Terjadi masalah koneksi dengan server.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleLogin = () => {
-    console.log("Google login clicked");
+  const handleGoogleLogin = async () => {
+    try {
+      // 1. Minta URL otentikasi Google dari backend Laravel
+      const result = await getGoogleLoginUrl();
+      
+      // 2. Jika berhasil mendapatkan URL, alihkan browser ke halaman Google
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        alert("Gagal mendapatkan tautan login Google.");
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      alert("Terjadi masalah saat menghubungi server.");
+    }
   };
 
   return (

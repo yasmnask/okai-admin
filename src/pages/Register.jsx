@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { registerAdmin, getGoogleLoginUrl } from "../services/api"; // 
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -7,27 +8,51 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      alert("Password dan Konfirmasi Password tidak cocok!");
+      return;
+    }
     setIsLoading(true);
 
     try {
-      console.log("Register attempt:", {
-        name,
-        email,
-        password,
-        confirmPassword,
+      // 4. Kirim data ke API (Kunci: password_confirmation)
+      const result = await registerAdmin({ 
+        name, 
+        email, 
+        password, 
+        password_confirmation: confirmPassword 
       });
+
+      if (result.success) {
+        alert("✅ Registrasi berhasil! Silakan periksa kotak masuk email Anda.");
+        navigate("/login"); // 5. Arahkan ke halaman login
+      }
     } catch (error) {
       console.error("Register error:", error);
+      alert(`❌ Registrasi gagal: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleRegister = () => {
-    console.log("Google register clicked");
+  const handleGoogleRegister = async () => {
+    try {
+      // Menggunakan URL yang sama persis dengan Login
+      const result = await getGoogleLoginUrl();
+      
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        alert("Gagal mendapatkan tautan registrasi Google.");
+      }
+    } catch (error) {
+      console.error("Google register error:", error);
+      alert("Terjadi masalah saat menghubungi server.");
+    }
   };
 
   return (

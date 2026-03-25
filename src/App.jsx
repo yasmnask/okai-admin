@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import VerifyEmailPage from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import ProfileSettings from "./pages/ProfileSettings";
 import ProductManagement from "./pages/ProductManagement";
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email/:id/:hash" element={<VerifyEmailPage />} />
         
 
         {/* Rute dengan Sidebar */}

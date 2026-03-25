@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { logoutAdmin } from '../services/api';
 import { 
   LayoutDashboard, Users, Handshake, Package, FileText, 
   CreditCard, Truck, Ticket, BarChart3, Settings, Box, LogOut, UserCog 
@@ -22,6 +23,18 @@ export default function MainLayout() {
     { name: 'Profile Settings', icon: <UserCog size={20} />, path: '/profile' }, // Menu Baru
     { name: 'System Settings', icon: <Settings size={20} />, path: '/settings' }, // Kembali ke Rencana Awal
   ];
+
+  const handleLogout = async () => {
+    try {
+      await logoutAdmin();       
+      localStorage.removeItem("okai_admin"); 
+      navigate('/login'); 
+    } catch (error) {
+      console.error("Terjadi kendala saat logout:", error);
+      localStorage.removeItem("okai_admin");
+      navigate('/login');
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] text-[#1E293B]">
@@ -54,7 +67,7 @@ export default function MainLayout() {
           ))}
         </nav>
         <div className="p-4 border-t border-slate-100">
-          <button onClick={() => navigate('/login')} className="w-full flex items-center px-4 py-3 text-slate-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all font-semibold text-sm">
+          <button onClick={handleLogout} className="w-full flex items-center px-4 py-3 text-slate-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all font-semibold text-sm">
             <LogOut size={20} className="mr-3" /> Logout
           </button>
         </div>
