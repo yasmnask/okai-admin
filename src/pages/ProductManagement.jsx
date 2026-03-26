@@ -1,33 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Package, Plus, Search, Filter, MoreVertical, 
   Edit3, Trash2, MapPin, Layers, CheckCircle2 
 } from 'lucide-react';
+import { getProducts } from '../services/api';
 
 export default function ProductManagement() {
-  // Mock Data Produk - Siap diganti dengan Fetch dari Backend Laravel
-  const [products] = useState([
-    { 
-      id: 1, 
-      sku: 'OK-99210', 
-      name: 'Sepatu Lari Pro-X', 
-      category: 'Footwear', 
-      price: 'Rp 850.000', 
-      stock: 45, 
-      warehouse: 'Gudang Utama (Surabaya)',
-      status: 'Published' 
-    },
-    { 
-      id: 2, 
-      sku: 'OK-88122', 
-      name: 'Tas Ransel Outdoor 30L', 
-      category: 'Accessories', 
-      price: 'Rp 450.000', 
-      stock: 12, 
-      warehouse: 'Gudang Cabang (Gresik)',
-      status: 'Draft' 
-    },
-  ]);
+  // 3. Kosongkan state awal dan tambahkan indikator loading
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 4. Gunakan useEffect untuk mengambil data secara otomatis saat halaman dimuat
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchProducts = async () => {
+      try {
+        const result = await getProducts();
+        if (isMounted && result.success) {
+          setProducts(result.data); // Memasukkan data asli dari MySQL
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchProducts();
+
+    return () => { isMounted = false; };
+  }, []);
 
   return (
     <div className="p-8 bg-[#F8FAFC] min-h-screen font-sans">
@@ -76,50 +81,66 @@ export default function ProductManagement() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {products.map((product) => (
-              <tr key={product.id} className="hover:bg-orange-50/30 transition-colors group">
-                <td className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-[#E65100]">
-                      <Package size={24} />
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-800 text-sm">{product.name}</p>
-                      <p className="text-[10px] font-black text-[#E65100] tracking-wider uppercase">{product.sku}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="p-6 text-sm font-semibold text-slate-500">{product.category}</td>
-                <td className="p-6 text-sm font-black text-slate-800">{product.price}</td>
-                <td className="p-6">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-bold text-slate-700">{product.stock} Unit</span>
-                    <div className="flex items-center text-[10px] text-slate-400 font-medium italic">
-                      <MapPin size={10} className="mr-1 text-orange-400" /> {product.warehouse}
-                    </div>
-                  </div>
-                </td>
-                <td className="p-6">
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                    product.status === 'Published' 
-                    ? 'bg-green-100 text-green-600' 
-                    : 'bg-slate-100 text-slate-400'
-                  }`}>
-                    {product.status}
-                  </span>
-                </td>
-                <td className="p-6">
-                  <div className="flex justify-center items-center gap-2">
-                    <button className="p-2 text-slate-400 hover:text-[#E65100] hover:bg-white rounded-lg transition-all shadow-sm">
-                      <Edit3 size={18} />
-                    </button>
-                    <button className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-lg transition-all shadow-sm">
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
+            {/* 5. Tampilkan indikator loading jika data belum sampai */}
+            {isLoading ? (
+              <tr>
+                <td colSpan="6" className="p-8 text-center text-slate-400 font-semibold animate-pulse">
+                  Mengambil data produk dari server...
                 </td>
               </tr>
-            ))}
+            ) : products.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="p-8 text-center text-slate-400 font-semibold">
+                  Belum ada produk yang terdaftar.
+                </td>
+              </tr>
+            ) : (
+              // 6. Mapping data asli (Kode ini sama persis dengan kode .map Anda sebelumnya)
+              products.map((product) => (
+                <tr key={product.id} className="hover:bg-orange-50/30 transition-colors group">
+                  <td className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-[#E65100]">
+                        <Package size={24} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-800 text-sm">{product.name}</p>
+                        <p className="text-[10px] font-black text-[#E65100] tracking-wider uppercase">{product.sku}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-6 text-sm font-semibold text-slate-500">{product.category}</td>
+                  <td className="p-6 text-sm font-black text-slate-800">{product.price}</td>
+                  <td className="p-6">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-bold text-slate-700">{product.stock} Unit</span>
+                      <div className="flex items-center text-[10px] text-slate-400 font-medium italic">
+                        <MapPin size={10} className="mr-1 text-orange-400" /> {product.warehouse}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-6">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                      product.status === 'Published' 
+                      ? 'bg-green-100 text-green-600' 
+                      : 'bg-slate-100 text-slate-400'
+                    }`}>
+                      {product.status}
+                    </span>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex justify-center items-center gap-2">
+                      <button className="p-2 text-slate-400 hover:text-[#E65100] hover:bg-white rounded-lg transition-all shadow-sm">
+                        <Edit3 size={18} />
+                      </button>
+                      <button className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-lg transition-all shadow-sm">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
         

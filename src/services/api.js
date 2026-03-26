@@ -71,3 +71,18 @@ export async function getGoogleLoginUrl() {
   });
   return response.json();
 }
+
+export async function getProducts() {
+  const response = await fetch(`${API_URL}/products`, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Gagal memuat data produk dari server.");
+  }
+
+  return response.json();
+}
