@@ -14,6 +14,8 @@ import UserManagement from "./pages/UserManagement";
 import Promotions from "./pages/Promotions";
 import Orders from "./pages/Orders";
 import Analytics from "./pages/Analytics";
+import AddProduct from "./pages/AddProduct";
+import EditProduct from "./pages/EditProduct";
 
 export default function App() {
   return (
@@ -24,8 +26,9 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email/:id/:hash" element={<VerifyEmailPage />} />
+        <Route path="/product/create" element={<AddProduct />} />
+        <Route path="/product/edit/:id" element={<EditProduct />} />
         
-
         {/* Rute dengan Sidebar */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
