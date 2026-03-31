@@ -86,3 +86,51 @@ export async function getProducts() {
 
   return response.json();
 }
+
+// Tambahkan fungsi-fungsi ini di api.js
+export async function addProduct(data) {
+  const response = await fetch(`${API_URL}/products`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
+
+export async function updateProduct(id, data) {
+  const response = await fetch(`${API_URL}/products/${id}`, {
+    method: "PUT", // Atau PATCH tergantung backend Naufal
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
+
+export async function deleteProduct(id) {
+  const response = await fetch(`${API_URL}/products/${id}`, {
+    method: "DELETE",
+    headers: { "Accept": "application/json" }
+  });
+  return response.json();
+}
+
+export async function getProductById(id) {
+  const response = await fetch(`${API_URL}/products/${id}`, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Gagal mengambil data detail produk.");
+  }
+
+  return response.json();
+}
