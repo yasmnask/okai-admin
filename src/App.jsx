@@ -11,6 +11,7 @@ import Logistics from "./pages/Logistics";
 import Affiliate from "./pages/Affiliate";
 import Payments from "./pages/Payments";
 import UserManagement from "./pages/UserManagement"; 
+import EditUser from "./pages/EditUser";
 import Promotions from "./pages/Promotions";
 import Orders from "./pages/Orders";
 import Analytics from "./pages/Analytics";
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/product/create" element={<AddProduct />} />
         <Route path="/product/edit/:id" element={<EditProduct />} />
         <Route path="/users/create" element={<AddUser />} />
+        <Route path="/users/edit/:id" element={<EditUser />} />
         <Route path="/promotions/create" element={<AddPromotion />} />
         <Route path="/promotions/edit" element={<EditPromotion/>} />
 

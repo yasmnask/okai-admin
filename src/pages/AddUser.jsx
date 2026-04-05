@@ -1,33 +1,48 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, UserPlus, Mail, ShieldCheck, 
-  Lock, User, Info, CheckCircle2 
-} from 'lucide-react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  UserPlus,
+  Mail,
+  ShieldCheck,
+  Lock,
+  User,
+  Info,
+  CheckCircle2,
+} from "lucide-react";
+import { addUser } from "../services/api";
 
 export default function AddUser() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    role: 'customer', // Default role sesuai DB kamu
-    password: '',
-    password_confirmation: ''
+    name: "",
+    email: "",
+    role: "customer", // Default role sesuai DB kamu
+    password: "",
+    password_confirmation: "",
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Logic untuk Naufal: Panggil API register/store user di sini
-    console.log("Data User Baru:", formData);
-    
-    setTimeout(() => {
+
+    try {
+      const response = await addUser(formData);
+      if (response.success) {
+        navigate("/users");
+      } else {
+        alert(
+          "Gagal menyimpan: " +
+            JSON.stringify(response.errors || "Periksa kembali data Anda"),
+        );
+      }
+    } catch (error) {
+      alert("Error: Terjadi masalah jaringan.");
+    } finally {
       setIsSubmitting(false);
-      navigate('/users');
-    }, 1500);
+    }
   };
 
   return (
@@ -35,8 +50,8 @@ export default function AddUser() {
       {/* HEADER ACTIONS */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
         <div className="flex items-center gap-4">
-          <button 
-            onClick={() => navigate('/users')} 
+          <button
+            onClick={() => navigate("/users")}
             className="p-2.5 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-[#E65100] transition-all shadow-sm"
           >
             <ArrowLeft size={22} />
@@ -45,17 +60,25 @@ export default function AddUser() {
             <div className="flex items-center gap-2 text-[10px] font-black text-[#E65100] uppercase tracking-[0.2em]">
               <ShieldCheck size={12} /> Access Control
             </div>
-            <h1 className="text-2xl font-black text-[#1E293B]">Registrasi <span className="text-[#E65100]">User Baru</span></h1>
+            <h1 className="text-2xl font-black text-[#1E293B]">
+              Registrasi <span className="text-[#E65100]">User Baru</span>
+            </h1>
           </div>
         </div>
-        
+
         <div className="flex gap-3 w-full md:w-auto">
-          <button 
+          <button
             onClick={handleSubmit}
             disabled={isSubmitting}
             className="flex-1 md:flex-none px-10 py-3.5 bg-[#E65100] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-orange-900/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {isSubmitting ? "Sinking Data..." : <><UserPlus size={18} /> Daftarkan User</>}
+            {isSubmitting ? (
+              "Sinking Data..."
+            ) : (
+              <>
+                <UserPlus size={18} /> Daftarkan User
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -70,14 +93,21 @@ export default function AddUser() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* NAMA LENGKAP */}
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Lengkap</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                  Nama Lengkap
+                </label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                  <input 
-                    type="text" 
+                  <User
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"
+                    size={18}
+                  />
+                  <input
+                    type="text"
                     required
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
                     placeholder="Contoh: Jacky Farsy"
                   />
@@ -86,14 +116,21 @@ export default function AddUser() {
 
               {/* EMAIL */}
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Alamat Email</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                  Alamat Email
+                </label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                  <input 
-                    type="email" 
+                  <Mail
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"
+                    size={18}
+                  />
+                  <input
+                    type="email"
                     required
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
                     placeholder="name@gmail.com"
                   />
@@ -102,32 +139,44 @@ export default function AddUser() {
 
               {/* ROLE SELECTION */}
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hak Akses (Role)</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                  Hak Akses (Role)
+                </label>
                 <div className="relative">
-                  <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                  <select 
+                  <ShieldCheck
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"
+                    size={18}
+                  />
+                  <select
                     value={formData.role}
-                    onChange={(e) => setFormData({...formData, role: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, role: e.target.value })
+                    }
                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20 appearance-none cursor-pointer"
                   >
                     <option value="customer">Customer / Pembeli</option>
                     <option value="admin">Admin Operasional</option>
-                    <option value="affiliate">Partner Affiliate</option>
-                    <option value="superadmin">Super Admin (Full Access)</option>
                   </select>
                 </div>
               </div>
 
               {/* PASSWORD */}
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kata Sandi</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                  Kata Sandi
+                </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                  <input 
-                    type="password" 
+                  <Lock
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"
+                    size={18}
+                  />
+                  <input
+                    type="password"
                     required
                     value={formData.password}
-                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
                     placeholder="••••••••"
                   />
@@ -140,9 +189,13 @@ export default function AddUser() {
                 <ShieldCheck size={20} />
               </div>
               <div>
-                <p className="text-xs font-black text-orange-900 uppercase tracking-tight mb-1">Catatan Super Admin</p>
+                <p className="text-xs font-black text-orange-900 uppercase tracking-tight mb-1">
+                  Catatan Super Admin
+                </p>
                 <p className="text-[11px] text-orange-700 leading-relaxed font-medium">
-                  Pastikan alamat email valid. User yang didaftarkan akan otomatis mendapatkan hak akses sesuai role yang dipilih segera setelah data disimpan.
+                  Pastikan alamat email valid. User yang didaftarkan akan
+                  otomatis mendapatkan hak akses sesuai role yang dipilih segera
+                  setelah data disimpan.
                 </p>
               </div>
             </div>
