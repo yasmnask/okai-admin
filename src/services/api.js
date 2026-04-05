@@ -134,3 +134,23 @@ export async function getProductById(id) {
 
   return response.json();
 }
+
+export async function getPromotionById(id) {
+  const response = await fetch(`${API_URL}/promotions/${id}`, {
+    method: "GET",
+    headers: { "Accept": "application/json" }
+  });
+  return response.json();
+}
+
+export async function updatePromotion(id, data) {
+  const response = await fetch(`${API_URL}/promotions/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
