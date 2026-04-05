@@ -35,7 +35,7 @@ export default function App() {
         <Route path="/users/create" element={<AddUser />} />
         <Route path="/users/edit/:id" element={<EditUser />} />
         <Route path="/promotions/create" element={<AddPromotion />} />
-        <Route path="/promotions/edit" element={<EditPromotion/>} />
+        <Route path="/promotions/edit/:id" element={<EditPromotion/>} />
 
         {/* Rute dengan Sidebar */}
         <Route element={<MainLayout />}>

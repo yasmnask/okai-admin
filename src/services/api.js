@@ -165,43 +165,50 @@ export async function deleteUser(id) {
 }
 
 // ==========================================
-// 4. MANAJEMEN PROMOSI (PROMOTION)
+// 4. MANAJEMEN PROMOSI (PROMOTIONS)
 // ==========================================
 
-export async function getPromotionById(id) {
-
-  const response = await fetch(`${API_URL}/promotions/${id}`, {
-
+export async function getPromotions() {
+  const response = await fetch(`${API_URL}/promotions`, {
     method: "GET",
-
-    headers: { "Accept": "application/json" }
-
+    headers: { "Accept": "application/json" },
   });
-
+  if (!response.ok) throw new Error("Gagal memuat data promosi.");
   return response.json();
-
 }
 
+export async function getPromotionById(id) {
+  const response = await fetch(`${API_URL}/promotions/${id}`, {
+    method: "GET",
+    headers: { "Accept": "application/json" },
+  });
+  if (!response.ok) throw new Error("Gagal memuat detail promosi.");
+  return response.json();
+}
 
+export async function addPromotion(data) {
+  const response = await fetch(`${API_URL}/promotions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+}
 
 export async function updatePromotion(id, data) {
-
   const response = await fetch(`${API_URL}/promotions/${id}`, {
-
     method: "PUT",
-
-    headers: {
-
-      "Content-Type": "application/json",
-
-      "Accept": "application/json",
-
-    },
-
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
     body: JSON.stringify(data),
-
   });
-
   return response.json();
+}
 
+export async function deletePromotion(id) {
+  const response = await fetch(`${API_URL}/promotions/${id}`, {
+    method: "DELETE",
+    headers: { "Accept": "application/json" },
+  });
+  if (!response.ok) throw new Error("Gagal menghapus promosi.");
+  return response.json();
 }

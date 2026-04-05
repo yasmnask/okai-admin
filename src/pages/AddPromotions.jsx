@@ -5,6 +5,8 @@ import {
   DollarSign, Calendar, Users, Info, 
   Settings, Zap, Clock
 } from 'lucide-react';
+// 1. Import fungsi API
+import { addPromotion } from '../services/api';
 
 export default function AddPromotion() {
   const navigate = useNavigate();
@@ -13,7 +15,7 @@ export default function AddPromotion() {
   const [formData, setFormData] = useState({
     code: '',
     description: '',
-    type: 'percentage', // percentage atau fixed_amount
+    type: 'percentage',
     value: '',
     max_usage: '',
     start_date: '',
@@ -21,17 +23,32 @@ export default function AddPromotion() {
     is_active: 1
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Logic untuk Naufal: Integrasi API promotions/store
-    console.log("Data Promo Baru:", formData);
-    
-    setTimeout(() => {
+    // 2. Pastikan tipe data angka dikonversi dengan benar untuk Laravel
+    const payload = {
+      ...formData,
+      value: Number(formData.value),
+      max_usage: Number(formData.max_usage)
+    };
+
+    try {
+      const response = await addPromotion(payload);
+      
+      if(response.success) {
+        navigate('/promotions');
+      } else {
+        // Sensor Error dari Server
+        const serverError = response.message ? response.message : JSON.stringify(response.errors);
+        alert("❌ Gagal menyimpan kupon!\n\nAlasan: " + serverError);
+      }
+    } catch (error) {
+      alert("Error Jaringan: Gagal menghubungi server.");
+    } finally {
       setIsSubmitting(false);
-      navigate('/promotions');
-    }, 1500);
+    }
   };
 
   return (
@@ -59,7 +76,7 @@ export default function AddPromotion() {
             disabled={isSubmitting}
             className="px-10 py-3.5 bg-[#E65100] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-orange-900/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
           >
-            {isSubmitting ? "Sinking..." : <><Save size={18} /> Aktifkan Voucher</>}
+            {isSubmitting ? "Menyimpan..." : <><Save size={18} /> Aktifkan Voucher</>}
           </button>
         </div>
       </div>

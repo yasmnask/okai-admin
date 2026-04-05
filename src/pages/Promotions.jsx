@@ -1,75 +1,51 @@
 import { useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getPromotions, deletePromotion } from "../services/api";
 import {
-  Ticket,
-  Plus,
-  Search,
-  Filter,
-  Edit3,
-  Trash2,
-  Calendar,
-  Tag,
-  Percent,
-  MousePointer2,
-  CheckCircle2,
-  Clock,
+  Ticket, Plus, Search, Filter, Edit3, Trash2,
+  Calendar, Tag, Percent, MousePointer2, CheckCircle2, Clock,
 } from "lucide-react";
 
 export default function Promotions() {
   const navigate = useNavigate();
-  // Mock Data Promosi - Siap dihubungkan ke API Laravel
-  const [promotions] = useState([
-    {
-      id: 1,
-      code: "OKAI-MERDEKA",
-      type: "Percentage",
-      value: "15%",
-      limit: "500",
-      used: "124",
-      expiry: "31 Aug 2026",
-      status: "Active",
-    },
-    {
-      id: 2,
-      code: "HEMAT-DHANDI",
-      type: "Fixed Amount",
-      value: "Rp 50.000",
-      limit: "100",
-      used: "100",
-      expiry: "10 Mar 2026",
-      status: "Expired",
-    },
-  ]);
+  const [promotions, setPromotions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
+  const fetchPromotions = async () => {
+    try {
+      setIsLoading(true);
+      const result = await getPromotions();
+      if (result && result.success) {
+        setPromotions(result.data);
+      }
+    } catch (error) {
+      console.error("Error fetching promotions:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPromotions();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Yakin ingin menghapus kupon ini?")) {
+      try {
+        await deletePromotion(id);
+        fetchPromotions();
+      } catch (error) {
+        alert("Gagal menghapus kupon: " + error.message);
+      }
+    }
+  };
+
+  // Stat blok statis (Bisa diubah menjadi dinamis nanti jika diperlukan)
   const promoStats = [
-    {
-      label: "Total Kupon",
-      value: "24",
-      icon: <Ticket size={20} />,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-    },
-    {
-      label: "Kupon Aktif",
-      value: "18",
-      icon: <CheckCircle2 size={20} />,
-      color: "text-green-600",
-      bg: "bg-green-50",
-    },
-    {
-      label: "Total Pemakaian",
-      value: "1,204",
-      icon: <MousePointer2 size={20} />,
-      color: "text-purple-600",
-      bg: "bg-purple-50",
-    },
-    {
-      label: "Akan Berakhir",
-      value: "3",
-      icon: <Clock size={20} />,
-      color: "text-orange-600",
-      bg: "bg-orange-50",
-    },
+    { label: "Total Kupon", value: promotions.length, icon: <Ticket size={20} />, color: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Kupon Aktif", value: promotions.filter(p => p.status === 'Active').length, icon: <CheckCircle2 size={20} />, color: "text-green-600", bg: "bg-green-50" },
+    { label: "Total Pemakaian", value: promotions.reduce((acc, curr) => acc + parseInt(curr.used || 0), 0), icon: <MousePointer2 size={20} />, color: "text-purple-600", bg: "bg-purple-50" },
+    { label: "Akan Berakhir", value: "-", icon: <Clock size={20} />, color: "text-orange-600", bg: "bg-orange-50" },
   ];
 
   return (
@@ -95,21 +71,12 @@ export default function Promotions() {
       {/* STATS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
         {promoStats.map((stat, i) => (
-          <div
-            key={i}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm"
-          >
-            <div
-              className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4`}
-            >
+          <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4`}>
               {stat.icon}
             </div>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
-              {stat.label}
-            </p>
-            <h2 className="text-2xl font-black mt-1 text-slate-800">
-              {stat.value}
-            </h2>
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{stat.label}</p>
+            <h2 className="text-2xl font-black mt-1 text-slate-800">{stat.value}</h2>
           </div>
         ))}
       </div>
@@ -120,15 +87,8 @@ export default function Promotions() {
           <h3 className="font-black text-slate-800 text-lg">Active Vouchers</h3>
           <div className="flex gap-2">
             <div className="relative">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                size={16}
-              />
-              <input
-                type="text"
-                placeholder="Cari Kode Promo..."
-                className="pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-xs focus:ring-2 focus:ring-orange-500/20 outline-none w-48 font-medium"
-              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              <input type="text" placeholder="Cari Kode Promo..." className="pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-xs focus:ring-2 focus:ring-orange-500/20 outline-none w-48 font-medium" />
             </div>
             <button className="p-2 bg-slate-50 text-slate-400 rounded-xl hover:text-[#E65100] transition-all border border-slate-100">
               <Filter size={20} />
@@ -139,95 +99,75 @@ export default function Promotions() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50">
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                Kupon & Tipe
-              </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
-                Potongan
-              </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
-                Penggunaan
-              </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                Berakhir Pada
-              </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                Status
-              </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
-                Aksi
-              </th>
+              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Kupon & Tipe</th>
+              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Potongan</th>
+              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Penggunaan</th>
+              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Berakhir Pada</th>
+              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50 text-sm">
-            {promotions.map((promo) => (
-              <tr
-                key={promo.id}
-                className="hover:bg-orange-50/20 transition-colors group"
-              >
-                <td className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-50 text-[#E65100] rounded-xl flex items-center justify-center font-bold">
-                      <Tag size={18} />
+            {isLoading ? (
+               <tr><td colSpan="6" className="p-10 text-center font-bold text-slate-400">Memuat data...</td></tr>
+            ) : promotions.length === 0 ? (
+               <tr><td colSpan="6" className="p-10 text-center font-bold text-slate-400">Belum ada promo.</td></tr>
+            ) : (
+              promotions.map((promo) => (
+                <tr key={promo.id} className="hover:bg-orange-50/20 transition-colors group">
+                  <td className="p-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-orange-50 text-[#E65100] rounded-xl flex items-center justify-center font-bold">
+                        <Tag size={18} />
+                      </div>
+                      <div>
+                        <p className="font-black text-slate-800 tracking-tight">{promo.code}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">{promo.type}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-black text-slate-800 tracking-tight">
-                        {promo.code}
-                      </p>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">
-                        {promo.type}
-                      </p>
+                  </td>
+                  <td className="p-6 text-center">
+                    <span className="px-3 py-1 bg-green-50 text-green-600 rounded-lg font-black text-xs">{promo.value}</span>
+                  </td>
+                  <td className="p-6 text-center">
+                    <p className="font-bold text-slate-700">{promo.used} / {promo.limit}</p>
+                    <div className="w-24 h-1.5 bg-slate-100 rounded-full mt-2 mx-auto overflow-hidden">
+                      <div
+                        className="h-full bg-[#E65100] rounded-full"
+                        style={{ width: `${Math.min((promo.used / promo.limit) * 100, 100)}%` }}
+                      ></div>
                     </div>
-                  </div>
-                </td>
-                <td className="p-6 text-center">
-                  <span className="px-3 py-1 bg-green-50 text-green-600 rounded-lg font-black text-xs">
-                    {promo.value}
-                  </span>
-                </td>
-                <td className="p-6 text-center">
-                  <p className="font-bold text-slate-700">
-                    {promo.used} / {promo.limit}
-                  </p>
-                  <div className="w-24 h-1.5 bg-slate-100 rounded-full mt-2 mx-auto overflow-hidden">
-                    <div
-                      className="h-full bg-[#E65100] rounded-full"
-                      style={{ width: `${(promo.used / promo.limit) * 100}%` }}
-                    ></div>
-                  </div>
-                </td>
-                <td className="p-6">
-                  <div className="flex items-center gap-2 text-slate-500 font-semibold">
-                    <Calendar size={14} className="text-slate-300" />
-                    {promo.expiry}
-                  </div>
-                </td>
-                <td className="p-6">
-                  <span
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                      promo.status === "Active"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
-                  >
-                    {promo.status}
-                  </span>
-                </td>
-                <td className="p-6">
-                  <div className="flex justify-center items-center gap-2">
-                    <button
-                      onClick={() => navigate(`/promotions/edit/${voucher.id}`)}
-                      className="p-2 text-slate-400 hover:text-[#E65100] transition-all"
-                    >
-                      <Edit3 size={18} />
-                    </button>
-                    <button className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100">
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="p-6">
+                    <div className="flex items-center gap-2 text-slate-500 font-semibold">
+                      <Calendar size={14} className="text-slate-300" />
+                      {promo.expiry}
+                    </div>
+                  </td>
+                  <td className="p-6">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${promo.status === "Active" ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-500"}`}>
+                      {promo.status}
+                    </span>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex justify-center items-center gap-2">
+                      <button
+                        onClick={() => navigate(`/promotions/edit/${promo.id}`)}
+                        className="p-2 text-slate-400 hover:text-[#E65100] transition-all"
+                      >
+                        <Edit3 size={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(promo.id)}
+                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

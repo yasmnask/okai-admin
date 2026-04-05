@@ -5,6 +5,7 @@ import {
   DollarSign, Calendar, Users, Info, 
   Settings, Zap, Clock, Loader2
 } from 'lucide-react';
+// 1. Import fungsi API Edit & Tarik Data
 import { getPromotionById, updatePromotion } from '../services/api';
 
 export default function EditPromotion() {
@@ -24,13 +25,19 @@ export default function EditPromotion() {
     is_active: 1
   });
 
-  // 1. Tarik data promo lama saat halaman dibuka
   useEffect(() => {
     const loadPromo = async () => {
       try {
         const response = await getPromotionById(id);
         if (response.success) {
-          setFormData(response.data);
+          const promoData = response.data;
+          
+          // 2. Format Tanggal Laravel (YYYY-MM-DD HH:MM:SS) menjadi format input date HTML (YYYY-MM-DD)
+          setFormData({
+            ...promoData,
+            start_date: promoData.start_date ? promoData.start_date.substring(0, 10) : '',
+            end_date: promoData.end_date ? promoData.end_date.substring(0, 10) : '',
+          });
         } else {
           alert("Voucher tidak ditemukan!");
           navigate('/promotions');
@@ -48,15 +55,23 @@ export default function EditPromotion() {
     e.preventDefault();
     setIsSubmitting(true);
     
+    // 3. Pastikan tipe data dikonversi ke angka sebelum dikirim
+    const payload = {
+      ...formData,
+      value: Number(formData.value),
+      max_usage: Number(formData.max_usage)
+    };
+
     try {
-      const response = await updatePromotion(id, formData);
+      const response = await updatePromotion(id, payload);
       if(response.success) {
         navigate('/promotions');
       } else {
-        alert("Gagal update promo!");
+        const serverError = response.message ? response.message : JSON.stringify(response.errors);
+        alert("❌ Gagal mengupdate kupon!\n\nAlasan: " + serverError);
       }
     } catch (error) {
-      alert("Error: " + error.message);
+      alert("Error Jaringan: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -114,7 +129,7 @@ export default function EditPromotion() {
               />
               <textarea 
                 rows="3" 
-                value={formData.description}
+                value={formData.description || ''}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
                 className="w-full p-6 bg-slate-50 border-2 border-transparent rounded-[1.5rem] text-sm outline-none focus:border-orange-100 font-medium"
               ></textarea>
@@ -169,6 +184,24 @@ export default function EditPromotion() {
             <div className="space-y-4">
               <input type="date" value={formData.start_date} onChange={(e) => setFormData({...formData, start_date: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl text-xs font-bold outline-none" />
               <input type="date" value={formData.end_date} onChange={(e) => setFormData({...formData, end_date: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl text-xs font-bold outline-none" />
+            </div>
+          </div>
+
+          <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
+            <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest mb-6 flex items-center gap-2">
+              <Users size={16} className="text-[#E65100]" /> Batas Penggunaan
+            </h3>
+            <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100">
+              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Maksimal Pemakaian (User)</label>
+              <div className="flex items-center gap-3">
+                <input 
+                  type="number" 
+                  value={formData.max_usage}
+                  onChange={(e) => setFormData({...formData, max_usage: e.target.value})}
+                  className="bg-transparent w-full text-xl font-black outline-none text-slate-700" 
+                />
+                <span className="text-[10px] font-black text-slate-300 uppercase">Kupon</span>
+              </div>
             </div>
           </div>
 
