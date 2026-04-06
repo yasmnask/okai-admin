@@ -155,6 +155,7 @@ export default function AddUser() {
                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20 appearance-none cursor-pointer"
                   >
                     <option value="customer">Customer / Pembeli</option>
+                    <option value="affiliate">Affiliate / Partner</option>
                     <option value="admin">Admin Operasional</option>
                   </select>
                 </div>
