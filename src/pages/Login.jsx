@@ -19,10 +19,19 @@ export default function LoginPage() {
       if (result && result.success) {
         // Menyimpan data identitas ke dalam penyimpanan peramban (browser)
         localStorage.setItem("okai_admin", JSON.stringify(result.user));
-        // Berpindah langsung ke halaman Dashboard
-        navigate("/dashboard");
+
+        // 🚩 PERUBAHAN: Cek role user, lalu arahkan ke halaman yang sesuai
+        const userRole = result.user.role?.toLowerCase();
+
+        if (userRole === "affiliate") {
+          navigate("/affiliate"); // Affiliate dilempar ke dashboard mitranya
+        } else {
+          navigate("/dashboard"); // Super Admin & Admin tetap ke dashboard utama
+        }
       } else {
-        alert("❌ Login gagal! Silakan periksa kembali email dan password Anda.");
+        alert(
+          "❌ Login gagal! Silakan periksa kembali email dan password Anda.",
+        );
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -36,7 +45,7 @@ export default function LoginPage() {
     try {
       // 1. Minta URL otentikasi Google dari backend Laravel
       const result = await getGoogleLoginUrl();
-      
+
       // 2. Jika berhasil mendapatkan URL, alihkan browser ke halaman Google
       if (result.url) {
         window.location.href = result.url;
@@ -60,16 +69,6 @@ export default function LoginPage() {
         <h1 className="text-4xl font-bold text-white text-center mt-8 mb-1.5">
           Welcome back{" "}
         </h1>
-
-        <p className="text-center text-[12px] text-white/90 mb-6">
-          Already have an account?{" "}
-          <Link
-            to="/register"
-            className="font-semibold underline hover:text-[#ffd6bf]"
-          >
-            Create one here
-          </Link>
-        </p>
 
         <form onSubmit={handleLogin}>
           <div>
