@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerAdmin, getGoogleLoginUrl } from "../services/api"; // 
+import { registerAdmin, getGoogleLoginUrl } from "../services/api";
 
-export default function RegisterPage() {
+export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("affiliate"); // Default ke affiliate
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -13,23 +14,23 @@ export default function RegisterPage() {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert("Password dan Konfirmasi Password tidak cocok!");
+      alert("❌ Password dan Konfirmasi Password tidak cocok!");
       return;
     }
     setIsLoading(true);
 
     try {
-      // 4. Kirim data ke API (Kunci: password_confirmation)
       const result = await registerAdmin({ 
         name, 
         email, 
+        role, 
         password, 
         password_confirmation: confirmPassword 
       });
 
       if (result.success) {
-        alert("✅ Registrasi berhasil! Silakan periksa kotak masuk email Anda.");
-        navigate("/login"); // 5. Arahkan ke halaman login
+        alert(`✅ Registrasi sebagai ${role.toUpperCase()} berhasil! Silakan periksa email Anda.`);
+        navigate("/login");
       }
     } catch (error) {
       console.error("Register error:", error);
@@ -41,9 +42,7 @@ export default function RegisterPage() {
 
   const handleGoogleRegister = async () => {
     try {
-      // Menggunakan URL yang sama persis dengan Login
       const result = await getGoogleLoginUrl();
-      
       if (result.url) {
         window.location.href = result.url;
       } else {
@@ -56,9 +55,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fff2ea] font-poppins">
+    <div className="min-h-screen flex items-center justify-center bg-[#fff2ea] font-poppins px-4 py-10">
       <div
-        className="w-[400px] h-[500px] rounded-3xl px-16 py-12 shadow-lg overflow-y-auto max-h-[90vh] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/30"
+        className="w-full max-w-[400px] h-fit max-h-[90vh] rounded-3xl px-16 py-12 shadow-lg overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/20"
         style={{
           background: "linear-gradient(135deg, #ed823f 0%, #990032 100%)",
         }}
@@ -67,7 +66,7 @@ export default function RegisterPage() {
           Create Account
         </h1>
 
-        <p className="text-center text-[12px] text-white/90 mb-6">
+        <p className="text-center text-[12px] text-white/90 mb-6 font-poppins">
           Already have an account?{" "}
           <Link
             to="/login"
@@ -78,7 +77,8 @@ export default function RegisterPage() {
         </p>
 
         <form onSubmit={handleRegister}>
-          <div>
+          {/* NAME */}
+          <div className="mb-3">
             <label className="block text-white text-sm font-semibold mb-1">
               Name
             </label>
@@ -87,12 +87,13 @@ export default function RegisterPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full text-[13px] text-gray-700 py-1 px-4 rounded bg-[#fef5f0]"
+              className="w-full text-[13px] text-gray-700 py-1.5 px-4 rounded bg-[#fef5f0] outline-none border-none"
             />
           </div>
 
-          <div>
-            <label className="block text-white text-sm font-semibold mt-2 mb-1">
+          {/* EMAIL */}
+          <div className="mb-3">
+            <label className="block text-white text-sm font-semibold mb-1">
               E-mail
             </label>
             <input
@@ -100,12 +101,28 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full text-[13px] text-gray-700 py-1 px-4 rounded bg-[#fef5f0]"
+              className="w-full text-[13px] text-gray-700 py-1.5 px-4 rounded bg-[#fef5f0] outline-none border-none"
             />
           </div>
 
-          <div>
-            <label className="block text-white text-sm font-semibold mt-2 mb-1">
+          {/* ROLE SELECT */}
+          <div className="mb-3">
+            <label className="block text-white text-sm font-semibold mb-1">
+              Register As
+            </label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full text-[13px] text-gray-700 py-1.5 px-4 rounded bg-[#fef5f0] outline-none border-none font-bold cursor-pointer appearance-none"
+            >
+              <option value="affiliate">Partner Affiliate</option>
+              <option value="admin">Admin Operasional</option>
+            </select>
+          </div>
+
+          {/* PASSWORD */}
+          <div className="mb-3">
+            <label className="block text-white text-sm font-semibold mb-1">
               Password
             </label>
             <input
@@ -113,12 +130,13 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full text-[13px] text-gray-700 py-1 px-4 rounded bg-[#fef5f0]"
+              className="w-full text-[13px] text-gray-700 py-1.5 px-4 rounded bg-[#fef5f0] outline-none border-none"
             />
           </div>
 
-          <div>
-            <label className="block text-white text-sm font-semibold mt-2 mb-1">
+          {/* CONFIRM PASSWORD */}
+          <div className="mb-3">
+            <label className="block text-white text-sm font-semibold mb-1">
               Confirm Password
             </label>
             <input
@@ -126,18 +144,20 @@ export default function RegisterPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full text-[13px] text-gray-700 py-1 px-4 rounded bg-[#fef5f0]"
+              className="w-full text-[13px] text-gray-700 py-1.5 px-4 rounded bg-[#fef5f0] outline-none border-none"
             />
           </div>
 
+          {/* SUBMIT BUTTON */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2 px-4 mt-8 text-[#fff2ea] text-[15px] font-semibold rounded bg-[#ff8c42] hover:bg-[#e46516] transition-colors duration-300"
+            className="w-full py-2 px-4 mt-6 text-[#fff2ea] text-[15px] font-semibold rounded bg-[#ff8c42] hover:bg-[#e46516] transition-colors duration-300"
           >
             {isLoading ? "Registering..." : "Register"}
           </button>
 
+          {/* GOOGLE BUTTON */}
           <button
             type="button"
             onClick={handleGoogleRegister}
