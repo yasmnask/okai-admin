@@ -231,3 +231,31 @@ export async function getOrders() {
   if (!response.ok) throw new Error("Gagal memuat data pesanan.");
   return response.json();
 }
+
+// ==========================================
+// 6. MANAJEMEN AFFILIATE (AFFILIATE)
+// ==========================================
+
+export const getAffiliateStats = async () => {
+  const response = await fetch(`${API_URL}/affiliate/stats`);
+  return response.json();
+};
+
+export const getWithdrawals = async () => {
+  const response = await fetch(`${API_URL}/affiliate/withdrawals`);
+  return response.json();
+};
+
+export const updateWithdrawalStatus = async (id, status, adminNote = "") => {
+  const response = await fetch(`${API_URL}/affiliate/withdrawals/${id}/status`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status, admin_note: adminNote }),
+  });
+  return response.json();
+};
+
+export const getAffiliateList = async () => {
+  const response = await fetch(`${API_URL}/affiliate/list`);
+  return response.json();
+};
