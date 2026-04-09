@@ -1,47 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getOrders } from '../services/api';
 import { 
   Package, Search, Filter, Eye, Truck, 
-  CheckCircle2, Clock, XCircle, ShoppingBag, 
-  MoreVertical, Calendar, User, MapPin
+  CheckCircle2, Clock, ShoppingBag, 
+  MoreVertical, Calendar, User, MapPin, Loader2
 } from 'lucide-react';
 
 export default function Orders() {
-  // Mock Data Pesanan - Mengikuti alur trigger komisi setelah Delivered
-  const [orders] = useState([
-    { 
-      id: 'ORD-2026-1001', 
-      customer: 'Budi Santoso', 
-      items: 'Sepatu Lari Pro-X (1x)', 
-      total: 'Rp 850.000', 
-      method: 'JNE Reguler',
-      status: 'Delivered', // Ini akan men-trigger komisi di flowchart
-      date: '10 Mar 2026' 
-    },
-    { 
-      id: 'ORD-2026-1002', 
-      customer: 'Siti Aminah', 
-      items: 'Tas Ransel Outdoor (1x)', 
-      total: 'Rp 450.000', 
-      method: 'SiCepat Best',
-      status: 'Processing',
-      date: '10 Mar 2026' 
-    },
-    { 
-      id: 'ORD-2026-1003', 
-      customer: 'Andi Pratama', 
-      items: 'Jaket Windbreaker (2x)', 
-      total: 'Rp 1.100.000', 
-      method: 'Ambil di Gudang',
-      status: 'Pending',
-      date: '09 Mar 2026' 
-    },
-  ]);
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Fungsi untuk menarik data dari Laravel
+  const fetchOrders = async () => {
+    try {
+      setIsLoading(true);
+      const result = await getOrders();
+      if (result && result.success) {
+        setOrders(result.data);
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  // Menghitung statistik otomatis dari data nyata
   const orderStats = [
-    { label: 'Total Pesanan', value: '1,540', icon: <ShoppingBag size={20} />, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Sedang Diproses', value: '42', icon: <Clock size={20} />, color: 'text-orange-600', bg: 'bg-orange-50' },
-    { label: 'Dalam Pengiriman', value: '86', icon: <Truck size={20} />, color: 'text-purple-600', bg: 'bg-purple-50' },
-    { label: 'Selesai/Tiba', value: '1,412', icon: <CheckCircle2 size={20} />, color: 'text-green-600', bg: 'bg-green-50' },
+    { 
+      label: 'Total Pesanan', 
+      value: orders.length, 
+      icon: <ShoppingBag size={20} />, 
+      color: 'text-blue-600', 
+      bg: 'bg-blue-50' 
+    },
+    { 
+      label: 'Sedang Diproses', 
+      value: orders.filter(o => o.status === 'Processing' || o.status === 'Pending').length, 
+      icon: <Clock size={20} />, 
+      color: 'text-orange-600', 
+      bg: 'bg-orange-50' 
+    },
+    { 
+      label: 'Dalam Pengiriman', 
+      value: orders.filter(o => o.status === 'Shipped').length, 
+      icon: <Truck size={20} />, 
+      color: 'text-purple-600', 
+      bg: 'bg-purple-50' 
+    },
+    { 
+      label: 'Selesai/Tiba', 
+      value: orders.filter(o => o.status === 'Delivered').length, 
+      icon: <CheckCircle2 size={20} />, 
+      color: 'text-green-600', 
+      bg: 'bg-green-50' 
+    },
   ];
 
   return (
@@ -103,52 +120,60 @@ export default function Orders() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50 text-sm">
-            {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-orange-50/20 transition-colors group">
-                <td className="p-6">
-                  <p className="font-black text-[#E65100] text-[11px] tracking-wider uppercase">{order.id}</p>
-                  <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase">{order.date}</p>
-                </td>
-                <td className="p-6">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
-                      <User size={14} />
+            {isLoading ? (
+               <tr><td colSpan="6" className="p-10 text-center font-bold text-slate-400">Menarik data transaksi...</td></tr>
+            ) : orders.length === 0 ? (
+               <tr><td colSpan="6" className="p-10 text-center font-bold text-slate-400">Belum ada pesanan masuk.</td></tr>
+            ) : (
+              orders.map((order) => (
+                <tr key={order.raw_id} className="hover:bg-orange-50/20 transition-colors group">
+                  <td className="p-6">
+                    <p className="font-black text-[#E65100] text-[11px] tracking-wider uppercase">{order.id}</p>
+                    <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase">{order.date}</p>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
+                        <User size={14} />
+                      </div>
+                      <p className="font-bold text-slate-800">{order.customer}</p>
                     </div>
-                    <p className="font-bold text-slate-800">{order.customer}</p>
-                  </div>
-                </td>
-                <td className="p-6">
-                  <p className="font-medium text-slate-600 line-clamp-1">{order.items}</p>
-                  <p className="font-black text-slate-800 text-xs mt-1">{order.total}</p>
-                </td>
-                <td className="p-6 text-center">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">{order.method}</span>
-                    <MapPin size={12} className="text-slate-300" />
-                  </div>
-                </td>
-                <td className="p-6">
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center w-fit gap-1 ${
-                    order.status === 'Delivered' ? 'bg-green-100 text-green-600' : 
-                    order.status === 'Processing' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'
-                  }`}>
-                    {order.status === 'Delivered' ? <CheckCircle2 size={12}/> : 
-                     order.status === 'Processing' ? <Package size={12}/> : <Clock size={12}/>}
-                    {order.status}
-                  </span>
-                </td>
-                <td className="p-6">
-                  <div className="flex justify-center items-center gap-2">
-                    <button className="p-2 text-slate-400 hover:text-blue-500 hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100">
-                      <Eye size={18} />
-                    </button>
-                    <button className="p-2 text-slate-400 hover:text-[#E65100] hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100">
-                      <MoreVertical size={18} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="p-6">
+                    <p className="font-medium text-slate-600 line-clamp-1">{order.items}</p>
+                    <p className="font-black text-slate-800 text-xs mt-1">{order.total}</p>
+                  </td>
+                  <td className="p-6 text-center">
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">{order.method}</span>
+                      <MapPin size={12} className="text-slate-300" />
+                    </div>
+                  </td>
+                  <td className="p-6">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center w-fit gap-1 ${
+                      order.status === 'Delivered' ? 'bg-green-100 text-green-600' : 
+                      order.status === 'Processing' ? 'bg-blue-100 text-blue-600' : 
+                      order.status === 'Shipped' ? 'bg-purple-100 text-purple-600' : 'bg-orange-100 text-orange-600'
+                    }`}>
+                      {order.status === 'Delivered' ? <CheckCircle2 size={12}/> : 
+                       order.status === 'Shipped' ? <Truck size={12}/> :
+                       order.status === 'Processing' ? <Package size={12}/> : <Clock size={12}/>}
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex justify-center items-center gap-2">
+                      <button className="p-2 text-slate-400 hover:text-blue-500 hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100">
+                        <Eye size={18} />
+                      </button>
+                      <button className="p-2 text-slate-400 hover:text-[#E65100] hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100">
+                        <MoreVertical size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
