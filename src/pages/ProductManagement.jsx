@@ -1,17 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Package,
-  Plus,
-  Search,
-  Filter,
-  MoreVertical,
-  Edit3,
-  Trash2,
-  MapPin,
-  Layers,
-  CheckCircle2,
-} from "lucide-react";
+import { Package, Plus, Search, Edit3, Trash2, MapPin } from "lucide-react";
 import { getProducts, deleteProduct } from "../services/api";
 
 export default function ProductManagement() {
@@ -19,12 +8,15 @@ export default function ProductManagement() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // filter states
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedStatus, setSelectedStatus] = useState("All Status");
+
   // 1. Fetch data asli dari server
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
       const result = await getProducts();
-      // Menyesuaikan dengan response structure dari api.js Naufal
       if (result && result.success) {
         setProducts(result.data);
       } else if (Array.isArray(result)) {
@@ -52,6 +44,24 @@ export default function ProductManagement() {
     }
   };
 
+  // ambil kategori unik
+  const categories = [
+    "All Categories",
+    ...new Set(products.map((p) => p.category)),
+  ];
+
+  // filter logic
+  const filteredProducts = products.filter((product) => {
+    const matchCategory =
+      selectedCategory === "All Categories" ||
+      product.category === selectedCategory;
+
+    const matchStatus =
+      selectedStatus === "All Status" || product.status === selectedStatus;
+
+    return matchCategory && matchStatus;
+  });
+
   return (
     <div className="p-8 bg-[#F8FAFC] min-h-screen font-sans">
       {/* HEADER SECTION */}
@@ -72,7 +82,7 @@ export default function ProductManagement() {
         </button>
       </div>
 
-      {/* FILTER & SEARCH BOX (RESTORED) */}
+      {/* FILTER & SEARCH */}
       <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 mb-8">
         <div className="relative flex-1">
           <Search
@@ -85,17 +95,35 @@ export default function ProductManagement() {
             className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 outline-none font-medium"
           />
         </div>
+
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-5 py-3 bg-slate-50 text-slate-600 rounded-2xl text-sm font-bold border border-slate-100 hover:bg-white transition-all">
-            <Filter size={18} /> Filter
-          </button>
-          <button className="flex items-center gap-2 px-5 py-3 bg-slate-50 text-slate-600 rounded-2xl text-sm font-bold border border-slate-100 hover:bg-white transition-all">
-            <Layers size={18} /> Kategori
-          </button>
+          {/* CATEGORY (LEFT) */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-5 py-3 bg-slate-50 text-slate-600 rounded-2xl text-sm font-bold border border-slate-100 outline-none"
+          >
+            {categories.map((cat, index) => (
+              <option key={index} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+
+          {/* STATUS (RIGHT) */}
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="px-5 py-3 bg-slate-50 text-slate-600 rounded-2xl text-sm font-bold border border-slate-100 outline-none"
+          >
+            <option>All Status</option>
+            <option>Published</option>
+            <option>Draft</option>
+          </select>
         </div>
       </div>
 
-      {/* PRODUCT TABLE (FULL COLUMNS RESTORED) */}
+      {/* TABLE */}
       <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -120,6 +148,7 @@ export default function ProductManagement() {
               </th>
             </tr>
           </thead>
+
           <tbody className="divide-y divide-slate-50">
             {isLoading ? (
               <tr>
@@ -130,7 +159,7 @@ export default function ProductManagement() {
                   Mengambil data produk dari server...
                 </td>
               </tr>
-            ) : products.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
               <tr>
                 <td
                   colSpan="6"
@@ -140,7 +169,7 @@ export default function ProductManagement() {
                 </td>
               </tr>
             ) : (
-              products.map((product) => (
+              filteredProducts.map((product) => (
                 <tr
                   key={product.id}
                   className="hover:bg-orange-50/30 transition-colors group"
@@ -160,12 +189,15 @@ export default function ProductManagement() {
                       </div>
                     </div>
                   </td>
+
                   <td className="p-6 text-sm font-semibold text-slate-500">
                     {product.category}
                   </td>
+
                   <td className="p-6 text-sm font-black text-slate-800">
                     {product.price}
                   </td>
+
                   <td className="p-6">
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-sm font-bold text-slate-700">
@@ -177,6 +209,7 @@ export default function ProductManagement() {
                       </div>
                     </div>
                   </td>
+
                   <td className="p-6 text-center">
                     <span
                       className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
@@ -188,10 +221,11 @@ export default function ProductManagement() {
                       {product.status}
                     </span>
                   </td>
+
                   <td className="p-6">
                     <div className="flex justify-center items-center gap-2">
                       <button
-                        onClick={() => navigate(`/product/edit/${product.id}`)} // Arahkan ke ID yang spesifik
+                        onClick={() => navigate(`/product/edit/${product.id}`)}
                         className="p-2 text-slate-400 hover:text-[#E65100] hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100"
                       >
                         <Edit3 size={18} />
@@ -210,9 +244,9 @@ export default function ProductManagement() {
           </tbody>
         </table>
 
-        {/* PAGINATION SIMPLE */}
+        {/* PAGINATION */}
         <div className="p-6 border-t border-slate-50 flex justify-between items-center text-xs font-bold text-slate-400">
-          <p>Showing 1 to {products.length} of 24 Products</p>
+          <p>Showing 1 to {filteredProducts.length} of 24 Products</p>
           <div className="flex gap-2">
             <button className="px-4 py-2 bg-slate-50 rounded-lg hover:bg-[#E65100] hover:text-white transition-colors">
               Prev
