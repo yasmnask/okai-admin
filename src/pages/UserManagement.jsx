@@ -18,19 +18,22 @@ import {
 export default function UserManagement() {
   const navigate = useNavigate();
 
+  // State untuk Filter (Yasmin)
   const [selectedRole, setSelectedRole] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  // State untuk Data dan Pencarian (Naufal)
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (query = "") => {
     try {
       setIsLoading(true);
-      const result = await getUsers();
+      const result = await getUsers(query); // Kirim kata kunci ke api.js
       if (result && result.success) {
         setUsers(result.data);
       }
@@ -41,14 +44,20 @@ export default function UserManagement() {
     }
   };
 
+  // Efek Pencarian (Debounce 500ms)
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchUsers(searchKeyword);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchKeyword]);
 
   const handleDelete = async (id, role) => {
+    // Detektor Keamanan Frontend
     if (role === "Super Admin" || role === "Affiliate") {
       alert(
-        "⚠️ Ditolak: Anda tidak diizinkan menghapus akun dengan hak akses tingkat tinggi.",
+        "⚠️ Ditolak: Anda tidak diizinkan menghapus akun dengan hak akses tingkat tinggi."
       );
       return;
     }
@@ -63,6 +72,7 @@ export default function UserManagement() {
     }
   };
 
+  // Proses Penyaringan Data (Filter Frontend)
   const filteredUsers = users.filter((user) => {
     const userDate = new Date(user.joined);
 
@@ -117,12 +127,14 @@ export default function UserManagement() {
           <input
             type="text"
             placeholder="Cari nama atau email..."
+            value={searchKeyword}                                
+            onChange={(e) => setSearchKeyword(e.target.value)}   
             className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 outline-none font-medium"
           />
         </div>
 
         <div className="flex gap-2 flex-wrap">
-          {/* ROLE */}
+          {/* ROLE FILTER */}
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
@@ -135,7 +147,7 @@ export default function UserManagement() {
             <option value="Super Admin">Super Admin</option>
           </select>
 
-          {/* STATUS */}
+          {/* STATUS FILTER */}
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -146,7 +158,7 @@ export default function UserManagement() {
             <option value="Inactive">Unverified</option>
           </select>
 
-          {/* DATE RANGE (UPDATED) */}
+          {/* DATE RANGE FILTER */}
           <div className="relative">
             <button
               onClick={() => setShowDatePicker(!showDatePicker)}
@@ -209,16 +221,17 @@ export default function UserManagement() {
                   Mengambil data pengguna...
                 </td>
               </tr>
-            ) : users.length === 0 ? (
+            ) : filteredUsers.length === 0 ? (
               <tr>
                 <td
                   colSpan="5"
                   className="p-20 text-center text-slate-400 font-bold italic"
                 >
-                  Belum ada pengguna yang terdaftar.
+                  Belum ada pengguna yang terdaftar atau cocok dengan pencarian.
                 </td>
               </tr>
             ) : (
+              // 👇 INI ADALAH TITIK PENYELESAIAN KONFLIKNYA 👇
               filteredUsers.map((user) => (
                 <tr
                   key={user.id}

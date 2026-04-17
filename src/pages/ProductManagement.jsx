@@ -7,20 +7,19 @@ export default function ProductManagement() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   // filter states
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
 
   // 1. Fetch data asli dari server
-  const fetchProducts = async () => {
+  const fetchProducts = async (query = "") => {
     try {
       setIsLoading(true);
-      const result = await getProducts();
+      const result = await getProducts(query);
       if (result && result.success) {
         setProducts(result.data);
-      } else if (Array.isArray(result)) {
-        setProducts(result);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -29,9 +28,14 @@ export default function ProductManagement() {
     }
   };
 
+  // Efek khusus untuk Pencarian (Debounce 500ms)
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchProducts(searchKeyword);
+    }, 500); // Sistem akan menunggu 0.5 detik setelah Anda berhenti mengetik
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchKeyword]); // Akan dijalankan setiap kali searchKeyword berubah
 
   const handleDelete = async (id) => {
     if (window.confirm("Yakin ingin menghapus produk ini?")) {
@@ -92,6 +96,8 @@ export default function ProductManagement() {
           <input
             type="text"
             placeholder="Cari SKU atau nama produk..."
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
             className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 outline-none font-medium"
           />
         </div>

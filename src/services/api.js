@@ -64,8 +64,11 @@ export async function getGoogleLoginUrl() {
 // 2. MANAJEMEN PRODUK (PRODUCT)
 // ==========================================
 
-export async function getProducts() {
-  const response = await fetch(`${API_URL}/products`, {
+export async function getProducts(searchQuery = '') {
+  // Jika ada kata kunci, tambahkan ?search=katakunci ke URL
+  const url = searchQuery ? `${API_URL}/products?search=${encodeURIComponent(searchQuery)}` : `${API_URL}/products`;
+  
+  const response = await fetch(url, {
     method: "GET",
     headers: { "Accept": "application/json" },
   });
@@ -116,8 +119,11 @@ export async function deleteProduct(id) {
 // 3. MANAJEMEN PENGGUNA (USER)
 // ==========================================
 
-export async function getUsers() {
-  const response = await fetch(`${API_URL}/users`, {
+export async function getUsers(searchQuery = '') {
+  // Jika ada kata kunci, tambahkan ke ujung URL
+  const url = searchQuery ? `${API_URL}/users?search=${encodeURIComponent(searchQuery)}` : `${API_URL}/users`;
+  
+  const response = await fetch(url, {
     method: "GET",
     headers: { "Accept": "application/json" },
   });
@@ -212,3 +218,44 @@ export async function deletePromotion(id) {
   if (!response.ok) throw new Error("Gagal menghapus promosi.");
   return response.json();
 }
+
+// ==========================================
+// 5. MANAJEMEN PESANAN (ORDERS)
+// ==========================================
+
+export async function getOrders() {
+  const response = await fetch(`${API_URL}/orders`, {
+    method: "GET",
+    headers: { "Accept": "application/json" },
+  });
+  if (!response.ok) throw new Error("Gagal memuat data pesanan.");
+  return response.json();
+}
+
+// ==========================================
+// 6. MANAJEMEN AFFILIATE (AFFILIATE)
+// ==========================================
+
+export const getAffiliateStats = async () => {
+  const response = await fetch(`${API_URL}/affiliate/stats`);
+  return response.json();
+};
+
+export const getWithdrawals = async () => {
+  const response = await fetch(`${API_URL}/affiliate/withdrawals`);
+  return response.json();
+};
+
+export const updateWithdrawalStatus = async (id, status, adminNote = "") => {
+  const response = await fetch(`${API_URL}/affiliate/withdrawals/${id}/status`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status, admin_note: adminNote }),
+  });
+  return response.json();
+};
+
+export const getAffiliateList = async () => {
+  const response = await fetch(`${API_URL}/affiliate/list`);
+  return response.json();
+};
