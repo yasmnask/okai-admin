@@ -18,6 +18,14 @@ import {
 export default function UserManagement() {
   const navigate = useNavigate();
 
+  // State untuk Filter (Yasmin)
+  const [selectedRole, setSelectedRole] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // State untuk Data dan Pencarian (Naufal)
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -49,7 +57,7 @@ export default function UserManagement() {
     // Detektor Keamanan Frontend
     if (role === "Super Admin" || role === "Affiliate") {
       alert(
-        "⚠️ Ditolak: Anda tidak diizinkan menghapus akun dengan hak akses tingkat tinggi.",
+        "⚠️ Ditolak: Anda tidak diizinkan menghapus akun dengan hak akses tingkat tinggi."
       );
       return;
     }
@@ -63,6 +71,29 @@ export default function UserManagement() {
       }
     }
   };
+
+  // Proses Penyaringan Data (Filter Frontend)
+  const filteredUsers = users.filter((user) => {
+    const userDate = new Date(user.joined);
+
+    if (selectedRole !== "All" && user.role !== selectedRole) {
+      return false;
+    }
+
+    if (statusFilter !== "All" && user.status !== statusFilter) {
+      return false;
+    }
+
+    if (dateFrom && userDate < new Date(dateFrom)) {
+      return false;
+    }
+
+    if (dateTo && userDate > new Date(dateTo)) {
+      return false;
+    }
+
+    return true;
+  });
 
   return (
     <div className="p-8 bg-[#F8FAFC] min-h-screen">
@@ -101,10 +132,60 @@ export default function UserManagement() {
             className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 outline-none font-medium"
           />
         </div>
-        <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-5 py-3 bg-slate-50 text-slate-600 rounded-2xl text-sm font-bold border border-slate-100 hover:bg-white transition-all">
-            <Filter size={18} /> Role: All
-          </button>
+
+        <div className="flex gap-2 flex-wrap">
+          {/* ROLE FILTER */}
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="px-5 py-3 bg-slate-50 text-slate-600 rounded-2xl text-sm font-bold border border-slate-100 outline-none"
+          >
+            <option value="All">All Roles</option>
+            <option value="Admin">Admin</option>
+            <option value="User">User</option>
+            <option value="Affiliate">Affiliate</option>
+            <option value="Super Admin">Super Admin</option>
+          </select>
+
+          {/* STATUS FILTER */}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-5 py-3 bg-slate-50 text-slate-600 rounded-2xl text-sm font-bold border border-slate-100 outline-none"
+          >
+            <option value="All">All Status</option>
+            <option value="Active">Verified</option>
+            <option value="Inactive">Unverified</option>
+          </select>
+
+          {/* DATE RANGE FILTER */}
+          <div className="relative">
+            <button
+              onClick={() => setShowDatePicker(!showDatePicker)}
+              className="flex items-center gap-2 px-5 py-3 bg-slate-50 text-slate-600 rounded-2xl text-sm font-bold border border-slate-100"
+            >
+              <Calendar size={16} />
+              Pilih Tanggal
+            </button>
+
+            {showDatePicker && (
+              <div className="absolute right-0 mt-2 bg-white p-4 rounded-2xl shadow-lg border border-slate-100 z-10 flex items-center gap-2">
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="px-3 py-2 bg-slate-50 rounded-xl text-sm border border-slate-100 outline-none"
+                />
+                <span className="text-slate-400 text-sm">–</span>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="px-3 py-2 bg-slate-50 rounded-xl text-sm border border-slate-100 outline-none"
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -140,17 +221,18 @@ export default function UserManagement() {
                   Mengambil data pengguna...
                 </td>
               </tr>
-            ) : users.length === 0 ? (
+            ) : filteredUsers.length === 0 ? (
               <tr>
                 <td
                   colSpan="5"
                   className="p-20 text-center text-slate-400 font-bold italic"
                 >
-                  Belum ada pengguna yang terdaftar.
+                  Belum ada pengguna yang terdaftar atau cocok dengan pencarian.
                 </td>
               </tr>
             ) : (
-              users.map((user) => (
+              // 👇 INI ADALAH TITIK PENYELESAIAN KONFLIKNYA 👇
+              filteredUsers.map((user) => (
                 <tr
                   key={user.id}
                   className="hover:bg-orange-50/20 transition-colors group"

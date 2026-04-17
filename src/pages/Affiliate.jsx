@@ -10,6 +10,7 @@ export default function Affiliate() {
   const role = adminData?.role?.toLowerCase();
 
   // 3. Routing Komponen
+  // Jika yang login adalah mitra afiliasi
   if (role === 'affiliate') {
     return <AffiliateDashboard />;
   }
