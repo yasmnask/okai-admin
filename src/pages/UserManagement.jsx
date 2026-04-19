@@ -142,7 +142,7 @@ export default function UserManagement() {
           >
             <option value="All">All Roles</option>
             <option value="Admin">Admin</option>
-            <option value="User">User</option>
+            <option value="Customer">Customer</option>
             <option value="Affiliate">Affiliate</option>
             <option value="Super Admin">Super Admin</option>
           </select>

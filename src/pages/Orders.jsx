@@ -178,10 +178,10 @@ export default function Orders() {
               className="px-3 py-2 bg-slate-50 rounded-xl text-xs font-medium outline-none"
             >
               <option value="">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Processing">Processing</option>
-              <option value="Shipped">Shipped</option>
-              <option value="Delivered">Delivered</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
             </select>
 
             {/* SHIPPING FILTER */}
