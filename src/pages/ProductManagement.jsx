@@ -32,13 +32,13 @@ export default function ProductManagement() {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       fetchProducts(searchKeyword);
-    }, 500); // Sistem akan menunggu 0.5 detik setelah Anda berhenti mengetik
+    }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchKeyword]); // Akan dijalankan setiap kali searchKeyword berubah
+  }, [searchKeyword]);
 
   const handleDelete = async (id) => {
-    if (window.confirm("Yakin ingin menghapus produk ini?")) {
+    if (window.confirm("Yakin ingin menghapus produk KAMBI ini?")) {
       try {
         await deleteProduct(id);
         fetchProducts();
@@ -48,10 +48,17 @@ export default function ProductManagement() {
     }
   };
 
-  // ambil kategori unik
+  // Kategori resmi KAMBI (Digabung dengan data lama jika ada sisa data dummy)
+  const baseCategories = [
+    "Bubuk Premium",
+    "Herbal Spesial",
+    "Paket Keluarga",
+    "Perawatan Tubuh",
+    "Merchandise",
+  ];
   const categories = [
     "All Categories",
-    ...new Set(products.map((p) => p.category)),
+    ...new Set([...baseCategories, ...products.map((p) => p.category)]),
   ];
 
   // filter logic
@@ -72,10 +79,10 @@ export default function ProductManagement() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
         <div>
           <h1 className="text-2xl font-black text-[#1E293B]">
-            Product <span className="text-[#E65100]">Catalog</span>
+            KAMBI <span className="text-[#E65100]">Catalog</span>
           </h1>
           <p className="text-slate-400 text-sm font-medium">
-            Kelola produk mandiri dan alokasi gudang PT Otak Kanan
+            Kelola katalog produk susu premium dan merchandise KAMBI
           </p>
         </div>
         <button
@@ -95,7 +102,7 @@ export default function ProductManagement() {
           />
           <input
             type="text"
-            placeholder="Cari SKU atau nama produk..."
+            placeholder="Cari SKU atau nama produk KAMBI..."
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
             className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 outline-none font-medium"
@@ -171,7 +178,7 @@ export default function ProductManagement() {
                   colSpan="6"
                   className="p-20 text-center text-slate-400 font-bold italic"
                 >
-                  Belum ada produk yang terdaftar.
+                  Belum ada produk KAMBI yang terdaftar.
                 </td>
               </tr>
             ) : (
@@ -182,8 +189,16 @@ export default function ProductManagement() {
                 >
                   <td className="p-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-[#E65100]">
-                        <Package size={24} />
+                      <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm">
+                        {product.image_url ? (
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                          />
+                        ) : (
+                          <Package className="text-orange-500" size={24} />
+                        )}
                       </div>
                       <div>
                         <p className="font-bold text-slate-800 text-sm">
@@ -252,7 +267,7 @@ export default function ProductManagement() {
 
         {/* PAGINATION */}
         <div className="p-6 border-t border-slate-50 flex justify-between items-center text-xs font-bold text-slate-400">
-          <p>Showing 1 to {filteredProducts.length} of 24 Products</p>
+          <p>Showing 1 to {filteredProducts.length} Products</p>
           <div className="flex gap-2">
             <button className="px-4 py-2 bg-slate-50 rounded-lg hover:bg-[#E65100] hover:text-white transition-colors">
               Prev
