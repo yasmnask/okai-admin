@@ -63,22 +63,39 @@ export default function EditProduct() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Casting data agar Laravel tidak protes
-    const payload = {
-      ...formData,
-      price: parseFloat(formData.price),
-      stock: parseInt(formData.stock),
-      is_active: formData.is_active ? 1 : 0,
-    };
+    // 1. Wajib pakai FormData agar bisa bawa file fisik (kardus paket)
+    const payload = new FormData();
+
+    // 2. Masukkan data teks/angka satu per satu
+    payload.append("name", formData.name);
+    payload.append("category", formData.category);
+    payload.append("sku", formData.sku || "");
+    payload.append("warehouse", formData.warehouse);
+    payload.append("description", formData.description || "");
+    payload.append("price", parseFloat(formData.price) || 0);
+    payload.append("stock", parseInt(formData.stock) || 0);
+    payload.append("is_active", formData.is_active ? 1 : 0);
+
+    // 3. 🚩 TRIK LARAVEL: Karena ngirim file, kita nipu Laravel pakai POST tapi niatnya PUT
+    payload.append("_method", "PUT");
+
+    // 4. Logika Gambar (Pilih salah satu: file fisik atau URL galeri)
+    if (formData.image_file) {
+      payload.append("image_file", formData.image_file);
+    } else if (formData.image_url) {
+      payload.append("image_url", formData.image_url);
+    }
 
     try {
+      // Pastikan fungsi updateProduct di api.js kamu melakukan POST request ya!
       const response = await updateProduct(id, payload);
+
       if (response.success) {
         navigate("/product");
       } else {
         alert(
           "Gagal update: " +
-            JSON.stringify(response.errors || "Cek koneksi server"),
+            JSON.stringify(response.errors || "Cek form kembali"),
         );
       }
     } catch (error) {

@@ -86,20 +86,47 @@ export async function getProductById(id) {
 }
 
 export async function addProduct(data) {
+  // Cek apakah data yang dikirim adalah FormData (punya file gambar) atau bukan
+  const isFormData = data instanceof FormData;
+
+  // Siapkan headers. 
+  // 🚩 INGAT: Jangan pasang "Content-Type" kalau isinya FormData!
+  const headers = { 
+    "Accept": "application/json" 
+  };
+
+  // Kalau bukan FormData (cuma teks biasa), baru pakai JSON
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const response = await fetch(`${API_URL}/products`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
-    body: JSON.stringify(data),
+    headers: headers,
+    // Kalau FormData langsung kirim datanya, kalau JSON harus di-stringify dulu
+    body: isFormData ? data : JSON.stringify(data), 
   });
+  
   return response.json();
 }
 
 export async function updateProduct(id, data) {
   const response = await fetch(`${API_URL}/products/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
-    body: JSON.stringify(data),
+    // 1. Ubah jadi POST (karena Laravel butuh ini buat baca file upload)
+    method: "POST", 
+    
+    headers: { 
+      // 2. HAPUS Content-Type. Cukup kasih Accept aja.
+      "Accept": "application/json" 
+      
+      // Catatan: Kalau butuh token login, tambahin di sini:
+      // "Authorization": `Bearer ${localStorage.getItem('token')}`
+    },
+    
+    // 3. Langsung lempar datanya (karena dari EditProduct udah berbentuk FormData)
+    body: data, 
   });
+  
   return response.json();
 }
 
