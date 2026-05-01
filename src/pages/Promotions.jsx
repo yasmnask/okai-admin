@@ -121,7 +121,7 @@ export default function Promotions() {
           </p>
         </div>
         <button
-          onClick={() => navigate("/promotions/create")}
+          onClick={() => navigate("/promotions/addpromotion")}
           className="flex items-center gap-2 bg-[#E65100] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 dark:shadow-black hover:scale-105 transition-transform"
         >
           <Plus size={20} /> Tambah Promo Baru

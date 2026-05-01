@@ -17,10 +17,17 @@ export default function LoginPage() {
       const result = await loginAdmin({ email, password });
 
       if (result && result.success) {
-        // Menyimpan data identitas ke dalam penyimpanan peramban (browser)
-        localStorage.setItem("okai_admin", JSON.stringify(result.user));
+        
+        // 🚩 PERBAIKAN UTAMA: Gabungkan data user dan token dari backend
+        const adminDataToSave = {
+          ...result.user,
+          token: result.token // Pastikan backend Laravel mengirim token dengan nama key 'token'
+        };
 
-        // 🚩 PERUBAHAN: Cek role user, lalu arahkan ke halaman yang sesuai
+        // Menyimpan data identitas & token ke dalam penyimpanan peramban (browser)
+        localStorage.setItem("okai_admin", JSON.stringify(adminDataToSave));
+
+        // Cek role user, lalu arahkan ke halaman yang sesuai
         const userRole = result.user.role?.toLowerCase();
 
         if (userRole === "affiliate") {

@@ -1,13 +1,37 @@
 const API_URL = "http://localhost:8000/api";
 
 // ==========================================
+// HELPER: OTOMATISASI HEADERS & TOKEN
+// ==========================================
+function getAuthHeaders(isFormData = false) {
+  const adminData = JSON.parse(localStorage.getItem("okai_admin") || "{}");
+  const token = adminData?.token; // Pastikan backend-mu mengirimkan properti 'token' saat login
+
+  const headers = {
+    "Accept": "application/json",
+  };
+
+  // Jika token ada, selipkan ke header Authorization
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  // Jika BUKAN FormData (berarti JSON biasa), tambahkan Content-Type
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  return headers;
+}
+
+// ==========================================
 // 1. OTENTIKASI & KEAMANAN
 // ==========================================
 
 export async function loginAdmin(data) {
   const response = await fetch(`${API_URL}/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    headers: { "Content-Type": "application/json", "Accept": "application/json" }, // Login belum butuh token
     body: JSON.stringify(data),
   });
   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -17,7 +41,7 @@ export async function loginAdmin(data) {
 export async function logoutAdmin() {
   const response = await fetch(`${API_URL}/logout`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" }
+    headers: getAuthHeaders(),
   });
   return response.json();
 }
@@ -65,12 +89,11 @@ export async function getGoogleLoginUrl() {
 // ==========================================
 
 export async function getProducts(searchQuery = '') {
-  // Jika ada kata kunci, tambahkan ?search=katakunci ke URL
   const url = searchQuery ? `${API_URL}/products?search=${encodeURIComponent(searchQuery)}` : `${API_URL}/products`;
   
   const response = await fetch(url, {
     method: "GET",
-    headers: { "Accept": "application/json" },
+    headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error("Gagal memuat data produk dari server.");
   return response.json();
@@ -79,31 +102,18 @@ export async function getProducts(searchQuery = '') {
 export async function getProductById(id) {
   const response = await fetch(`${API_URL}/products/${id}`, {
     method: "GET",
-    headers: { "Accept": "application/json" },
+    headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error("Gagal memuat detail produk.");
   return response.json();
 }
 
 export async function addProduct(data) {
-  // Cek apakah data yang dikirim adalah FormData (punya file gambar) atau bukan
   const isFormData = data instanceof FormData;
-
-  // Siapkan headers. 
-  // 🚩 INGAT: Jangan pasang "Content-Type" kalau isinya FormData!
-  const headers = { 
-    "Accept": "application/json" 
-  };
-
-  // Kalau bukan FormData (cuma teks biasa), baru pakai JSON
-  if (!isFormData) {
-    headers["Content-Type"] = "application/json";
-  }
 
   const response = await fetch(`${API_URL}/products`, {
     method: "POST",
-    headers: headers,
-    // Kalau FormData langsung kirim datanya, kalau JSON harus di-stringify dulu
+    headers: getAuthHeaders(isFormData),
     body: isFormData ? data : JSON.stringify(data), 
   });
   
@@ -111,19 +121,14 @@ export async function addProduct(data) {
 }
 
 export async function updateProduct(id, data) {
+  // PENTING: updateProduct menerima parameter data yang BUKAN instance FormData asli di EditProduct 
+  // (kamu mengirim payload = new FormData() di komponennya). 
+  // Kita pastikan header Content-Type dihilangkan jika itu FormData.
+  const isFormData = data instanceof FormData;
+
   const response = await fetch(`${API_URL}/products/${id}`, {
-    // 1. Ubah jadi POST (karena Laravel butuh ini buat baca file upload)
-    method: "POST", 
-    
-    headers: { 
-      // 2. HAPUS Content-Type. Cukup kasih Accept aja.
-      "Accept": "application/json" 
-      
-      // Catatan: Kalau butuh token login, tambahin di sini:
-      // "Authorization": `Bearer ${localStorage.getItem('token')}`
-    },
-    
-    // 3. Langsung lempar datanya (karena dari EditProduct udah berbentuk FormData)
+    method: "POST", // Trik Laravel untuk baca file saat PUT
+    headers: getAuthHeaders(isFormData),
     body: data, 
   });
   
@@ -133,7 +138,7 @@ export async function updateProduct(id, data) {
 export async function deleteProduct(id) {
   const response = await fetch(`${API_URL}/products/${id}`, {
     method: "DELETE",
-    headers: { "Accept": "application/json" },
+    headers: getAuthHeaders(),
   });
   if (!response.ok) {
     const errorData = await response.json();
@@ -147,12 +152,11 @@ export async function deleteProduct(id) {
 // ==========================================
 
 export async function getUsers(searchQuery = '') {
-  // Jika ada kata kunci, tambahkan ke ujung URL
   const url = searchQuery ? `${API_URL}/users?search=${encodeURIComponent(searchQuery)}` : `${API_URL}/users`;
   
   const response = await fetch(url, {
     method: "GET",
-    headers: { "Accept": "application/json" },
+    headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error("Gagal memuat data pengguna dari server.");
   return response.json();
@@ -161,7 +165,7 @@ export async function getUsers(searchQuery = '') {
 export async function getUserById(id) {
   const response = await fetch(`${API_URL}/users/${id}`, {
     method: "GET",
-    headers: { "Accept": "application/json" },
+    headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error("Gagal memuat detail pengguna.");
   return response.json();
@@ -170,7 +174,7 @@ export async function getUserById(id) {
 export async function addUser(data) {
   const response = await fetch(`${API_URL}/users`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
   return response.json();
@@ -179,7 +183,7 @@ export async function addUser(data) {
 export async function updateUser(id, data) {
   const response = await fetch(`${API_URL}/users/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
   return response.json();
@@ -188,7 +192,7 @@ export async function updateUser(id, data) {
 export async function deleteUser(id) {
   const response = await fetch(`${API_URL}/users/${id}`, {
     method: "DELETE",
-    headers: { "Accept": "application/json" },
+    headers: getAuthHeaders(),
   });
   if (!response.ok) {
     const errorData = await response.json();
@@ -204,7 +208,7 @@ export async function deleteUser(id) {
 export async function getPromotions() {
   const response = await fetch(`${API_URL}/promotions`, {
     method: "GET",
-    headers: { "Accept": "application/json" },
+    headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error("Gagal memuat data promosi.");
   return response.json();
@@ -213,7 +217,7 @@ export async function getPromotions() {
 export async function getPromotionById(id) {
   const response = await fetch(`${API_URL}/promotions/${id}`, {
     method: "GET",
-    headers: { "Accept": "application/json" },
+    headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error("Gagal memuat detail promosi.");
   return response.json();
@@ -222,7 +226,7 @@ export async function getPromotionById(id) {
 export async function addPromotion(data) {
   const response = await fetch(`${API_URL}/promotions`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
   return response.json();
@@ -231,7 +235,7 @@ export async function addPromotion(data) {
 export async function updatePromotion(id, data) {
   const response = await fetch(`${API_URL}/promotions/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
   return response.json();
@@ -240,7 +244,7 @@ export async function updatePromotion(id, data) {
 export async function deletePromotion(id) {
   const response = await fetch(`${API_URL}/promotions/${id}`, {
     method: "DELETE",
-    headers: { "Accept": "application/json" },
+    headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error("Gagal menghapus promosi.");
   return response.json();
@@ -253,7 +257,7 @@ export async function deletePromotion(id) {
 export async function getOrders() {
   const response = await fetch(`${API_URL}/orders`, {
     method: "GET",
-    headers: { "Accept": "application/json" },
+    headers: getAuthHeaders(),
   });
   if (!response.ok) throw new Error("Gagal memuat data pesanan.");
   return response.json();
@@ -264,25 +268,31 @@ export async function getOrders() {
 // ==========================================
 
 export const getAffiliateStats = async () => {
-  const response = await fetch(`${API_URL}/affiliate/stats`);
+  const response = await fetch(`${API_URL}/affiliate/stats`, {
+    headers: getAuthHeaders(),
+  });
   return response.json();
 };
 
 export const getWithdrawals = async () => {
-  const response = await fetch(`${API_URL}/affiliate/withdrawals`);
+  const response = await fetch(`${API_URL}/affiliate/withdrawals`, {
+    headers: getAuthHeaders(),
+  });
   return response.json();
 };
 
 export const updateWithdrawalStatus = async (id, status, adminNote = "") => {
   const response = await fetch(`${API_URL}/affiliate/withdrawals/${id}/status`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ status, admin_note: adminNote }),
   });
   return response.json();
 };
 
 export const getAffiliateList = async () => {
-  const response = await fetch(`${API_URL}/affiliate/list`);
+  const response = await fetch(`${API_URL}/affiliate/list`, {
+    headers: getAuthHeaders(),
+  });
   return response.json();
 };
