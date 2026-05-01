@@ -67,27 +67,27 @@ export default function ProductManagement() {
   });
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen font-sans">
+    <div className="p-8 bg-[#F8FAFC] dark:bg-[#1a1e1a] min-h-screen font-sans">
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
         <div>
-          <h1 className="text-2xl font-black text-[#1E293B]">
+          <h1 className="text-2xl font-black text-[#1E293B] dark:text-white">
             Product <span className="text-[#E65100]">Catalog</span>
           </h1>
-          <p className="text-slate-400 text-sm font-medium">
+          <p className="text-slate-400 dark:text-[#e1d4cc] text-sm font-medium">
             Kelola produk mandiri dan alokasi gudang PT Otak Kanan
           </p>
         </div>
         <button
           onClick={() => navigate("/product/create")}
-          className="flex items-center gap-2 bg-[#E65100] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 hover:scale-105 transition-transform"
+          className="flex items-center gap-2 bg-[#E65100] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 dark:shadow-black hover:scale-105 transition-transform"
         >
           <Plus size={20} /> Tambah Produk Baru
         </button>
       </div>
 
       {/* FILTER & SEARCH */}
-      <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 mb-8">
+      <div className="bg-white dark:bg-[#3e3c3a] p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-0 dark:shadow-black flex flex-col md:flex-row gap-4 mb-8">
         <div className="relative flex-1">
           <Search
             className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
@@ -98,16 +98,16 @@ export default function ProductManagement() {
             placeholder="Cari SKU atau nama produk..."
             value={searchKeyword}
             onChange={(e) => setSearchKeyword(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 outline-none font-medium"
+            className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 outline-none font-medium"
           />
         </div>
 
         <div className="flex gap-2">
-          {/* CATEGORY (LEFT) */}
+          {/* CATEGORY */}
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-5 py-3 bg-slate-50 text-slate-600 rounded-2xl text-sm font-bold border border-slate-100 outline-none"
+            className="px-5 py-3 bg-slate-50 dark:bg-[#1a1d1a] text-slate-600 dark:text-slate-400 rounded-2xl text-sm font-bold border border-slate-100 dark:border-0 outline-none"
           >
             {categories.map((cat, index) => (
               <option key={index} value={cat}>
@@ -116,11 +116,11 @@ export default function ProductManagement() {
             ))}
           </select>
 
-          {/* STATUS (RIGHT) */}
+          {/* STATUS */}
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-5 py-3 bg-slate-50 text-slate-600 rounded-2xl text-sm font-bold border border-slate-100 outline-none"
+            className="px-5 py-3 bg-slate-50 dark:bg-[#1a1d1a] text-slate-600 dark:text-slate-400 rounded-2xl text-sm font-bold border border-slate-100 dark:border-0 outline-none"
           >
             <option>All Status</option>
             <option>Published</option>
@@ -129,38 +129,39 @@ export default function ProductManagement() {
         </div>
       </div>
 
+      {/*garis di sini*/}
       {/* TABLE */}
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+      <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-0 dark:shadow-md dark:shadow-black overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50/50 border-b border-slate-100">
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
+            <tr className="bg-slate-50/50 dark:bg-[#3e3c3a] border-b border-slate-100 dark:border-black">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">
                 Produk & SKU
               </th>
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">
                 Kategori
               </th>
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">
                 Harga
               </th>
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
                 Stok & Lokasi
               </th>
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
                 Status
               </th>
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
                 Aksi
               </th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="divide-y divide-slate-50 dark:divide-black">
             {isLoading ? (
               <tr>
                 <td
                   colSpan="6"
-                  className="p-20 text-center text-slate-400 font-bold animate-pulse"
+                  className="p-20 text-center text-slate-400 dark:text-slate-600 font-bold animate-pulse"
                 >
                   Mengambil data produk dari server...
                 </td>
@@ -169,7 +170,7 @@ export default function ProductManagement() {
               <tr>
                 <td
                   colSpan="6"
-                  className="p-20 text-center text-slate-400 font-bold italic"
+                  className="p-20 text-center text-slate-400 dark:text-slate-300/30 font-bold italic"
                 >
                   Belum ada produk yang terdaftar.
                 </td>
@@ -251,13 +252,13 @@ export default function ProductManagement() {
         </table>
 
         {/* PAGINATION */}
-        <div className="p-6 border-t border-slate-50 flex justify-between items-center text-xs font-bold text-slate-400">
+        <div className="p-6 border-t border-slate-50 dark:border-black flex justify-between items-center text-xs font-bold text-slate-400 dark:text-slate-300">
           <p>Showing 1 to {filteredProducts.length} of 24 Products</p>
           <div className="flex gap-2">
-            <button className="px-4 py-2 bg-slate-50 rounded-lg hover:bg-[#E65100] hover:text-white transition-colors">
+            <button className="px-4 py-2 dark:text-white bg-slate-50 dark:bg-[#E65100] rounded-lg hover:bg-[#E65100] dark:hover:bg-[#3e3c3a]/50 hover:text-white transition-all">
               Prev
             </button>
-            <button className="px-4 py-2 bg-slate-50 rounded-lg hover:bg-[#E65100] hover:text-white transition-colors">
+            <button className="px-4 py-2 dark:text-white bg-slate-50 dark:bg-[#E65100] rounded-lg hover:bg-[#E65100] dark:hover:bg-[#3e3c3a]/50 hover:text-white transition-all">
               Next
             </button>
           </div>
