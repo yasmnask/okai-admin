@@ -73,7 +73,7 @@ export default function Logistics() {
   ];
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-[#F8FAFC] dark:bg-[#1a1e1a] min-h-screen">
       {/* HEADER DENGAN TOMBOL BACK */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
         <div className="flex items-center gap-4">
@@ -84,10 +84,10 @@ export default function Logistics() {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-[#1E293B]">
+            <h1 className="text-2xl font-black text-[#1E293B] dark:text-white">
               Shipping <span className="text-[#E65100]">Logistics</span>
             </h1>
-            <p className="text-slate-400 text-sm font-medium italic">
+            <p className="text-slate-400 dark:text-[#e1d4cc] text-sm font-medium italic">
               Monitoring alur distribusi PT Otak Kanan
             </p>
           </div>
@@ -98,7 +98,7 @@ export default function Logistics() {
         {/* LEFT: DAFTAR PENGIRIMAN */}
         <div className="xl:col-span-2 space-y-6">
           {/* Search Resi */}
-          <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 relative">
+          <div className="bg-white dark:bg-[#3e3c3a] p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-0 dark:shadow-black relative">
             <Search
               className="absolute left-8 top-1/2 -translate-y-1/2 text-slate-400"
               size={20}
@@ -106,35 +106,37 @@ export default function Logistics() {
             <input
               type="text"
               placeholder="Masukkan Nomor Resi (Contoh: OKAI-9921)..."
-              className="w-full pl-14 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 outline-none font-bold"
+              className="w-full pl-14 pr-4 py-3 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 outline-none font-medium"
               value={searchResi}
               onChange={(e) => setSearchResi(e.target.value)}
             />
           </div>
 
           {/* List Shipments */}
-          <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-            <div className="p-6 border-b border-slate-50">
-              <h3 className="font-black text-slate-800 tracking-tight">
+          <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-0 dark:shadow-md dark:shadow-black overflow-hidden">
+            <div className="p-6 border-b border-slate-50 dark:border-black">
+              <h3 className="font-black text-slate-800 dark:text-slate-200 tracking-tight">
                 Active Shipments
               </h3>
             </div>
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-slate-50 dark:divide-black">
               {shipments.map((ship) => (
                 <div
                   key={ship.id}
-                  className="p-6 hover:bg-orange-50/30 transition-all group cursor-pointer"
+                  className="p-6 hover:bg-orange-50/30 dark:hover:bg-[#3e3c3a] transition-all group cursor-pointer"
                 >
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white border border-slate-100 rounded-2xl flex items-center justify-center text-[#E65100] shadow-sm group-hover:scale-110 transition-transform">
+                      <div className="w-12 h-12 bg-white dark:bg-[#E65100] border border-slate-100 dark:border-black rounded-2xl flex items-center justify-center text-[#E65100] dark:text-white shadow-sm group-hover:scale-110 transition-transform">
                         <Truck size={24} />
                       </div>
                       <div>
                         <p className="text-xs font-black text-[#E65100] tracking-widest uppercase">
                           {ship.resi}
                         </p>
-                        <p className="font-bold text-slate-800">{ship.item}</p>
+                        <p className="font-bold text-slate-800 dark:text-slate-200">
+                          {ship.item}
+                        </p>
                         <p className="text-[10px] text-slate-400 font-bold uppercase">
                           Customer: {ship.customer}
                         </p>
@@ -144,8 +146,8 @@ export default function Logistics() {
                       <span
                         className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
                           ship.status === "Delivered"
-                            ? "bg-green-100 text-green-600"
-                            : "bg-blue-100 text-blue-600"
+                            ? "bg-green-100 dark:bg-green-600 text-green-600 dark:text-green-50"
+                            : "bg-blue-100 dark:bg-blue-600 text-blue-600 dark:text-blue-50"
                         }`}
                       >
                         {ship.status}
@@ -157,7 +159,7 @@ export default function Logistics() {
                     </div>
                     <ChevronRight
                       size={20}
-                      className="text-slate-300 hidden md:block"
+                      className="text-slate-300 dark:text-slate-400 hidden md:block"
                     />
                   </div>
                 </div>
@@ -167,13 +169,13 @@ export default function Logistics() {
         </div>
 
         {/* RIGHT: TRACKING TIMELINE (MOCKUP JNE STYLE) */}
-        <div className="bg-white border border-slate-100 overflow-hidden p-8 rounded-[3rem] text-white shadow-xl h-fit sticky top-28">
+        <div className="bg-white dark:bg-[#1a1d1a] border border-slate-100 dark:border-0 dark:shadow-md dark:shadow-black overflow-hidden p-8 rounded-[3rem] text-white shadow-xl h-fit sticky top-28">
           <div className="flex items-center gap-3 mb-8">
             <div className="p-3 bg-orange-500 rounded-2xl text-white">
               <Box size={20} />
             </div>
             <div>
-              <h3 className="font-black text-slate-800 text-lg leading-tight">
+              <h3 className="font-black text-slate-800 dark:text-slate-200 text-lg leading-tight">
                 Detail Tracking
               </h3>
               <p className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">
@@ -207,7 +209,7 @@ export default function Logistics() {
 
                 <div>
                   <p
-                    className={`text-sm font-black ${step.done ? "text-slate-800" : "text-slate-500"}`}
+                    className={`text-sm font-black ${step.done ? "text-slate-800 dark:text-slate-200" : "text-slate-500"}`}
                   >
                     {step.status}
                   </p>

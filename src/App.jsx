@@ -20,6 +20,7 @@ import EditProduct from "./pages/EditProduct";
 import AddUser from "./pages/AddUser";
 import AddPromotion from "./pages/AddPromotions";
 import EditPromotion from "./pages/EditPromotions";
+import { useEffect } from "react";
 
 // --- KOMPONEN PROTECTED ROUTE ---
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -39,6 +40,18 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 export default function App() {
+
+  // 👇 INI OBAT BUG DARK MODE-NYA 👇
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+  // 👆 ---------------------------- 👆
+
   return (
     <BrowserRouter>
       <Routes>

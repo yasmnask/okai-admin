@@ -110,21 +110,21 @@ export default function Promotions() {
   ];
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-[#F8FAFC] dark:bg-[#1a1e1a] min-h-screen">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
         <div>
-          <h1 className="text-2xl font-black text-[#1E293B]">
+          <h1 className="text-2xl font-black text-[#1E293B] dark:text-white">
             Promotion <span className="text-[#E65100]">Center</span>
           </h1>
-          <p className="text-slate-400 text-sm font-medium italic">
+          <p className="text-slate-400 dark:text-[#e1d4cc] text-sm font-medium italic">
             Kelola kode voucher dan kampanye diskon OKAI
           </p>
         </div>
         <button
           onClick={() => navigate("/promotions/create")}
-          className="flex items-center gap-2 bg-[#E65100] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 hover:scale-105 transition-transform"
+          className="flex items-center gap-2 bg-[#E65100] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 dark:shadow-black hover:scale-105 transition-transform"
         >
-          <Plus size={20} /> Buat Promo Baru
+          <Plus size={20} /> Tambah Promo Baru
         </button>
       </div>
 
@@ -132,7 +132,7 @@ export default function Promotions() {
         {promoStats.map((stat, i) => (
           <div
             key={i}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm"
+            className="bg-white dark:bg-[#1a1d1a] p-6 rounded-3xl border border-slate-100 dark:border-0 dark:shadow-black dark:shadow-xl shadow-sm hover:shadow-md transition-all"
           >
             <div
               className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4`}
@@ -142,18 +142,20 @@ export default function Promotions() {
             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
               {stat.label}
             </p>
-            <h2 className="text-2xl font-black mt-1 text-slate-800">
+            <h2 className="text-2xl font-black mt-1 text-slate-800 dark:text-slate-200">
               {stat.value}
             </h2>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-        <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row justify-between gap-4">
-          <h3 className="font-black text-slate-800 text-lg">Active Vouchers</h3>
+      <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-0 dark:shadow-black dark:shadow-2xl overflow-hidden">
+        <div className="p-6 border-b border-slate-50 dark:border-black flex flex-col md:flex-row justify-between gap-4">
+          <h3 className="font-black text-slate-800 dark:text-slate-200 text-lg">
+            Active Vouchers
+          </h3>
 
-          {/* 🔥 FILTER BAR */}
+          {/* FILTER BAR */}
           <div className="flex flex-wrap items-center gap-3">
             {/* SEARCH */}
             <div className="relative">
@@ -166,7 +168,7 @@ export default function Promotions() {
                 placeholder="Cari Kode Promo..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-slate-50 rounded-xl text-xs outline-none w-48 font-medium"
+                className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/30 rounded-xl text-xs outline-none w-48 font-medium"
               />
             </div>
 
@@ -174,7 +176,7 @@ export default function Promotions() {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-3 py-2 bg-slate-50 rounded-xl text-xs font-medium text-slate-600"
+              className="px-3 py-2 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/30 rounded-xl text-xs font-medium text-slate-600"
             >
               <option value="All">All Type</option>
               <option value="Percentage">Percentage</option>
@@ -185,14 +187,14 @@ export default function Promotions() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 bg-slate-50 rounded-xl text-xs font-medium text-slate-600"
+              className="px-3 py-2 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/30 rounded-xl text-xs font-medium text-slate-600"
             >
               <option value="All">All Status</option>
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
 
-            {/* 🔥 SINGLE DATE PICKER */}
+            {/* SINGLE DATE PICKER */}
             <div className="relative">
               <Calendar
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
@@ -202,7 +204,7 @@ export default function Promotions() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-slate-50 rounded-xl text-xs font-medium text-slate-600"
+                className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/30 rounded-xl text-xs font-medium text-slate-600"
               />
             </div>
           </div>
@@ -210,34 +212,34 @@ export default function Promotions() {
 
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50/50">
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            <tr className="bg-slate-50/50 dark:bg-[#3e3c3a] border-b border-slate-100 dark:border-black">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">
                 Kupon & Tipe
               </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
                 Potongan
               </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
                 Penggunaan
               </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">
                 Berakhir Pada
               </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">
                 Status
               </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
                 Aksi
               </th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-50 text-sm">
+          <tbody className="divide-y divide-slate-50 dark:divide-black text-sm">
             {isLoading ? (
               <tr>
                 <td
                   colSpan="6"
-                  className="p-10 text-center font-bold text-slate-400"
+                  className="p-10 text-center font-bold text-slate-400 dark:text-slate-600"
                 >
                   Memuat data...
                 </td>
@@ -246,7 +248,7 @@ export default function Promotions() {
               <tr>
                 <td
                   colSpan="6"
-                  className="p-10 text-center font-bold text-slate-400"
+                  className="p-10 text-center font-bold text-slate-400 dark:text-slate-300/30"
                 >
                   Belum ada promo.
                 </td>
