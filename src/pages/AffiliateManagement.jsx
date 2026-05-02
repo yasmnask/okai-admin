@@ -11,12 +11,15 @@ import {
   Loader2,
   X,
   Send,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import {
   getAffiliateStats,
   getWithdrawals,
   updateWithdrawalStatus,
   getAffiliateList,
+  updateAffiliateStatus, // <-- Import fungsi baru dari Langkah 1
 } from "../services/api";
 
 export default function AffiliateManagement() {
@@ -24,6 +27,18 @@ export default function AffiliateManagement() {
   const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
   const [affiliates, setAffiliates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // State Paginasi untuk Affiliate List (Tabel Bawah)
+  const [affiliatePage, setAffiliatePage] = useState(1);
+  const [affiliatePerPage, setAffiliatePerPage] = useState(10);
+  
+  // State Paginasi untuk Pending Request (Tabel Atas)
+  const [pendingPage, setPendingPage] = useState(1);
+  const [pendingPerPage, setPendingPerPage] = useState(10);
+
+  // State untuk Saringan (Filter & Search) Tabel Bawah
+  const [searchAffiliate, setSearchAffiliate] = useState("");
+  const [statusFilterAffiliate, setStatusFilterAffiliate] = useState("All");
 
   // State untuk Modal Bayar Komisi
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,6 +50,7 @@ export default function AffiliateManagement() {
 
   const loadAllData = async () => {
     try {
+      setIsLoading(true);
       const [resStats, resWithdraws, resList] = await Promise.all([
         getAffiliateStats(),
         getWithdrawals(),
@@ -55,10 +71,74 @@ export default function AffiliateManagement() {
     loadAllData();
   }, []);
 
-  // 1. Fungsi Validasi Withdraw (Approve/Reject)
+  // ==========================================
+  // PENGELOMPOKAN & PENYARINGAN DATA
+  // ==========================================
+  
+  // 1. Data Tabel Atas (Hanya yang berstatus Pending)
+  const pendingAffiliates = affiliates.filter((aff) => aff.status === 'pending');
+  
+  // 2. Penghitung "Total Mitra" di StatCard (Hanya yang Active)
+  const totalActiveMitra = affiliates.filter((aff) => aff.status === 'active').length;
+
+  // 3. Data Tabel Bawah (Selain Pending, ditambah Filter Status & Pencarian)
+  const filteredAffiliatesList = affiliates.filter((aff) => {
+    // A. Selalu sembunyikan yang 'pending' (karena sudah ada di tabel atas)
+    if (aff.status === 'pending') return false;
+
+    // B. LOGIKA DEFAULT: Jika filter adalah "All", jangan tampilkan yang 'rejected'
+    if (statusFilterAffiliate === "All" && aff.status === "rejected") return false;
+
+    // C. Filter Status Spesifik (Jika user memilih "Rejected", "Active", atau "Inactive")
+    const matchStatus = statusFilterAffiliate === "All" || aff.status === statusFilterAffiliate;
+
+    // D. Filter Pencarian[cite: 1]
+    const matchSearch = 
+      aff.full_name?.toLowerCase().includes(searchAffiliate.toLowerCase()) || 
+      aff.affiliate_code?.toLowerCase().includes(searchAffiliate.toLowerCase());
+
+    return matchStatus && matchSearch;
+  });
+
+  // Perhitungan Paginasi untuk Pendaftaran Mitra Baru (Pending)
+  const indexOfLastPending = pendingPage * pendingPerPage;
+  const indexOfFirstPending = indexOfLastPending - pendingPerPage;
+  const currentPendingAffiliates = pendingAffiliates.slice(indexOfFirstPending, indexOfLastPending);
+  const totalPendingPages = Math.ceil(pendingAffiliates.length / pendingPerPage);
+
+  // Perhitungan Paginasi untuk Daftar Partner (Tabel Bawah)
+  const indexOfLastAffiliate = affiliatePage * affiliatePerPage;
+  const indexOfFirstAffiliate = indexOfLastAffiliate - affiliatePerPage;
+  const currentFilteredAffiliates = filteredAffiliatesList.slice(indexOfFirstAffiliate, indexOfLastAffiliate);
+  const totalAffiliatePages = Math.ceil(filteredAffiliatesList.length / affiliatePerPage);
+
+  // ==========================================
+  // FUNGSI AKSI & TOMBOL
+  // ==========================================
+
+  // Fungsi Terima/Tolak Pendaftaran Affiliate
+  const handleAffiliateAction = async (id, action) => {
+    // action bernilai 'active' (Terima) atau 'rejected' (Tolak)
+    const statusText = action === 'active' ? 'Menerima' : 'Menolak';
+    
+    if (window.confirm(`Yakin ingin ${statusText} mitra ini?`)) {
+      try {
+        setIsLoading(true);
+        const res = await updateAffiliateStatus(id, action);
+        if (res.success) {
+          alert(`Mitra berhasil di-${action === 'active' ? 'terima' : 'tolak'}!`);
+          loadAllData(); // Segarkan data tabel
+        }
+      } catch (error) {
+        alert("Gagal memproses aksi. Pastikan backend sudah terhubung.");
+        setIsLoading(false);
+      }
+    }
+  };
+
+  // Fungsi Validasi Withdraw
   const handleStatusUpdate = async (id, status) => {
-    const confirmMsg =
-      status === "approved" ? "Setujui pencairan ini?" : "Tolak pencairan ini?";
+    const confirmMsg = status === "approved" ? "Setujui pencairan ini?" : "Tolak pencairan ini?";
     if (!window.confirm(confirmMsg)) return;
 
     try {
@@ -72,10 +152,9 @@ export default function AffiliateManagement() {
     }
   };
 
-  // 2. Fungsi Kirim Pembayaran Manual (Modal)
+  // Fungsi Pembayaran Manual
   const handleManualPayment = async (e) => {
     e.preventDefault();
-    console.log("Kirim Pembayaran:", paymentData);
     alert(`Pembayaran sebesar Rp ${paymentData.amount} berhasil diproses!`);
     setIsModalOpen(false);
     loadAllData();
@@ -119,7 +198,7 @@ export default function AffiliateManagement() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatCard
           label="Total Mitra"
-          value={stats?.total_mitra}
+          value={totalActiveMitra} // Menampilkan hitungan variabel baru yang hanya 'active'
           icon={<Users />}
           color="text-blue-600"
           bg="bg-blue-50"
@@ -155,141 +234,101 @@ export default function AffiliateManagement() {
         />
       </div>
 
-      {/* TABEL 1: PENDAFTARAN MITRA BARU (UNTUK APPROVE) */}
+      {/* TABEL 1: PENDAFTARAN MITRA BARU (PENDING AFFILIATES) */}
       <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800/50 overflow-hidden mb-8 transition-colors">
-        <div className="p-7 border-b border-slate-50 dark:border-slate-800/50 bg-blue-50/30 dark:bg-blue-900/10 flex justify-between items-center">
-          <h3 className="font-black text-slate-800 dark:text-white text-lg flex items-center gap-3">
-            Pendaftaran Mitra Baru
-          </h3>
-          <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-white dark:bg-blue-900/30 px-3 py-1 rounded-lg border border-blue-100 dark:border-blue-800 uppercase tracking-widest">
-            2 Menunggu Persetujuan
-          </span>
-        </div>
-        <table className="w-full text-left">
-          <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
-            <tr className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
-              <td className="p-6">
-                <p className="font-bold text-slate-800 dark:text-slate-200">Budi Santoso</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
-                  budi@gmail.com
-                </p>
-              </td>
-              <td className="p-6 font-semibold text-slate-500 dark:text-slate-400 text-sm">
-                17 Apr 2026
-              </td>
-              <td className="p-6">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => alert("Budi diterima jadi Affiliate!")}
-                    className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase rounded-xl shadow-md shadow-blue-100 dark:shadow-none hover:scale-105 transition-all"
-                  >
-                    Terima
-                  </button>
-                  <button
-                    onClick={() => alert("Budi ditolak!")}
-                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-300 text-[10px] font-black uppercase rounded-xl hover:text-red-500 dark:hover:text-red-400 transition-all"
-                  >
-                    Tolak
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
-              <td className="p-6">
-                <p className="font-bold text-slate-800 dark:text-slate-200">Siti Aminah</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
-                  siti.am@yahoo.com
-                </p>
-              </td>
-              <td className="p-6 font-semibold text-slate-500 dark:text-slate-400 text-sm">
-                16 Apr 2026
-              </td>
-              <td className="p-6">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => alert("Siti diterima jadi Affiliate!")}
-                    className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase rounded-xl shadow-md shadow-blue-100 dark:shadow-none hover:scale-105 transition-all"
-                  >
-                    Terima
-                  </button>
-                  <button
-                    onClick={() => alert("Siti ditolak!")}
-                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-300 text-[10px] font-black uppercase rounded-xl hover:text-red-500 dark:hover:text-red-400 transition-all"
-                  >
-                    Tolak
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* MODAL BAYAR KOMISI */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#1a1d1a] w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in duration-300 border dark:border-slate-800/50">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-xl font-black text-slate-800 dark:text-white">
-                Proses <span className="text-[#E65100]">Bayar</span>
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 dark:text-slate-500 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleManualPayment} className="space-y-5">
-              <div>
-                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">
-                  Pilih Mitra
-                </label>
-                <select
-                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
-                  onChange={(e) =>
-                    setPaymentData({
-                      ...paymentData,
-                      affiliate_id: e.target.value,
-                    })
-                  }
-                  required
-                >
-                  <option value="">-- Pilih Partner --</option>
-                  {affiliates.map((aff) => (
-                    <option key={aff.id} value={aff.id}>
-                      {aff.full_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">
-                  Nominal Transfer (Rp)
-                </label>
-                <input
-                  type="number"
-                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20 placeholder:text-slate-400 dark:placeholder:text-slate-600"
-                  placeholder="0"
-                  onChange={(e) =>
-                    setPaymentData({ ...paymentData, amount: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full py-4 bg-[#1E293B] dark:bg-white dark:text-black text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-black dark:hover:bg-slate-200 transition-all"
-              >
-                <Send size={16} /> Kirim Dana
-              </button>
-            </form>
+        <div className="p-7 border-b border-slate-50 dark:border-slate-800/50 bg-blue-50/30 dark:bg-blue-900/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <h3 className="font-black text-slate-800 dark:text-white text-lg">
+              Pendaftaran Mitra Baru
+            </h3>
+            <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-white dark:bg-blue-900/30 px-3 py-1 rounded-lg border border-blue-100 dark:border-blue-800 uppercase tracking-widest">
+              {pendingAffiliates.length} Menunggu
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-400 font-semibold">Tampilkan:</span>
+            <select
+              value={pendingPerPage}
+              onChange={(e) => {
+                setPendingPerPage(Number(e.target.value));
+                setPendingPage(1); 
+              }}
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg p-1 outline-none"
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
           </div>
         </div>
-      )}
 
-      {/* TABLE WITHDRAWAL (PROSES APPROVE/REJECT) */}
+        <table className="w-full text-left">
+          <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
+            {currentPendingAffiliates.length === 0 ? (
+              <tr>
+                <td className="p-10 text-center text-slate-400 italic">Tidak ada pendaftaran baru.</td>
+              </tr>
+            ) : (
+              currentPendingAffiliates.map((aff) => (
+                <tr key={aff.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
+                  <td className="p-6">
+                    <p className="font-bold text-slate-800 dark:text-slate-200">{aff.full_name}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                      {aff.email || "No Email"} | {aff.phone || "No Phone"}
+                    </p>
+                  </td>
+                  <td className="p-6 font-semibold text-slate-500 dark:text-slate-400 text-sm">
+                    {aff.created_at ? new Date(aff.created_at).toLocaleDateString() : "-"}
+                  </td>
+                  <td className="p-6">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleAffiliateAction(aff.id, 'active')}
+                        className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase rounded-xl shadow-md shadow-blue-100 dark:shadow-none hover:scale-105 transition-all"
+                      >
+                        Terima
+                      </button>
+                      <button
+                        onClick={() => handleAffiliateAction(aff.id, 'rejected')}
+                        className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-300 text-[10px] font-black uppercase rounded-xl hover:text-red-500 dark:hover:text-red-400 transition-all"
+                      >
+                        Tolak
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+
+        {totalPendingPages > 1 && (
+          <div className="p-4 border-t border-slate-50 dark:border-slate-800/50 flex justify-between items-center bg-slate-50/30 dark:bg-[#1a1d1a]">
+             <span className="text-xs font-semibold text-slate-400">
+                Halaman {pendingPage} dari {totalPendingPages}
+             </span>
+             <div className="flex gap-2">
+               <button 
+                 disabled={pendingPage === 1}
+                 onClick={() => setPendingPage(prev => prev - 1)}
+                 className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
+               >
+                 <ChevronLeft size={16}/>
+               </button>
+               <button 
+                 disabled={pendingPage === totalPendingPages}
+                 onClick={() => setPendingPage(prev => prev + 1)}
+                 className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
+               >
+                 <ChevronRight size={16}/>
+               </button>
+             </div>
+          </div>
+        )}
+      </div>
+
+      {/* TABLE WITHDRAWAL */}
       <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800/50 overflow-hidden mb-8 transition-colors">
         <div className="p-7 border-b border-slate-50 dark:border-slate-800/50 bg-orange-50/10 dark:bg-orange-900/10 flex justify-between items-center">
           <h3 className="font-black text-slate-800 dark:text-white text-lg flex items-center gap-3">
@@ -339,65 +378,217 @@ export default function AffiliateManagement() {
         </table>
       </div>
 
-      {/* TABLE DAFTAR PARTNER */}
+      {/* TABLE DAFTAR PARTNER (DILENGKAPI FILTER STATUS) */}
       <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800/50 overflow-hidden transition-colors">
-        <div className="p-7 border-b border-slate-50 dark:border-slate-800/50 flex justify-between items-center">
-          <h3 className="font-black text-slate-800 dark:text-white text-lg">
+        <div className="p-7 border-b border-slate-50 dark:border-slate-800/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <h3 className="font-black text-slate-800 dark:text-white text-lg shrink-0">
             Daftar Partner OKAI
           </h3>
-          <div className="relative">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-500"
-              size={16}
-            />
-            <input
-              type="text"
-              placeholder="Cari Kode atau Nama..."
-              className="pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-xl text-xs font-bold w-64 focus:ring-2 focus:ring-orange-500/20 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
-            />
+          
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+             {/* Paginator Limit Control */}
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs text-slate-400 font-semibold hidden md:block">Tampilkan:</span>
+              <select
+                value={affiliatePerPage}
+                onChange={(e) => {
+                  setAffiliatePerPage(Number(e.target.value));
+                  setAffiliatePage(1);
+                }}
+                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-xl px-2 py-2 outline-none font-bold"
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+
+            {/* Filter Status (All, Active, Rejected, Inactive) */}
+            <div className="flex items-center gap-2 shrink-0">
+              <select
+                value={statusFilterAffiliate}
+                onChange={(e) => {
+                  setStatusFilterAffiliate(e.target.value);
+                  setAffiliatePage(1);
+                }}
+                className="bg-slate-50 dark:bg-[#2a2d2a] border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500/20"
+              >
+                <option value="All">Semua Status</option>
+                <option value="active">Active</option>
+                <option value="rejected">Rejected</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
+            {/* Search Bar */}
+            <div className="relative flex-1 md:flex-none">
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-500"
+                size={16}
+              />
+              <input
+                type="text"
+                value={searchAffiliate}
+                onChange={(e) => {
+                  setSearchAffiliate(e.target.value);
+                  setAffiliatePage(1); 
+                }}
+                placeholder="Cari Kode atau Nama..."
+                className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold w-full md:w-56 focus:ring-2 focus:ring-orange-500/20 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
+              />
+            </div>
           </div>
         </div>
+
         <table className="w-full text-left">
           <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
-            {affiliates.map((aff) => (
-              <tr key={aff.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
-                <td className="p-6">
-                  <p className="font-black text-slate-800 dark:text-slate-200 text-sm">
-                    {aff.full_name}
-                  </p>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">
-                    {aff.affiliate_code}
-                  </p>
-                </td>
-                <td className="p-6 text-center font-black text-slate-600 dark:text-slate-400">
-                  {aff.commission_rate}%
-                </td>
-                <td className="p-6">
-                  <div className="flex justify-center gap-2">
-                    <button
-                      onClick={() => alert(`Detail Mitra: ${aff.full_name}`)}
-                      className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-[#2a2d2a] rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
+            {currentFilteredAffiliates.length === 0 ? (
+               <tr>
+                 <td className="p-10 text-center text-slate-400 italic">Tidak ada partner yang cocok dengan filter atau pencarian.</td>
+               </tr>
+            ) : (
+              currentFilteredAffiliates.map((aff) => (
+                <tr key={aff.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
+                  <td className="p-6">
+                    <p className="font-black text-slate-800 dark:text-slate-200 text-sm">
+                      {aff.full_name}
+                    </p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">
+                      {aff.affiliate_code || "BELUM ADA KODE"}
+                    </p>
+                  </td>
+                  <td className="p-6 text-center font-black text-slate-600 dark:text-slate-400">
+                    {aff.commission_rate}%
+                  </td>
+                  <td className="p-6 text-center">
+                    <span
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                        aff.status === "active"
+                          ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                          : aff.status === "rejected"
+                          ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                      }`}
                     >
-                      <ExternalLink size={18} />
-                    </button>
-                    <button
-                      onClick={() => alert(`History Komisi: ${aff.full_name}`)}
-                      className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-[#E65100] dark:hover:text-orange-400 hover:bg-white dark:hover:bg-[#2a2d2a] rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
-                    >
-                      <DollarSign size={18} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {aff.status}
+                    </span>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => alert(`Detail Mitra: ${aff.full_name}`)}
+                        className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-[#2a2d2a] rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
+                      >
+                        <ExternalLink size={18} />
+                      </button>
+                      <button
+                        onClick={() => alert(`History Komisi: ${aff.full_name}`)}
+                        className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-[#E65100] dark:hover:text-orange-400 hover:bg-white dark:hover:bg-[#2a2d2a] rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
+                      >
+                        <DollarSign size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
+
+        {totalAffiliatePages > 1 && (
+          <div className="p-4 border-t border-slate-50 dark:border-slate-800/50 flex justify-between items-center bg-slate-50/30 dark:bg-[#1a1d1a]">
+             <span className="text-xs font-semibold text-slate-400">
+                Halaman {affiliatePage} dari {totalAffiliatePages}
+             </span>
+             <div className="flex gap-2">
+               <button 
+                 disabled={affiliatePage === 1}
+                 onClick={() => setAffiliatePage(prev => prev - 1)}
+                 className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
+               >
+                 <ChevronLeft size={16}/>
+               </button>
+               <button 
+                 disabled={affiliatePage === totalAffiliatePages}
+                 onClick={() => setAffiliatePage(prev => prev + 1)}
+                 className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
+               >
+                 <ChevronRight size={16}/>
+               </button>
+             </div>
+          </div>
+        )}
       </div>
+
+      {/* MODAL BAYAR KOMISI */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#1a1d1a] w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in duration-300 border dark:border-slate-800/50">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-xl font-black text-slate-800 dark:text-white">
+                Proses <span className="text-[#E65100]">Bayar</span>
+              </h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 dark:text-slate-500 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleManualPayment} className="space-y-5">
+              <div>
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">
+                  Pilih Mitra
+                </label>
+                <select
+                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
+                  onChange={(e) =>
+                    setPaymentData({
+                      ...paymentData,
+                      affiliate_id: e.target.value,
+                    })
+                  }
+                  required
+                >
+                  <option value="">-- Pilih Partner --</option>
+                  {/* Hanya tampilkan partner yang sudah di-Terima (Active) */}
+                  {affiliates.filter(a => a.status === 'active').map((aff) => (
+                    <option key={aff.id} value={aff.id}>
+                      {aff.full_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">
+                  Nominal Transfer (Rp)
+                </label>
+                <input
+                  type="number"
+                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20 placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                  placeholder="0"
+                  onChange={(e) =>
+                    setPaymentData({ ...paymentData, amount: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full py-4 bg-[#1E293B] dark:bg-white dark:text-black text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-black dark:hover:bg-slate-200 transition-all"
+              >
+                <Send size={16} /> Kirim Dana
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// Sub-component StatCard (sudah di-update dengan prop khusus darkmode)
+// Sub-component StatCard
 function StatCard({ label, value, icon, color, bg, darkBg, darkColor }) {
   return (
     <div className="bg-white dark:bg-[#1a1d1a] p-7 rounded-[2rem] border border-slate-100 dark:border-slate-800/50 shadow-sm transition-colors">

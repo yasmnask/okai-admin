@@ -33,6 +33,7 @@ export default function Orders() {
     try {
       setIsLoading(true);
       const result = await getOrders();
+      console.log("Data dari API:", result);
       if (result && result.success) {
         setOrders(result.data);
       }
@@ -48,28 +49,41 @@ export default function Orders() {
   }, []);
 
   // Proses Penyaringan Data (Perpaduan Yasmin & Naufal)
+  // Proses Penyaringan Data (Perpaduan Yasmin & Naufal)
   const filteredOrders = orders.filter((order) => {
-    // A. Filter Pencarian (ID Pesanan atau Nama Customer)
+    // 1. Normalisasi data untuk perbandingan (Cegah Case-Sensitive)
+    const orderStatus = order.status ? order.status.toLowerCase() : "";
+    const orderMethod = order.method ? order.method.toLowerCase() : "";
+    const orderCustomer = order.customer ? order.customer.toLowerCase() : "";
+    const orderID = order.id ? order.id.toLowerCase() : "";
+
+    // A. Filter Pencarian
     const matchSearch =
       searchKeyword === "" ||
-      order.id.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchKeyword.toLowerCase());
+      orderID.includes(searchKeyword.toLowerCase()) ||
+      orderCustomer.includes(searchKeyword.toLowerCase());
 
-    // B. Filter Status
+    // B. Filter Status (Pastikan perbandingan huruf kecil semua)
     const matchStatus =
-      selectedStatus === "" || order.status === selectedStatus;
+      selectedStatus === "" || orderStatus === selectedStatus.toLowerCase();
 
     // C. Filter Pengiriman
     const matchShipping =
-      selectedShipping === "" || order.method === selectedShipping;
+      selectedShipping === "" || orderMethod === selectedShipping.toLowerCase();
 
-    // D. Filter Tanggal (Menyamakan format YYYY-MM-DD dari kalender HTML dengan tanggal API)
+    // D. Filter Tanggal (Lebih aman menggunakan pemisahan string jika format API stabil)
     let matchDate = true;
     if (selectedDate && order.date) {
-      // Mengubah "10 Mar 2026" menjadi format "2026-03-10" untuk dicocokkan
-      const orderDateObj = new Date(order.date);
-      const formattedOrderDate = orderDateObj.toISOString().split("T")[0];
-      matchDate = formattedOrderDate === selectedDate;
+      try {
+        const orderDateObj = new Date(order.date);
+        // Memastikan objek tanggal valid sebelum memproses
+        if (!isNaN(orderDateObj.getTime())) {
+          const formattedOrderDate = orderDateObj.toISOString().split("T")[0];
+          matchDate = formattedOrderDate === selectedDate;
+        }
+      } catch (e) {
+        console.error("Format tanggal tidak didukung:", order.date);
+      }
     }
 
     return matchSearch && matchStatus && matchShipping && matchDate;

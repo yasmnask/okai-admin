@@ -296,3 +296,20 @@ export const getAffiliateList = async () => {
   });
   return response.json();
 };
+
+export async function updateAffiliateStatus(id, newStatus) {
+  const response = await fetch(`${API_URL}/affiliates/${id}/status`, {
+    method: "PATCH", // 🚩 Kembalikan ke PATCH sesuai permintaan server
+    headers: {
+      ...getAuthHeaders(), // Mengambil Token ID Card otomatis
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ status: newStatus }),
+  });
+  
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.message || "Gagal mengupdate status mitra.");
+  }
+  return response.json();
+}

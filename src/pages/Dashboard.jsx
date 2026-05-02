@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   TrendingUp,
@@ -78,8 +78,18 @@ const activityLogs = [
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  // Karena datanya statis sementara, kita biarkan saja. Nantinya ini bisa diambil dari localStorage seperti di ProfileSettings.
-  const user = { name: "Muhammad Fawwas" };
+  
+  // 1. State untuk menyimpan data user dari Local Storage
+  const [adminData, setAdminData] = useState({ name: "Loading...", role: "Loading..." });
+
+  // 2. Mengambil data saat halaman pertama kali dimuat
+  useEffect(() => {
+    const storedData = JSON.parse(localStorage.getItem("okai_admin")) || { 
+      name: "Guest", 
+      role: "Unknown Role" 
+    };
+    setAdminData(storedData);
+  }, []);
 
   const stats = [
     {
@@ -138,11 +148,12 @@ export default function Dashboard() {
               <User size={20} />
             </div>
             <div className="text-left hidden sm:block">
+              {/* 3. Trik JavaScript untuk memecah '_', kapital awal kata, lalu gabung dengan spasi */}
               <p className="text-[10px] font-black text-slate-400 dark:text-slate-200 uppercase tracking-widest leading-none mb-1 transition-colors">
-                Administrator
+                {adminData.role ? adminData.role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : 'Unknown'}
               </p>
               <p className="text-sm font-bold text-slate-700 dark:text-[#e1d4cc] leading-none transition-colors">
-                {user.name}
+                {adminData.name}
               </p>
             </div>
           </button>
