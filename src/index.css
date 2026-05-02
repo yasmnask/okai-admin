@@ -13,3 +13,5 @@
   background-color: #F5F5F5;
   color: #3E2723;
 }
+
+@custom-variant dark (&:where(.dark, .dark *));

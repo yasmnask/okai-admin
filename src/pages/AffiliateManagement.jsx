@@ -90,26 +90,26 @@ export default function AffiliateManagement() {
 
   if (isLoading)
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#F8FAFC]">
+      <div className="flex h-screen w-full items-center justify-center bg-[#F8FAFC] dark:bg-[#1a1e1a]">
         <Loader2 className="animate-spin text-[#E65100]" size={40} />
       </div>
     );
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen font-sans">
+    <div className="p-8 bg-[#F8FAFC] dark:bg-[#1a1e1a] min-h-screen font-sans">
       {/* HEADER */}
       <div className="flex justify-between items-center mb-10">
         <div>
-          <h1 className="text-2xl font-black text-[#1E293B]">
+          <h1 className="text-2xl font-black text-[#1E293B] dark:text-white">
             Affiliate <span className="text-[#E65100]">Management</span>
           </h1>
-          <p className="text-slate-400 text-sm font-medium italic">
+          <p className="text-slate-400 dark:text-slate-500 text-sm font-medium italic">
             Monitoring Performa Mitra OKAI
           </p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-[#E65100] text-white px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-orange-900/20 hover:scale-105 transition-all"
+          className="flex items-center gap-2 bg-[#E65100] text-white px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-orange-900/20 dark:shadow-black/50 hover:scale-105 transition-all"
         >
           <DollarSign size={18} /> Bayar Komisi
         </button>
@@ -123,6 +123,8 @@ export default function AffiliateManagement() {
           icon={<Users />}
           color="text-blue-600"
           bg="bg-blue-50"
+          darkBg="dark:bg-blue-900/30"
+          darkColor="dark:text-blue-400"
         />
         <StatCard
           label="Total Referal"
@@ -130,6 +132,8 @@ export default function AffiliateManagement() {
           icon={<TrendingUp />}
           color="text-purple-600"
           bg="bg-purple-50"
+          darkBg="dark:bg-purple-900/30"
+          darkColor="dark:text-purple-400"
         />
         <StatCard
           label="Komisi Pending"
@@ -137,6 +141,8 @@ export default function AffiliateManagement() {
           icon={<Clock />}
           color="text-orange-600"
           bg="bg-orange-50"
+          darkBg="dark:bg-orange-900/30"
+          darkColor="dark:text-orange-400"
         />
         <StatCard
           label="Komisi Terbayar"
@@ -144,71 +150,71 @@ export default function AffiliateManagement() {
           icon={<CheckCircle2 />}
           color="text-green-600"
           bg="bg-green-50"
+          darkBg="dark:bg-green-900/30"
+          darkColor="dark:text-green-400"
         />
       </div>
 
       {/* TABEL 1: PENDAFTARAN MITRA BARU (UNTUK APPROVE) */}
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden mb-8">
-        <div className="p-7 border-b border-slate-50 bg-blue-50/30 flex justify-between items-center">
-          <h3 className="font-black text-slate-800 text-lg flex items-center gap-3">
+      <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800/50 overflow-hidden mb-8 transition-colors">
+        <div className="p-7 border-b border-slate-50 dark:border-slate-800/50 bg-blue-50/30 dark:bg-blue-900/10 flex justify-between items-center">
+          <h3 className="font-black text-slate-800 dark:text-white text-lg flex items-center gap-3">
             Pendaftaran Mitra Baru
           </h3>
-          <span className="text-[10px] font-black text-blue-600 bg-white px-3 py-1 rounded-lg border border-blue-100 uppercase tracking-widest">
+          <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-white dark:bg-blue-900/30 px-3 py-1 rounded-lg border border-blue-100 dark:border-blue-800 uppercase tracking-widest">
             2 Menunggu Persetujuan
           </span>
         </div>
         <table className="w-full text-left">
-          <tbody className="divide-y divide-slate-50">
-            {/* Contoh Dummy Pendaftar Pertama */}
-            <tr className="hover:bg-slate-50/50">
+          <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
+            <tr className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
               <td className="p-6">
-                <p className="font-bold text-slate-800">Budi Santoso</p>
-                <p className="text-xs text-slate-400 font-medium">
+                <p className="font-bold text-slate-800 dark:text-slate-200">Budi Santoso</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
                   budi@gmail.com
                 </p>
               </td>
-              <td className="p-6 font-semibold text-slate-500 text-sm">
+              <td className="p-6 font-semibold text-slate-500 dark:text-slate-400 text-sm">
                 17 Apr 2026
               </td>
               <td className="p-6">
                 <div className="flex gap-2">
                   <button
                     onClick={() => alert("Budi diterima jadi Affiliate!")}
-                    className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase rounded-xl shadow-md shadow-blue-100 hover:scale-105 transition-all"
+                    className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase rounded-xl shadow-md shadow-blue-100 dark:shadow-none hover:scale-105 transition-all"
                   >
                     Terima
                   </button>
                   <button
                     onClick={() => alert("Budi ditolak!")}
-                    className="px-4 py-2 bg-slate-100 text-slate-400 text-[10px] font-black uppercase rounded-xl hover:text-red-500 transition-all"
+                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-300 text-[10px] font-black uppercase rounded-xl hover:text-red-500 dark:hover:text-red-400 transition-all"
                   >
                     Tolak
                   </button>
                 </div>
               </td>
             </tr>
-            {/* Contoh Dummy Pendaftar Kedua */}
-            <tr className="hover:bg-slate-50/50">
+            <tr className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
               <td className="p-6">
-                <p className="font-bold text-slate-800">Siti Aminah</p>
-                <p className="text-xs text-slate-400 font-medium">
+                <p className="font-bold text-slate-800 dark:text-slate-200">Siti Aminah</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
                   siti.am@yahoo.com
                 </p>
               </td>
-              <td className="p-6 font-semibold text-slate-500 text-sm">
+              <td className="p-6 font-semibold text-slate-500 dark:text-slate-400 text-sm">
                 16 Apr 2026
               </td>
               <td className="p-6">
                 <div className="flex gap-2">
                   <button
                     onClick={() => alert("Siti diterima jadi Affiliate!")}
-                    className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase rounded-xl shadow-md shadow-blue-100 hover:scale-105 transition-all"
+                    className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase rounded-xl shadow-md shadow-blue-100 dark:shadow-none hover:scale-105 transition-all"
                   >
                     Terima
                   </button>
                   <button
                     onClick={() => alert("Siti ditolak!")}
-                    className="px-4 py-2 bg-slate-100 text-slate-400 text-[10px] font-black uppercase rounded-xl hover:text-red-500 transition-all"
+                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-300 text-[10px] font-black uppercase rounded-xl hover:text-red-500 dark:hover:text-red-400 transition-all"
                   >
                     Tolak
                   </button>
@@ -221,15 +227,15 @@ export default function AffiliateManagement() {
 
       {/* MODAL BAYAR KOMISI */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#1a1d1a] w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in duration-300 border dark:border-slate-800/50">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="text-xl font-black text-slate-800">
+              <h3 className="text-xl font-black text-slate-800 dark:text-white">
                 Proses <span className="text-[#E65100]">Bayar</span>
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-slate-100 rounded-xl text-slate-400"
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 dark:text-slate-500 transition-colors"
               >
                 <X size={20} />
               </button>
@@ -237,11 +243,11 @@ export default function AffiliateManagement() {
 
             <form onSubmit={handleManualPayment} className="space-y-5">
               <div>
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">
                   Pilih Mitra
                 </label>
                 <select
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
+                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
                   onChange={(e) =>
                     setPaymentData({
                       ...paymentData,
@@ -259,12 +265,12 @@ export default function AffiliateManagement() {
                 </select>
               </div>
               <div>
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">
                   Nominal Transfer (Rp)
                 </label>
                 <input
                   type="number"
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm font-bold outline-none"
+                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20 placeholder:text-slate-400 dark:placeholder:text-slate-600"
                   placeholder="0"
                   onChange={(e) =>
                     setPaymentData({ ...paymentData, amount: e.target.value })
@@ -274,7 +280,7 @@ export default function AffiliateManagement() {
               </div>
               <button
                 type="submit"
-                className="w-full py-4 bg-[#1E293B] text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-black transition-all"
+                className="w-full py-4 bg-[#1E293B] dark:bg-white dark:text-black text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-black dark:hover:bg-slate-200 transition-all"
               >
                 <Send size={16} /> Kirim Dana
               </button>
@@ -284,43 +290,43 @@ export default function AffiliateManagement() {
       )}
 
       {/* TABLE WITHDRAWAL (PROSES APPROVE/REJECT) */}
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden mb-8">
-        <div className="p-7 border-b border-slate-50 bg-orange-50/10 flex justify-between items-center">
-          <h3 className="font-black text-slate-800 text-lg flex items-center gap-3">
+      <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800/50 overflow-hidden mb-8 transition-colors">
+        <div className="p-7 border-b border-slate-50 dark:border-slate-800/50 bg-orange-50/10 dark:bg-orange-900/10 flex justify-between items-center">
+          <h3 className="font-black text-slate-800 dark:text-white text-lg flex items-center gap-3">
             <Clock className="text-[#E65100]" /> Permintaan Pencairan
           </h3>
-          <span className="text-[10px] font-black text-[#E65100] bg-white px-3 py-1 rounded-lg border border-orange-100 uppercase tracking-widest">
+          <span className="text-[10px] font-black text-[#E65100] dark:text-orange-400 bg-white dark:bg-orange-900/30 px-3 py-1 rounded-lg border border-orange-100 dark:border-orange-800/50 uppercase tracking-widest">
             {pendingWithdrawals.length} Needs Action
           </span>
         </div>
         <table className="w-full text-left">
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
             {pendingWithdrawals.length === 0 ? (
               <tr>
-                <td className="p-10 text-center text-slate-300 font-bold italic">
+                <td className="p-10 text-center text-slate-300 dark:text-slate-600 font-bold italic">
                   Tidak ada permintaan pencairan saat ini.
                 </td>
               </tr>
             ) : (
               pendingWithdrawals.map((req) => (
-                <tr key={req.id} className="hover:bg-slate-50/50">
-                  <td className="p-6 font-bold text-slate-800">
+                <tr key={req.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
+                  <td className="p-6 font-bold text-slate-800 dark:text-slate-200">
                     {req.affiliate?.full_name}
                   </td>
-                  <td className="p-6 font-black text-[#E65100]">
+                  <td className="p-6 font-black text-[#E65100] dark:text-orange-400">
                     {formatIDR(req.amount)}
                   </td>
                   <td className="p-6">
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleStatusUpdate(req.id, "approved")}
-                        className="px-4 py-2 bg-green-500 text-white text-[10px] font-black uppercase rounded-xl shadow-md shadow-green-100 hover:scale-105 transition-all"
+                        className="px-4 py-2 bg-green-500 text-white text-[10px] font-black uppercase rounded-xl shadow-md shadow-green-100 dark:shadow-none hover:scale-105 transition-all"
                       >
                         Approve
                       </button>
                       <button
                         onClick={() => handleStatusUpdate(req.id, "rejected")}
-                        className="px-4 py-2 bg-slate-100 text-slate-400 text-[10px] font-black uppercase rounded-xl hover:text-red-500 transition-all"
+                        className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-300 text-[10px] font-black uppercase rounded-xl hover:text-red-500 dark:hover:text-red-400 transition-all"
                       >
                         Reject
                       </button>
@@ -334,49 +340,49 @@ export default function AffiliateManagement() {
       </div>
 
       {/* TABLE DAFTAR PARTNER */}
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-        <div className="p-7 border-b border-slate-50 flex justify-between items-center">
-          <h3 className="font-black text-slate-800 text-lg">
+      <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800/50 overflow-hidden transition-colors">
+        <div className="p-7 border-b border-slate-50 dark:border-slate-800/50 flex justify-between items-center">
+          <h3 className="font-black text-slate-800 dark:text-white text-lg">
             Daftar Partner OKAI
           </h3>
           <div className="relative">
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-500"
               size={16}
             />
             <input
               type="text"
               placeholder="Cari Kode atau Nama..."
-              className="pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-xs font-bold w-64"
+              className="pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-xl text-xs font-bold w-64 focus:ring-2 focus:ring-orange-500/20 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
         </div>
         <table className="w-full text-left">
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
             {affiliates.map((aff) => (
-              <tr key={aff.id} className="hover:bg-slate-50/50">
+              <tr key={aff.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
                 <td className="p-6">
-                  <p className="font-black text-slate-800 text-sm">
+                  <p className="font-black text-slate-800 dark:text-slate-200 text-sm">
                     {aff.full_name}
                   </p>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">
                     {aff.affiliate_code}
                   </p>
                 </td>
-                <td className="p-6 text-center font-black text-slate-600">
+                <td className="p-6 text-center font-black text-slate-600 dark:text-slate-400">
                   {aff.commission_rate}%
                 </td>
                 <td className="p-6">
                   <div className="flex justify-center gap-2">
                     <button
                       onClick={() => alert(`Detail Mitra: ${aff.full_name}`)}
-                      className="p-2.5 text-slate-400 hover:text-blue-500 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 transition-all"
+                      className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-[#2a2d2a] rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
                     >
                       <ExternalLink size={18} />
                     </button>
                     <button
                       onClick={() => alert(`History Komisi: ${aff.full_name}`)}
-                      className="p-2.5 text-slate-400 hover:text-[#E65100] hover:bg-white rounded-xl border border-transparent hover:border-slate-100 transition-all"
+                      className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-[#E65100] dark:hover:text-orange-400 hover:bg-white dark:hover:bg-[#2a2d2a] rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
                     >
                       <DollarSign size={18} />
                     </button>
@@ -391,19 +397,19 @@ export default function AffiliateManagement() {
   );
 }
 
-// Sub-component StatCard
-function StatCard({ label, value, icon, color, bg }) {
+// Sub-component StatCard (sudah di-update dengan prop khusus darkmode)
+function StatCard({ label, value, icon, color, bg, darkBg, darkColor }) {
   return (
-    <div className="bg-white p-7 rounded-[2rem] border border-slate-100 shadow-sm">
+    <div className="bg-white dark:bg-[#1a1d1a] p-7 rounded-[2rem] border border-slate-100 dark:border-slate-800/50 shadow-sm transition-colors">
       <div
-        className={`w-12 h-12 ${bg} ${color} rounded-2xl flex items-center justify-center mb-5`}
+        className={`w-12 h-12 ${bg} ${color} ${darkBg} ${darkColor} rounded-2xl flex items-center justify-center mb-5 transition-colors`}
       >
         {icon}
       </div>
-      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">
+      <p className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">
         {label}
       </p>
-      <h2 className="text-2xl font-black text-slate-800">{value || 0}</h2>
+      <h2 className="text-2xl font-black text-slate-800 dark:text-white transition-colors">{value || 0}</h2>
     </div>
   );
 }

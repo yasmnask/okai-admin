@@ -78,35 +78,35 @@ export default function EditPromotion() {
   };
 
   if (isLoading) return (
-    <div className="flex h-screen w-full items-center justify-center bg-[#F8FAFC]">
+    <div className="flex h-screen w-full items-center justify-center bg-[#F8FAFC] dark:bg-[#1a1e1a] transition-colors">
       <Loader2 className="animate-spin text-[#E65100]" size={48} />
     </div>
   );
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen font-sans">
+    <div className="p-8 bg-[#F8FAFC] dark:bg-[#1a1e1a] min-h-screen font-sans transition-colors">
       {/* HEADER ACTIONS */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10 sticky top-0 z-10 bg-[#F8FAFC]/80 backdrop-blur-md py-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10 sticky top-0 z-10 bg-[#F8FAFC]/80 dark:bg-[#1a1e1a]/80 backdrop-blur-md py-4 transition-colors">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/promotions')} className="p-2.5 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-[#E65100] transition-all shadow-sm">
+          <button onClick={() => navigate('/promotions')} className="p-2.5 bg-white dark:bg-[#2a2d2a] border border-slate-200 dark:border-transparent rounded-2xl text-slate-400 hover:text-[#E65100] transition-all shadow-sm">
             <ArrowLeft size={22} />
           </button>
           <div>
             <div className="flex items-center gap-2 text-[10px] font-black text-[#E65100] uppercase tracking-[0.2em]">
               <Zap size={12} /> Editing Voucher: {id}
             </div>
-            <h1 className="text-2xl font-black text-[#1E293B]">Update <span className="text-[#E65100]">Kampanye Diskon</span></h1>
+            <h1 className="text-2xl font-black text-[#1E293B] dark:text-white transition-colors">Update <span className="text-[#E65100]">Kampanye Diskon</span></h1>
           </div>
         </div>
         
         <div className="flex gap-3">
-          <button onClick={() => navigate('/promotions')} className="px-6 py-3.5 bg-white text-slate-500 rounded-2xl font-bold border border-slate-200">
+          <button onClick={() => navigate('/promotions')} className="px-6 py-3.5 bg-white dark:bg-[#2a2d2a] text-slate-500 dark:text-slate-400 rounded-2xl font-bold border border-slate-200 dark:border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm">
             Batal
           </button>
           <button 
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-10 py-3.5 bg-[#1E293B] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
+            className="px-10 py-3.5 bg-[#1E293B] dark:bg-white text-white dark:text-black rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl dark:shadow-none hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
           >
             {isSubmitting ? "Updating..." : <><Save size={18} /> Simpan Perubahan</>}
           </button>
@@ -116,8 +116,8 @@ export default function EditPromotion() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
         <div className="xl:col-span-8 space-y-6">
           {/* Identitas Voucher */}
-          <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100">
-            <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest flex items-center gap-2 mb-8">
+          <div className="bg-white dark:bg-[#1a1d1a] p-10 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800/50 transition-colors">
+            <h3 className="font-black text-slate-800 dark:text-white text-sm uppercase tracking-widest flex items-center gap-2 mb-8 transition-colors">
               <Ticket size={16} className="text-[#E65100]" /> Identitas Voucher
             </h3>
             <div className="space-y-6">
@@ -125,20 +125,20 @@ export default function EditPromotion() {
                 type="text" 
                 value={formData.code}
                 onChange={(e) => setFormData({...formData, code: e.target.value.toUpperCase()})}
-                className="w-full p-5 bg-slate-50 border-2 border-transparent rounded-[1.5rem] text-lg outline-none focus:border-orange-100 font-black text-[#E65100]" 
+                className="w-full p-5 bg-slate-50 dark:bg-[#2a2d2a] border-2 border-transparent rounded-[1.5rem] text-lg outline-none focus:border-orange-100 dark:focus:border-orange-900/50 font-black text-[#E65100] dark:text-orange-400 transition-colors" 
               />
               <textarea 
                 rows="3" 
                 value={formData.description || ''}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="w-full p-6 bg-slate-50 border-2 border-transparent rounded-[1.5rem] text-sm outline-none focus:border-orange-100 font-medium"
+                className="w-full p-6 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-2 border-transparent rounded-[1.5rem] text-sm outline-none focus:border-orange-100 dark:focus:border-orange-900/50 font-medium transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-600"
               ></textarea>
             </div>
           </div>
 
           {/* Pengaturan Potongan */}
-          <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100">
-            <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest flex items-center gap-2 mb-8">
+          <div className="bg-white dark:bg-[#1a1d1a] p-10 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800/50 transition-colors">
+            <h3 className="font-black text-slate-800 dark:text-white text-sm uppercase tracking-widest flex items-center gap-2 mb-8 transition-colors">
               <Settings size={16} className="text-[#E65100]" /> Pengaturan Potongan
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -146,29 +146,29 @@ export default function EditPromotion() {
                 <button 
                   type="button"
                   onClick={() => setFormData({...formData, type: 'percentage'})}
-                  className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${formData.type === 'percentage' ? 'border-[#E65100] bg-orange-50' : 'border-slate-100'}`}
+                  className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${formData.type === 'percentage' ? 'border-[#E65100] bg-orange-50 dark:bg-orange-900/20' : 'border-slate-100 dark:border-slate-700/50 dark:hover:border-slate-600'}`}
                 >
-                  <Percent size={20} className={formData.type === 'percentage' ? 'text-[#E65100]' : 'text-slate-300'} />
-                  <span className="text-[10px] font-black uppercase">Persentase</span>
+                  <Percent size={20} className={formData.type === 'percentage' ? 'text-[#E65100]' : 'text-slate-300 dark:text-slate-500'} />
+                  <span className={`text-[10px] font-black uppercase ${formData.type === 'percentage' ? 'text-[#E65100]' : 'text-slate-400 dark:text-slate-400'}`}>Persentase</span>
                 </button>
                 <button 
                   type="button"
                   onClick={() => setFormData({...formData, type: 'fixed_amount'})}
-                  className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${formData.type === 'fixed_amount' ? 'border-[#E65100] bg-orange-50' : 'border-slate-100'}`}
+                  className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${formData.type === 'fixed_amount' ? 'border-[#E65100] bg-orange-50 dark:bg-orange-900/20' : 'border-slate-100 dark:border-slate-700/50 dark:hover:border-slate-600'}`}
                 >
-                  <DollarSign size={20} className={formData.type === 'fixed_amount' ? 'text-[#E65100]' : 'text-slate-300'} />
-                  <span className="text-[10px] font-black uppercase">Nominal</span>
+                  <DollarSign size={20} className={formData.type === 'fixed_amount' ? 'text-[#E65100]' : 'text-slate-300 dark:text-slate-500'} />
+                  <span className={`text-[10px] font-black uppercase ${formData.type === 'fixed_amount' ? 'text-[#E65100]' : 'text-slate-400 dark:text-slate-400'}`}>Nominal</span>
                 </button>
               </div>
               <div className="relative">
-                <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-slate-300">
+                <span className="absolute left-5 top-1/2 -translate-y-1/2 font-black text-slate-300 dark:text-slate-500">
                   {formData.type === 'percentage' ? '%' : 'Rp'}
                 </span>
                 <input 
                   type="number" 
                   value={formData.value}
                   onChange={(e) => setFormData({...formData, value: e.target.value})}
-                  className="w-full pl-12 pr-6 py-5 bg-slate-50 rounded-[1.5rem] text-lg font-black outline-none" 
+                  className="w-full pl-12 pr-6 py-5 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-[1.5rem] text-lg font-black outline-none transition-colors" 
                 />
               </div>
             </div>
@@ -177,45 +177,45 @@ export default function EditPromotion() {
 
         {/* SIDEBAR LIMIT & STATUS */}
         <div className="xl:col-span-4 space-y-6">
-          <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
-            <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest mb-6 flex items-center gap-2">
+          <div className="bg-white dark:bg-[#1a1d1a] p-8 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800/50 transition-colors">
+            <h3 className="font-black text-slate-800 dark:text-white text-xs uppercase tracking-widest mb-6 flex items-center gap-2 transition-colors">
               <Clock size={16} className="text-[#E65100]" /> Masa Berlaku
             </h3>
             <div className="space-y-4">
-              <input type="date" value={formData.start_date} onChange={(e) => setFormData({...formData, start_date: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl text-xs font-bold outline-none" />
-              <input type="date" value={formData.end_date} onChange={(e) => setFormData({...formData, end_date: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl text-xs font-bold outline-none" />
+              <input type="date" value={formData.start_date} onChange={(e) => setFormData({...formData, start_date: e.target.value})} className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-2xl text-xs font-bold outline-none transition-colors" style={{ colorScheme: 'light dark' }} />
+              <input type="date" value={formData.end_date} onChange={(e) => setFormData({...formData, end_date: e.target.value})} className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-2xl text-xs font-bold outline-none transition-colors" style={{ colorScheme: 'light dark' }} />
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100">
-            <h3 className="font-black text-slate-800 text-xs uppercase tracking-widest mb-6 flex items-center gap-2">
+          <div className="bg-white dark:bg-[#1a1d1a] p-8 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800/50 transition-colors">
+            <h3 className="font-black text-slate-800 dark:text-white text-xs uppercase tracking-widest mb-6 flex items-center gap-2 transition-colors">
               <Users size={16} className="text-[#E65100]" /> Batas Penggunaan
             </h3>
-            <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100">
-              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Maksimal Pemakaian (User)</label>
+            <div className="bg-slate-50 dark:bg-[#2a2d2a] p-5 rounded-3xl border border-slate-100 dark:border-transparent transition-colors">
+              <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 block transition-colors">Maksimal Pemakaian (User)</label>
               <div className="flex items-center gap-3">
                 <input 
                   type="number" 
                   value={formData.max_usage}
                   onChange={(e) => setFormData({...formData, max_usage: e.target.value})}
-                  className="bg-transparent w-full text-xl font-black outline-none text-slate-700" 
+                  className="bg-transparent w-full text-xl font-black outline-none text-slate-700 dark:text-white transition-colors" 
                 />
-                <span className="text-[10px] font-black text-slate-300 uppercase">Kupon</span>
+                <span className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase transition-colors">Kupon</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-[#1E293B] p-8 rounded-[3rem] shadow-2xl text-white">
+          <div className="bg-[#1E293B] dark:bg-[#2a2d2a] p-8 rounded-[3rem] shadow-2xl dark:shadow-none text-white transition-colors">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Voucher Status</p>
+              <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest transition-colors">Voucher Status</p>
               <button 
                 onClick={() => setFormData({...formData, is_active: formData.is_active ? 0 : 1})}
-                className={`w-12 h-6 rounded-full transition-all flex items-center px-1 ${formData.is_active ? 'bg-green-500' : 'bg-slate-700'}`}
+                className={`w-12 h-6 rounded-full transition-all flex items-center px-1 ${formData.is_active ? 'bg-green-500 dark:bg-green-600' : 'bg-slate-700 dark:bg-slate-600'}`}
               >
                 <div className={`w-4 h-4 bg-white rounded-full shadow-md transition-all transform ${formData.is_active ? 'translate-x-6' : 'translate-x-0'}`}></div>
               </button>
             </div>
-            <p className="text-xs font-bold text-slate-300">
+            <p className="text-xs font-bold text-slate-300 dark:text-slate-300 transition-colors">
               {formData.is_active ? 'Voucher sedang aktif digunakan.' : 'Voucher sedang dinonaktifkan.'}
             </p>
           </div>

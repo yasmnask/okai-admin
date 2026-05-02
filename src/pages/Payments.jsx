@@ -84,17 +84,17 @@ export default function Payments() {
   ];
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-[#F8FAFC] dark:bg-[#1a1e1a] min-h-screen">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
         <div>
-          <h1 className="text-2xl font-black text-[#1E293B]">
+          <h1 className="text-2xl font-black text-[#1E293B] dark:text-white">
             Payment <span className="text-[#E65100]">Management</span>
           </h1>
-          <p className="text-slate-400 text-sm font-medium italic">
+          <p className="text-slate-400 dark:text-[#e1d4cc] text-sm font-medium italic">
             Monitoring transaksi dan rekonsiliasi keuangan OKAI
           </p>
         </div>
-        <button className="flex items-center gap-2 bg-[#E65100] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 hover:scale-105 transition-transform">
+        <button className="flex items-center gap-2 bg-[#E65100] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 dark:shadow-black hover:scale-105 transition-transform">
           <Download size={20} /> Export Laporan (.csv)
         </button>
       </div>
@@ -103,7 +103,7 @@ export default function Payments() {
         {financeStats.map((stat, i) => (
           <div
             key={i}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all"
+            className="bg-white dark:bg-[#1a1d1a] p-6 rounded-3xl border border-slate-100 dark:border-0 dark:shadow-black dark:shadow-xl shadow-sm hover:shadow-md transition-all"
           >
             <div
               className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4`}
@@ -113,16 +113,16 @@ export default function Payments() {
             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
               {stat.label}
             </p>
-            <h2 className="text-2xl font-black mt-1 text-slate-800 tracking-tight">
+            <h2 className="text-2xl font-black mt-1 text-slate-800 dark:text-slate-200 tracking-tight">
               {stat.value}
             </h2>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-        <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row justify-between gap-4 items-center">
-          <h3 className="font-black text-slate-800 text-lg">
+      <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-0 dark:shadow-md dark:shadow-black overflow-hidden">
+        <div className="p-6 border-b border-slate-50 dark:border-black flex flex-col md:flex-row justify-between gap-4 items-center">
+          <h3 className="font-black text-slate-800 dark:text-slate-200 text-lg">
             Riwayat Transaksi Terkini
           </h3>
           <div className="flex flex-wrap gap-2 w-full md:w-auto">
@@ -134,14 +134,14 @@ export default function Payments() {
               <input
                 type="text"
                 placeholder="Cari ID Transaksi..."
-                className="pl-10 pr-4 py-2 bg-slate-50 rounded-xl text-xs outline-none w-40"
+                className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/30 rounded-xl focus:ring-2 focus:ring-orange-500/20 text-xs outline-none w-40"
               />
             </div>
 
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-3 py-2 bg-slate-50 rounded-xl text-xs"
+              className="px-3 py-2 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/30 rounded-xl text-xs"
             >
               <option value="">All Status</option>
               <option value="Success">Success</option>
@@ -152,7 +152,7 @@ export default function Payments() {
             <select
               value={selectedMethod}
               onChange={(e) => setSelectedMethod(e.target.value)}
-              className="px-3 py-2 bg-slate-50 rounded-xl text-xs"
+              className="px-3 py-2 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/30 rounded-xl text-xs"
             >
               <option value="">All Method</option>
               <option value="GoPay">GoPay</option>
@@ -164,28 +164,28 @@ export default function Payments() {
 
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50/50">
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
+            <tr className="bg-slate-50/50 dark:bg-[#3e3c3a]">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">
                 Order ID
               </th>
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">
                 Customer
               </th>
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">
                 Amount
               </th>
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">
                 Method
               </th>
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">
                 Status
               </th>
-              <th className="p-6 text-xs font-black text-slate-400 uppercase tracking-widest text-center">
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
                 Aksi
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-50">
+          <tbody className="divide-y divide-slate-50 dark:divide-black">
             {filteredTransactions.map((trx) => (
               <tr
                 key={trx.id}
@@ -200,16 +200,19 @@ export default function Payments() {
                   </p>
                 </td>
                 <td className="p-6">
-                  <p className="font-bold text-slate-800 text-sm">
+                  <p className="font-bold text-slate-800 dark:text-slate-400 text-sm">
                     {trx.customer}
                   </p>
                 </td>
-                <td className="p-6 font-black text-slate-800 text-sm">
+                <td className="p-6 font-black text-slate-800 dark:text-slate-400 text-sm">
                   {trx.amount}
                 </td>
                 <td className="p-6">
-                  <div className="flex items-center gap-2 text-slate-500 text-sm font-semibold">
-                    <CreditCard size={14} className="text-slate-400" />
+                  <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-semibold">
+                    <CreditCard
+                      size={14}
+                      className="text-slate-400 dark:text-slate-300"
+                    />
                     {trx.method}
                   </div>
                 </td>
@@ -217,10 +220,10 @@ export default function Payments() {
                   <span
                     className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center w-fit gap-1 ${
                       trx.status === "Success"
-                        ? "bg-green-100 text-green-600"
+                        ? "bg-green-100 dark:bg-green-600 text-green-600 dark:text-green-50"
                         : trx.status === "Pending"
-                          ? "bg-orange-100 text-orange-600"
-                          : "bg-red-100 text-red-600"
+                          ? "bg-orange-100 dark:bg-orange-600 text-orange-600 dark:text-orange-50"
+                          : "bg-red-100 dark:bg-red-600 text-red-600 dark:text-red-50"
                     }`}
                   >
                     {trx.status === "Success" ? (
@@ -236,13 +239,13 @@ export default function Payments() {
                 <td className="p-6">
                   <div className="flex justify-center items-center gap-2">
                     <button
-                      className="p-2 text-slate-400 hover:text-blue-500 hover:bg-white rounded-lg transition-all shadow-sm"
+                      className="p-2 text-slate-400 hover:text-blue-500 dark:hover:text-white hover:bg-white dark:hover:bg-blue-500 rounded-lg transition-all shadow-sm"
                       title="Detail Transaksi"
                     >
                       <Eye size={18} />
                     </button>
                     <button
-                      className="p-2 text-slate-400 hover:text-[#E65100] hover:bg-white rounded-lg transition-all shadow-sm"
+                      className="p-2 text-slate-400 hover:text-[#E65100] dark:hover:text-white hover:bg-white dark:hover:bg-[#E65100] rounded-lg transition-all shadow-sm"
                       title="Download Kwitansi"
                     >
                       <Download size={18} />

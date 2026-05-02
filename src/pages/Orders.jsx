@@ -86,7 +86,9 @@ export default function Orders() {
     },
     {
       label: "Sedang Diproses",
-      value: orders.filter((o) => o.status === "Processing" || o.status === "Pending").length,
+      value: orders.filter(
+        (o) => o.status === "Processing" || o.status === "Pending",
+      ).length,
       icon: <Clock size={20} />,
       color: "text-orange-600",
       bg: "bg-orange-50",
@@ -108,13 +110,13 @@ export default function Orders() {
   ];
 
   return (
-    <div className="p-8 bg-[#F8FAFC] min-h-screen">
+    <div className="p-8 bg-[#F8FAFC] dark:bg-[#1a1e1a] min-h-screen">
       {/* HEADER */}
       <div className="mb-10">
-        <h1 className="text-2xl font-black text-[#1E293B]">
+        <h1 className="text-2xl font-black text-[#1E293B] dark:text-white">
           Order <span className="text-[#E65100]">Management</span>
         </h1>
-        <p className="text-slate-400 text-sm font-medium italic">
+        <p className="text-slate-400 dark:text-[#e1d4cc] text-sm font-medium italic">
           Status "Delivered" otomatis memicu perhitungan komisi
         </p>
       </div>
@@ -124,7 +126,7 @@ export default function Orders() {
         {orderStats.map((stat, i) => (
           <div
             key={i}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm"
+            className="bg-white dark:bg-[#1a1d1a] p-6 rounded-3xl border border-slate-100 dark:border-0 dark:shadow-black dark:shadow-xl shadow-sm hover:shadow-md transition-shadow"
           >
             <div
               className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center mb-4`}
@@ -134,7 +136,7 @@ export default function Orders() {
             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
               {stat.label}
             </p>
-            <h2 className="text-2xl font-black mt-1 text-slate-800">
+            <h2 className="text-2xl font-black mt-1 text-slate-800 dark:text-slate-200">
               {stat.value}
             </h2>
           </div>
@@ -142,11 +144,13 @@ export default function Orders() {
       </div>
 
       {/* TABLE SECTION */}
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-        <div className="p-6 border-b border-slate-50 flex flex-col xl:flex-row justify-between gap-4 items-center">
-          <h3 className="font-black text-slate-800 text-lg">Recent Orders</h3>
+      <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-0 dark:shadow-md dark:shadow-black overflow-hidden">
+        <div className="p-6 border-b border-slate-50 dark:border-black flex flex-col xl:flex-row justify-between gap-4 items-center">
+          <h3 className="font-black text-slate-800 dark:text-slate-200 text-lg">
+            Recent Orders
+          </h3>
 
-          {/* FILTERS (Dari Yasmin) */}
+          {/* FILTERS */}
           <div className="flex flex-wrap gap-2 w-full xl:w-auto">
             {/* SEARCH */}
             <div className="relative flex-1 md:flex-none">
@@ -159,7 +163,7 @@ export default function Orders() {
                 placeholder="Cari ID/Nama..."
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full md:w-40 bg-slate-50 rounded-xl text-xs outline-none focus:ring-2 focus:ring-orange-500/20 font-medium"
+                className="pl-10 pr-4 py-2 w-full md:w-40 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/30 rounded-xl text-xs outline-none focus:ring-2 focus:ring-orange-500/20 font-medium"
               />
             </div>
 
@@ -168,14 +172,14 @@ export default function Orders() {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="px-3 py-2 bg-slate-50 rounded-xl text-xs font-medium outline-none"
+              className="px-3 py-2 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/30 rounded-xl text-xs font-medium outline-none"
             />
 
             {/* STATUS FILTER */}
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-3 py-2 bg-slate-50 rounded-xl text-xs font-medium outline-none"
+              className="px-3 py-2 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/30 rounded-xl text-xs font-medium outline-none"
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>
@@ -188,7 +192,7 @@ export default function Orders() {
             <select
               value={selectedShipping}
               onChange={(e) => setSelectedShipping(e.target.value)}
-              className="px-3 py-2 bg-slate-50 rounded-xl text-xs font-medium outline-none"
+              className="px-3 py-2 bg-slate-50 dark:bg-[#1a1d1a] dark:text-slate-300/30 rounded-xl text-xs font-medium outline-none"
             >
               <option value="">All Shipping</option>
               <option value="Standard Reguler">Standard Reguler</option>
@@ -201,23 +205,23 @@ export default function Orders() {
 
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50/50">
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase">
+            <tr className="bg-slate-50/50 dark:bg-[#3e3c3a]">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase">
                 Order ID & Date
               </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase">
                 Customer
               </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase">
                 Product
               </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase text-center">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase text-center">
                 Shipping
               </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase">
                 Status
               </th>
-              <th className="p-6 text-[10px] font-black text-slate-400 uppercase text-center">
+              <th className="p-6 text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase text-center">
                 Action
               </th>
             </tr>
@@ -226,13 +230,19 @@ export default function Orders() {
           <tbody className="divide-y divide-slate-50 text-sm">
             {isLoading ? (
               <tr>
-                <td colSpan="6" className="p-10 text-center font-bold text-slate-400 animate-pulse">
+                <td
+                  colSpan="6"
+                  className="p-10 text-center font-bold text-slate-400 dark:text-slate-600 animate-pulse"
+                >
                   Menarik data transaksi dari server...
                 </td>
               </tr>
             ) : filteredOrders.length === 0 ? (
               <tr>
-                <td colSpan="6" className="p-10 text-center font-bold text-slate-400 italic">
+                <td
+                  colSpan="6"
+                  className="p-10 text-center font-bold text-slate-400 dark:text-slate-300/30 italic"
+                >
                   Belum ada pesanan atau data tidak ditemukan.
                 </td>
               </tr>
@@ -256,7 +266,9 @@ export default function Orders() {
                       <div className="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
                         <User size={14} />
                       </div>
-                      <p className="font-bold text-slate-800">{order.customer}</p>
+                      <p className="font-bold text-slate-800">
+                        {order.customer}
+                      </p>
                     </div>
                   </td>
                   <td className="p-6">
@@ -281,10 +293,10 @@ export default function Orders() {
                         order.status === "Delivered"
                           ? "bg-green-100 text-green-600"
                           : order.status === "Shipped"
-                          ? "bg-purple-100 text-purple-600"
-                          : order.status === "Processing"
-                          ? "bg-blue-100 text-blue-600"
-                          : "bg-orange-100 text-orange-600"
+                            ? "bg-purple-100 text-purple-600"
+                            : order.status === "Processing"
+                              ? "bg-blue-100 text-blue-600"
+                              : "bg-orange-100 text-orange-600"
                       }`}
                     >
                       {order.status === "Delivered" ? (
