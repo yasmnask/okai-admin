@@ -267,21 +267,52 @@ export default function AffiliateManagement() {
           <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
             {currentPendingAffiliates.length === 0 ? (
               <tr>
-                <td className="p-10 text-center text-slate-400 italic">Tidak ada pendaftaran baru.</td>
+                <td colSpan="4" className="p-10 text-center text-slate-400 italic">Tidak ada pendaftaran baru.</td>
               </tr>
             ) : (
               currentPendingAffiliates.map((aff) => (
                 <tr key={aff.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
-                  <td className="p-6">
+                  {/* KOLOM 1: IDENTITAS */}
+                  <td className="p-6 align-top">
                     <p className="font-bold text-slate-800 dark:text-slate-200">{aff.full_name}</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
-                      {aff.email || "No Email"} | {aff.phone || "No Phone"}
+                    <p className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-1">
+                      {aff.email || "No Email"}
+                    </p>
+                    <p className="text-xs font-bold text-[#E65100] mt-0.5">
+                      {aff.phone || "No Phone"}
                     </p>
                   </td>
-                  <td className="p-6 font-semibold text-slate-500 dark:text-slate-400 text-sm">
-                    {aff.created_at ? new Date(aff.created_at).toLocaleDateString() : "-"}
+
+                  {/* KOLOM 2: SOSMED & RENCANA PROMOSI (MINIMALIST) */}
+                  <td className="p-6 align-top w-[45%]">
+                    <div className="flex flex-col gap-2.5">
+                      {/* Platform & Username */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                          {aff.social_platform}
+                        </span>
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                          {aff.social_username}
+                        </span>
+                      </div>
+                      
+                      {/* Rencana Promosi */}
+                      <p 
+                        className="text-xs text-slate-400 dark:text-slate-500 font-medium leading-relaxed line-clamp-2" 
+                        title={aff.promotional_plan}
+                      >
+                        {aff.promotional_plan || "Tidak menuliskan rencana promosi."}
+                      </p>
+                    </div>
                   </td>
-                  <td className="p-6">
+
+                  {/* KOLOM 3: TANGGAL */}
+                  <td className="p-6 font-semibold text-slate-500 dark:text-slate-400 text-sm align-top">
+                    {aff.created_at ? new Date(aff.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : "-"}
+                  </td>
+
+                  {/* KOLOM 4: AKSI */}
+                  <td className="p-6 align-top">
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleAffiliateAction(aff.id, 'active')}
