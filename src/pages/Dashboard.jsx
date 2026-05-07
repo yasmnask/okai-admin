@@ -36,7 +36,7 @@ const salesData = [
 const activityLogs = [
   {
     id: 1,
-    user: "Muhammad Fawwas",
+    user: "System",
     action: "Updated Stock",
     target: "Sepatu Lari Pro-X",
     time: "2 mins ago",
@@ -79,15 +79,12 @@ const activityLogs = [
 export default function Dashboard() {
   const navigate = useNavigate();
   
-  // 1. State untuk menyimpan data user dari Local Storage
-  const [adminData, setAdminData] = useState({ name: "Loading...", role: "Loading..." });
+  // State untuk menyimpan data user yang sedang login
+  const [adminData, setAdminData] = useState({});
 
-  // 2. Mengambil data saat halaman pertama kali dimuat
   useEffect(() => {
-    const storedData = JSON.parse(localStorage.getItem("okai_admin")) || { 
-      name: "Guest", 
-      role: "Unknown Role" 
-    };
+    // Tarik data dari localStorage saat halaman diload
+    const storedData = JSON.parse(localStorage.getItem("okai_admin")) || {};
     setAdminData(storedData);
   }, []);
 
@@ -141,19 +138,19 @@ export default function Dashboard() {
             <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#3e3c3a] transition-colors"></span>
           </button>
           <button
-            onClick={() => navigate("/settings")}
+            onClick={() => navigate("/profile")}
             className="flex items-center gap-3 bg-white dark:bg-[#3e3c3a] p-1.5 pr-4 border border-slate-100 dark:border-0 dark:shadow-black dark:shadow-sm rounded-2xl hover:shadow-md transition-all group"
           >
             <div className="w-10 h-10 bg-orange-50 dark:bg-[#E65100] text-[#E65100] dark:text-white rounded-xl flex items-center justify-center group-hover:bg-[#E65100] dark:group-hover:bg-orange-50 group-hover:text-white dark:group-hover:text-[#E65100] transition-colors">
               <User size={20} />
             </div>
             <div className="text-left hidden sm:block">
-              {/* 3. Trik JavaScript untuk memecah '_', kapital awal kata, lalu gabung dengan spasi */}
+              {/* NAMA ROLE DAN NAMA USER DINAMIS DARI LOCALSTORAGE */}
               <p className="text-[10px] font-black text-slate-400 dark:text-slate-200 uppercase tracking-widest leading-none mb-1 transition-colors">
-                {adminData.role ? adminData.role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : 'Unknown'}
+                {adminData?.role ? adminData.role.replace('_', ' ') : "Guest"}
               </p>
               <p className="text-sm font-bold text-slate-700 dark:text-[#e1d4cc] leading-none transition-colors">
-                {adminData.name}
+                {adminData?.name || "User"}
               </p>
             </div>
           </button>
@@ -228,7 +225,7 @@ export default function Dashboard() {
                     borderRadius: "16px",
                     border: "none",
                     boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
-                    backgroundColor: "var(--tw-colors-white)", // Idealnya ini diatur CSS custom property kalau rechart mau ganti tema, tapi ini aman.
+                    backgroundColor: "var(--tw-colors-white)",
                   }}
                 />
                 <Area
