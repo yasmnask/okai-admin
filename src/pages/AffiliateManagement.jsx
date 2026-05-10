@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   Filter,
@@ -23,6 +24,7 @@ import {
 } from "../services/api";
 
 export default function AffiliateManagement() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
   const [affiliates, setAffiliates] = useState([]);
@@ -31,7 +33,7 @@ export default function AffiliateManagement() {
   // State Paginasi untuk Affiliate List (Tabel Bawah)
   const [affiliatePage, setAffiliatePage] = useState(1);
   const [affiliatePerPage, setAffiliatePerPage] = useState(10);
-  
+
   // State Paginasi untuk Pending Request (Tabel Atas)
   const [pendingPage, setPendingPage] = useState(1);
   const [pendingPerPage, setPendingPerPage] = useState(10);
@@ -74,10 +76,10 @@ export default function AffiliateManagement() {
   // ==========================================
   // PENGELOMPOKAN & PENYARINGAN DATA
   // ==========================================
-  
+
   // 1. Data Tabel Atas (Hanya yang berstatus Pending)
   const pendingAffiliates = affiliates.filter((aff) => aff.status === 'pending');
-  
+
   // 2. Penghitung "Total Mitra" di StatCard (Hanya yang Active)
   const totalActiveMitra = affiliates.filter((aff) => aff.status === 'active').length;
 
@@ -93,8 +95,8 @@ export default function AffiliateManagement() {
     const matchStatus = statusFilterAffiliate === "All" || aff.status === statusFilterAffiliate;
 
     // D. Filter Pencarian[cite: 1]
-    const matchSearch = 
-      aff.full_name?.toLowerCase().includes(searchAffiliate.toLowerCase()) || 
+    const matchSearch =
+      aff.full_name?.toLowerCase().includes(searchAffiliate.toLowerCase()) ||
       aff.affiliate_code?.toLowerCase().includes(searchAffiliate.toLowerCase());
 
     return matchStatus && matchSearch;
@@ -120,7 +122,7 @@ export default function AffiliateManagement() {
   const handleAffiliateAction = async (id, action) => {
     // action bernilai 'active' (Terima) atau 'rejected' (Tolak)
     const statusText = action === 'active' ? 'Menerima' : 'Menolak';
-    
+
     if (window.confirm(`Yakin ingin ${statusText} mitra ini?`)) {
       try {
         setIsLoading(true);
@@ -245,14 +247,14 @@ export default function AffiliateManagement() {
               {pendingAffiliates.length} Menunggu
             </span>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-400 font-semibold">Tampilkan:</span>
             <select
               value={pendingPerPage}
               onChange={(e) => {
                 setPendingPerPage(Number(e.target.value));
-                setPendingPage(1); 
+                setPendingPage(1);
               }}
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg p-1 outline-none"
             >
@@ -295,10 +297,10 @@ export default function AffiliateManagement() {
                           {aff.social_username}
                         </span>
                       </div>
-                      
+
                       {/* Rencana Promosi */}
-                      <p 
-                        className="text-xs text-slate-400 dark:text-slate-500 font-medium leading-relaxed line-clamp-2" 
+                      <p
+                        className="text-xs text-slate-400 dark:text-slate-500 font-medium leading-relaxed line-clamp-2"
                         title={aff.promotional_plan}
                       >
                         {aff.promotional_plan || "Tidak menuliskan rencana promosi."}
@@ -336,25 +338,25 @@ export default function AffiliateManagement() {
 
         {totalPendingPages > 1 && (
           <div className="p-4 border-t border-slate-50 dark:border-slate-800/50 flex justify-between items-center bg-slate-50/30 dark:bg-[#1a1d1a]">
-             <span className="text-xs font-semibold text-slate-400">
-                Halaman {pendingPage} dari {totalPendingPages}
-             </span>
-             <div className="flex gap-2">
-               <button 
-                 disabled={pendingPage === 1}
-                 onClick={() => setPendingPage(prev => prev - 1)}
-                 className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
-               >
-                 <ChevronLeft size={16}/>
-               </button>
-               <button 
-                 disabled={pendingPage === totalPendingPages}
-                 onClick={() => setPendingPage(prev => prev + 1)}
-                 className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
-               >
-                 <ChevronRight size={16}/>
-               </button>
-             </div>
+            <span className="text-xs font-semibold text-slate-400">
+              Halaman {pendingPage} dari {totalPendingPages}
+            </span>
+            <div className="flex gap-2">
+              <button
+                disabled={pendingPage === 1}
+                onClick={() => setPendingPage(prev => prev - 1)}
+                className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                disabled={pendingPage === totalPendingPages}
+                onClick={() => setPendingPage(prev => prev + 1)}
+                className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -415,9 +417,9 @@ export default function AffiliateManagement() {
           <h3 className="font-black text-slate-800 dark:text-white text-lg shrink-0">
             Daftar Partner OKAI
           </h3>
-          
+
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-             {/* Paginator Limit Control */}
+            {/* Paginator Limit Control */}
             <div className="flex items-center gap-2 shrink-0">
               <span className="text-xs text-slate-400 font-semibold hidden md:block">Tampilkan:</span>
               <select
@@ -462,7 +464,7 @@ export default function AffiliateManagement() {
                 value={searchAffiliate}
                 onChange={(e) => {
                   setSearchAffiliate(e.target.value);
-                  setAffiliatePage(1); 
+                  setAffiliatePage(1);
                 }}
                 placeholder="Cari Kode atau Nama..."
                 className="pl-10 pr-4 py-2 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold w-full md:w-56 focus:ring-2 focus:ring-orange-500/20 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
@@ -474,9 +476,9 @@ export default function AffiliateManagement() {
         <table className="w-full text-left">
           <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
             {currentFilteredAffiliates.length === 0 ? (
-               <tr>
-                 <td className="p-10 text-center text-slate-400 italic">Tidak ada partner yang cocok dengan filter atau pencarian.</td>
-               </tr>
+              <tr>
+                <td className="p-10 text-center text-slate-400 italic">Tidak ada partner yang cocok dengan filter atau pencarian.</td>
+              </tr>
             ) : (
               currentFilteredAffiliates.map((aff) => (
                 <tr key={aff.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
@@ -493,27 +495,29 @@ export default function AffiliateManagement() {
                   </td>
                   <td className="p-6 text-center">
                     <span
-                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                        aff.status === "active"
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${aff.status === "active"
                           ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
                           : aff.status === "rejected"
-                          ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                      }`}
+                            ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                            : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                        }`}
                     >
                       {aff.status}
                     </span>
                   </td>
                   <td className="p-6">
                     <div className="flex justify-center gap-2">
+                      {/* Tombol Detail Mitra - Langsung berpindah ke halaman detail */}
                       <button
-                        onClick={() => alert(`Detail Mitra: ${aff.full_name}`)}
+                        onClick={() => navigate(`/affiliate/${aff.id}`)}
                         className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-[#2a2d2a] rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
                       >
                         <ExternalLink size={18} />
                       </button>
+
+                      {/* Tombol History Komisi - Sementara menggunakan alert sebagai placeholder */}
                       <button
-                        onClick={() => alert(`History Komisi: ${aff.full_name}`)}
+                        onClick={() => alert(`Fitur History Komisi untuk ${aff.full_name} sedang dalam tahap pengembangan.`)}
                         className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-[#E65100] dark:hover:text-orange-400 hover:bg-white dark:hover:bg-[#2a2d2a] rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
                       >
                         <DollarSign size={18} />
@@ -528,25 +532,25 @@ export default function AffiliateManagement() {
 
         {totalAffiliatePages > 1 && (
           <div className="p-4 border-t border-slate-50 dark:border-slate-800/50 flex justify-between items-center bg-slate-50/30 dark:bg-[#1a1d1a]">
-             <span className="text-xs font-semibold text-slate-400">
-                Halaman {affiliatePage} dari {totalAffiliatePages}
-             </span>
-             <div className="flex gap-2">
-               <button 
-                 disabled={affiliatePage === 1}
-                 onClick={() => setAffiliatePage(prev => prev - 1)}
-                 className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
-               >
-                 <ChevronLeft size={16}/>
-               </button>
-               <button 
-                 disabled={affiliatePage === totalAffiliatePages}
-                 onClick={() => setAffiliatePage(prev => prev + 1)}
-                 className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
-               >
-                 <ChevronRight size={16}/>
-               </button>
-             </div>
+            <span className="text-xs font-semibold text-slate-400">
+              Halaman {affiliatePage} dari {totalAffiliatePages}
+            </span>
+            <div className="flex gap-2">
+              <button
+                disabled={affiliatePage === 1}
+                onClick={() => setAffiliatePage(prev => prev - 1)}
+                className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                disabled={affiliatePage === totalAffiliatePages}
+                onClick={() => setAffiliatePage(prev => prev + 1)}
+                className="p-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 disabled:opacity-50 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
         )}
       </div>

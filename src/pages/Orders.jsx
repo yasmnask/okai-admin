@@ -287,7 +287,7 @@ export default function Orders() {
                   </td>
                   <td className="p-6">
                     <p className="font-medium text-slate-600 line-clamp-1">
-                      {order.items}
+                      {order.items_string}
                     </p>
                     <p className="font-black text-slate-800 text-xs mt-1">
                       {order.total}
@@ -303,15 +303,14 @@ export default function Orders() {
                   </td>
                   <td className="p-6">
                     <span
-                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center w-fit gap-1 ${
-                        order.status === "Delivered"
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center w-fit gap-1 ${order.status === "Delivered"
                           ? "bg-green-100 text-green-600"
                           : order.status === "Shipped"
                             ? "bg-purple-100 text-purple-600"
                             : order.status === "Processing"
                               ? "bg-blue-100 text-blue-600"
                               : "bg-orange-100 text-orange-600"
-                      }`}
+                        }`}
                     >
                       {order.status === "Delivered" ? (
                         <CheckCircle2 size={12} />

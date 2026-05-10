@@ -18,6 +18,7 @@ import Analytics from "./pages/Analytics";
 import AddProduct from "./pages/AddProduct";
 import EditProduct from "./pages/EditProduct";
 import AddUser from "./pages/AddUser";
+import DetailAffiliator from "./pages/DetailAffiliator";
 import AddPromotion from "./pages/AddPromotions";
 import EditPromotion from "./pages/EditPromotions";
 import { useEffect } from "react";
@@ -72,6 +73,7 @@ export default function App() {
           {/* FIX: Profile & Affiliate dibungkus ProtectedRoute biar gak bisa diakses orang tanpa login */}
           <Route path="/profile" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><ProfileSettings /></ProtectedRoute>} />
           <Route path="/affiliate" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><Affiliate /></ProtectedRoute>} />
+          <Route path="/affiliate/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><DetailAffiliator /></ProtectedRoute>} />
 
           {/* Hanya Superadmin */}
           <Route path="/users" element={<ProtectedRoute allowedRoles={['super_admin']}><UserManagement /></ProtectedRoute>} />

@@ -263,6 +263,16 @@ export async function getOrders() {
   return response.json();
 }
 
+// Fungsi Lacak Resi via Laravel
+export async function trackResi(awb, courier) {
+  const response = await fetch(`${API_URL}/track?awb=${awb}&courier=${courier}`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Gagal melacak resi dari server.");
+  return response.json();
+}
+
 // ==========================================
 // 6. MANAJEMEN AFFILIATE (AFFILIATE)
 // ==========================================
@@ -311,5 +321,16 @@ export async function updateAffiliateStatus(id, newStatus) {
     const errData = await response.json().catch(() => ({}));
     throw new Error(errData.message || "Gagal mengupdate status mitra.");
   }
+  return response.json();
+}
+
+// Fungsi untuk mengambil detail data affiliator berdasarkan ID
+export async function getAffiliateById(id) {
+  const response = await fetch(`${API_URL}/affiliates/${id}`, {
+    method: "GET",
+    headers: getAuthHeaders(), // Mengasumsikan Anda memiliki fungsi untuk menyertakan token
+  });
+  
+  if (!response.ok) throw new Error("Gagal mengambil detail data mitra.");
   return response.json();
 }

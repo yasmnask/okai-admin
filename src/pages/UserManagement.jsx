@@ -55,7 +55,7 @@ export default function UserManagement() {
 
   const handleDelete = async (id, role) => {
     // Detektor Keamanan Frontend
-    if (role === "Super Admin" || role === "Affiliate") {
+    if (role === "Super Admin") {
       alert(
         "⚠️ Ditolak: Anda tidak diizinkan menghapus akun dengan hak akses tingkat tinggi."
       );
@@ -142,8 +142,6 @@ export default function UserManagement() {
           >
             <option value="All">All Roles</option>
             <option value="Admin">Admin</option>
-            <option value="Customer">Customer</option>
-            <option value="Affiliate">Affiliate</option>
             <option value="Super Admin">Super Admin</option>
           </select>
 
