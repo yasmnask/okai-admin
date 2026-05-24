@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Truck,
@@ -11,7 +11,7 @@ import {
   Box,
   Loader2,
 } from "lucide-react";
-import { trackResi } from "../services/api"; // Pastikan path ini sesuai
+import { trackResi, getActiveShipments } from "../services/api"; // Pastikan path ini sesuai
 
 export default function Logistics() {
   const navigate = useNavigate();
@@ -23,42 +23,48 @@ export default function Logistics() {
   // State untuk Hasil Tracking
   const [trackingData, setTrackingData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isListLoading, setIsListLoading] = useState(true);
 
-  // Mock Data Pengiriman Aktif (Tetap dibiarkan untuk list sebelah kiri)
-  const shipments = [
-    {
-      id: 1,
-      resi: "OKAI-9921044",
-      item: "Sepatu Lari Pro-X",
-      customer: "Budi Santoso",
-      status: "In Transit",
-      lastLocation: "Gudang Transit Jakarta",
-      updated: "10 Menit yang lalu",
-    },
-    {
-      id: 2,
-      resi: "OKAI-8812201",
-      item: "Tas Ransel Outdoor",
-      customer: "Siti Aminah",
-      status: "Delivered",
-      lastLocation: "Penerima (Surabaya)",
-      updated: "2 Jam yang lalu",
-    },
-  ];
+  // State untuk Daftar Pengiriman
+  const [shipments, setShipments] = useState([]);
+
+  // Load data active shipments saat komponen dimuat
+  useEffect(() => {
+    fetchShipments();
+  }, []);
+
+  const fetchShipments = async () => {
+    try {
+      setIsListLoading(true);
+      const response = await getActiveShipments();
+      if (response.success) {
+        setShipments(response.data);
+      }
+    } catch (error) {
+      console.error("Gagal memuat daftar pengiriman:", error);
+    } finally {
+      setIsListLoading(false);
+    }
+  };
 
   // Fungsi Eksekusi Pencarian
-  const handleSearch = async (e) => {
-    e.preventDefault(); // Mencegah reload jika menggunakan form
-    if (!searchResi) {
+  const handleSearch = async (e, resiOverride = null, courierOverride = null) => {
+    if (e) e.preventDefault(); 
+    
+    const targetResi = resiOverride || searchResi;
+    const targetCourier = courierOverride || courier;
+
+    if (!targetResi) {
       alert("Silakan masukkan nomor resi terlebih dahulu!");
       return;
     }
 
     setIsLoading(true);
     setTrackingData(null);
+    if (!resiOverride) setSearchResi(targetResi); // Update UI input jika klik dari list
 
     try {
-      const response = await trackResi(searchResi, courier);
+      const response = await trackResi(targetResi, targetCourier);
       if (response.success) {
         setTrackingData(response.data);
       } else {
@@ -134,45 +140,55 @@ export default function Logistics() {
             </button>
           </form>
 
-          {/* List Shipments (Data Mockup untuk Visualisasi) */}
+          {/* List Shipments (Data Dinamis dari API) */}
           <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800/50 overflow-hidden">
             <div className="p-6 border-b border-slate-50 dark:border-slate-800/50">
               <h3 className="font-black text-slate-800 dark:text-white tracking-tight">
                 Active Shipments
               </h3>
             </div>
-            <div className="divide-y divide-slate-50 dark:divide-slate-800/50">
-              {shipments.map((ship) => (
-                <div key={ship.id} className="p-6 hover:bg-slate-50/50 dark:hover:bg-[#2a2d2a]/50 transition-all group cursor-pointer">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white dark:bg-[#E65100] border border-slate-100 dark:border-transparent rounded-2xl flex items-center justify-center text-[#E65100] dark:text-white shadow-sm group-hover:scale-110 transition-transform">
-                        <Truck size={24} />
+            <div className="divide-y divide-slate-50 dark:divide-slate-800/50 min-h-[200px]">
+              {isListLoading ? (
+                <div className="p-10 text-center"><Loader2 className="animate-spin mx-auto text-[#E65100]" /></div>
+              ) : shipments.length === 0 ? (
+                <div className="p-10 text-center text-slate-400 font-bold italic">Belum ada pengiriman aktif.</div>
+              ) : (
+                shipments.map((ship) => (
+                  <div 
+                    key={ship.id} 
+                    onClick={() => handleSearch(null, ship.resi || ship.invoice_no)}
+                    className="p-6 hover:bg-slate-50/50 dark:hover:bg-[#2a2d2a]/50 transition-all group cursor-pointer"
+                  >
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white dark:bg-[#E65100] border border-slate-100 dark:border-transparent rounded-2xl flex items-center justify-center text-[#E65100] dark:text-white shadow-sm group-hover:scale-110 transition-transform">
+                          <Truck size={24} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-[#E65100] tracking-widest uppercase">
+                            {ship.resi || ship.invoice_no}
+                          </p>
+                          <p className="font-bold text-slate-800 dark:text-white">
+                            {ship.item}
+                          </p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">
+                            Customer: {ship.customer}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs font-black text-[#E65100] tracking-widest uppercase">
-                          {ship.resi}
-                        </p>
-                        <p className="font-bold text-slate-800 dark:text-white">
-                          {ship.item}
-                        </p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase">
-                          Customer: {ship.customer}
+                      <div className="text-left md:text-right">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${ship.status === "Delivered" ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400" : "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"}`}>
+                          {ship.status}
+                        </span>
+                        <p className="text-[10px] font-bold text-slate-400 mt-2 flex items-center md:justify-end">
+                          <MapPin size={10} className="mr-1" /> {ship.lastLocation}
                         </p>
                       </div>
+                      <ChevronRight size={20} className="text-slate-300 hidden md:block" />
                     </div>
-                    <div className="text-left md:text-right">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${ship.status === "Delivered" ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400" : "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"}`}>
-                        {ship.status}
-                      </span>
-                      <p className="text-[10px] font-bold text-slate-400 mt-2 flex items-center md:justify-end">
-                        <MapPin size={10} className="mr-1" /> {ship.lastLocation}
-                      </p>
-                    </div>
-                    <ChevronRight size={20} className="text-slate-300 hidden md:block" />
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>

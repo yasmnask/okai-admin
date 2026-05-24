@@ -250,6 +250,13 @@ export async function deletePromotion(id) {
   return response.json();
 }
 
+export const getActiveShipments = async () => {
+  const response = await fetch(`${API_URL}/active-shipments`, {
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
 // ==========================================
 // 5. MANAJEMEN PESANAN (ORDERS)
 // ==========================================
@@ -272,6 +279,39 @@ export async function trackResi(awb, courier) {
   if (!response.ok) throw new Error("Gagal melacak resi dari server.");
   return response.json();
 }
+
+// Anda tidak perlu lagi melakukan import axios atau axiosInstance
+
+export const getOrderById = async (orderId) => {
+  try {
+    // 1. Ambil token dari brankas lokal
+    const token = localStorage.getItem("token"); // Sesuaikan jika namanya "kambi_token"
+
+    // 2. Gunakan fetch bawaan browser
+    const response = await fetch(`${API_URL}/orders/${orderId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        // Menempelkan token ke setiap permintaan
+        "Authorization": token ? `Bearer ${token}` : "", 
+      },
+    });
+
+    // 3. Pengecekan manual apakah server menolak (misal: 401 atau 404)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // 4. Ubah format teks menjadi objek JavaScript
+    const data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.error("Gagal mengambil detail pesanan:", error);
+    throw error;
+  }
+};
 
 // ==========================================
 // 6. MANAJEMEN AFFILIATE (AFFILIATE)

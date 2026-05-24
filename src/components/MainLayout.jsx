@@ -62,12 +62,12 @@ export default function MainLayout() {
       path: "/orders",
       roles: ["super_admin", "admin"],
     },
-    {
-      name: "Payments",
-      icon: <CreditCard size={20} />,
-      path: "/payments",
-      roles: ["super_admin", "admin"],
-    },
+    // {
+    //   name: "Payments",
+    //   icon: <CreditCard size={20} />,
+    //   path: "/payments",
+    //   roles: ["super_admin", "admin"],
+    // },
     {
       name: "Logistics",
       icon: <Truck size={20} />,

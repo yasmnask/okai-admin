@@ -14,6 +14,7 @@ import UserManagement from "./pages/UserManagement";
 import EditUser from "./pages/EditUser";
 import Promotions from "./pages/Promotions";
 import Orders from "./pages/Orders";
+import ShowOrders from "./pages/ShowOrders";
 import Analytics from "./pages/Analytics";
 import AddProduct from "./pages/AddProduct";
 import EditProduct from "./pages/EditProduct";
@@ -66,6 +67,7 @@ export default function App() {
         <Route path="/product/edit/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><EditProduct /></ProtectedRoute>} />
         <Route path="/users/create" element={<ProtectedRoute allowedRoles={['super_admin']}><AddUser /></ProtectedRoute>} />
         <Route path="/users/edit/:id" element={<ProtectedRoute allowedRoles={['super_admin']}><EditUser /></ProtectedRoute>} />
+        <Route path="/orders/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><ShowOrders /></ProtectedRoute>} />
 
         {/* Rute dengan Sidebar (MainLayout) */}
         <Route element={<MainLayout />}>
