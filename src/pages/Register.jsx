@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import { registerAdmin, getGoogleLoginUrl } from "../services/api";
 
 export default function Register() {
@@ -14,7 +15,7 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert("❌ Password dan Konfirmasi Password tidak cocok!");
+      toast.error("❌ Password dan Konfirmasi Password tidak cocok!");
       return;
     }
     setIsLoading(true);
@@ -29,12 +30,12 @@ export default function Register() {
       });
 
       if (result.success) {
-        alert(`✅ Registrasi sebagai ${role.toUpperCase()} berhasil! Silakan periksa email Anda.`);
+        toast.success(`✅ Registrasi sebagai ${role.toUpperCase()} berhasil! Silakan periksa email Anda.`);
         navigate("/login");
       }
     } catch (error) {
       console.error("Register error:", error);
-      alert(`❌ Registrasi gagal: ${error.message}`);
+      toast.error(`❌ Registrasi gagal: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -46,11 +47,11 @@ export default function Register() {
       if (result.url) {
         window.location.href = result.url;
       } else {
-        alert("Gagal mendapatkan tautan registrasi Google.");
+        toast.error("Gagal mendapatkan tautan registrasi Google.");
       }
     } catch (error) {
       console.error("Google register error:", error);
-      alert("Terjadi masalah saat menghubungi server.");
+      toast.error("Terjadi masalah saat menghubungi server.");
     }
   };
 

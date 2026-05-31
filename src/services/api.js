@@ -313,6 +313,31 @@ export const getOrderById = async (orderId) => {
   }
 };
 
+export const markOrderAsPaid = async (id) => {
+  const response = await fetch(`${API_URL}/orders/${id}/mark-paid`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
+export const shipWithBiteship = async (id, data) => {
+  const response = await fetch(`${API_URL}/orders/${id}/ship`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};
+
+export const simulateDelivery = async (id) => {
+  const response = await fetch(`${API_URL}/orders/${id}/simulate-delivery`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
 // ==========================================
 // 6. MANAJEMEN AFFILIATE (AFFILIATE)
 // ==========================================
@@ -374,3 +399,64 @@ export async function getAffiliateById(id) {
   if (!response.ok) throw new Error("Gagal mengambil detail data mitra.");
   return response.json();
 }
+
+// ==========================================
+// API WAREHOUSES
+// ==========================================
+export const getWarehouses = async () => {
+  const response = await fetch(`${API_URL}/warehouses`, {
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
+export const getWarehouseById = async (id) => {
+  const response = await fetch(`${API_URL}/warehouses/${id}`, {
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
+export const addWarehouse = async (data) => {
+  const response = await fetch(`${API_URL}/warehouses`, {
+    method: "POST",
+    headers: {
+      ...getAuthHeaders(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};
+
+export const updateWarehouse = async (id, data) => {
+  const response = await fetch(`${API_URL}/warehouses/${id}`, {
+    method: "PUT",
+    headers: {
+      ...getAuthHeaders(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};
+
+export const deleteWarehouse = async (id) => {
+  const response = await fetch(`${API_URL}/warehouses/${id}`, {
+    method: "DELETE",
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
+export const updateProductStock = async (warehouseId, data) => {
+  const response = await fetch(`${API_URL}/warehouses/${warehouseId}/products`, {
+    method: "POST",
+    headers: {
+      ...getAuthHeaders(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};

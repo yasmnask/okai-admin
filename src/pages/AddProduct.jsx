@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { 
   ArrowLeft, Save, Image as ImageIcon, Box, 
   Info, Settings, Barcode, Layers, MapPin, 
@@ -30,10 +31,8 @@ export default function AddProduct() {
     name: '',
     category: 'Bubuk Premium', 
     sku: generateSKU('Bubuk Premium'), 
-    warehouse: 'Gudang Utama (Surabaya)',
     description: '',
     price: '',
-    stock: 0,
     image_url: '',    // URL gambar (dari galeri atau preview upload baru)
     image_file: null, // File fisik (HANYA JIKA upload baru)
     is_active: 1
@@ -117,10 +116,10 @@ export default function AddProduct() {
       if(response.success || response.id) {
         navigate('/product');
       } else {
-        alert("Gagal simpan: " + JSON.stringify(response.errors));
+        toast.error("Gagal simpan: " + JSON.stringify(response.errors));
       }
     } catch (error) {
-      alert("Error: " + error.message);
+      toast.error("Error: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -303,13 +302,6 @@ export default function AddProduct() {
                   <input type="number" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} className="bg-transparent w-full outline-none" />
                 </div>
               </div>
-              <div className="bg-slate-50 dark:bg-[#2a2d2a] p-4 rounded-2xl border border-slate-100 dark:border-transparent transition-colors">
-                <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block transition-colors">Stok Tersedia</label>
-                <div className="flex items-center gap-2 text-lg font-black text-orange-600 dark:text-orange-400 transition-colors">
-                  <input type="number" value={formData.stock} onChange={(e) => setFormData({...formData, stock: e.target.value})} className="bg-transparent w-full outline-none" />
-                  <span className="text-[10px] text-slate-300 dark:text-slate-600 uppercase">Unit/Box</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -330,20 +322,6 @@ export default function AddProduct() {
                   <option value="Paket Keluarga">Paket Keluarga</option>
                   <option value="Perawatan Tubuh">Perawatan Tubuh</option>
                   <option value="Merchandise">Merchandise</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-2 transition-colors">
-                  <MapPin size={12} /> Warehouse Location
-                </label>
-                <select 
-                  value={formData.warehouse}
-                  onChange={(e) => setFormData({...formData, warehouse: e.target.value})}
-                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20 appearance-none cursor-pointer text-slate-700 transition-colors"
-                >
-                  <option value="Gudang Utama (Surabaya)">Gudang Utama (Surabaya)</option>
-                  <option value="Gudang Jakarta">Gudang Jakarta</option>
-                  <option value="Gudang Sidoarjo">Gudang Sidoarjo</option>
                 </select>
               </div>
             </div>

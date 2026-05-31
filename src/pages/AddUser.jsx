@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import {
   ArrowLeft,
   UserPlus,
@@ -33,13 +34,13 @@ export default function AddUser() {
       if (response.success) {
         navigate("/users");
       } else {
-        alert(
+        toast.error(
           "Gagal menyimpan: " +
             JSON.stringify(response.errors || "Periksa kembali data Anda"),
         );
       }
     } catch (error) {
-      alert("Error: Terjadi masalah jaringan.");
+      toast.error("Error: Terjadi masalah jaringan.");
     } finally {
       setIsSubmitting(false);
     }

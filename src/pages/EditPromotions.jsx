@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { 
   ArrowLeft, Save, Ticket, Percent, 
   DollarSign, Calendar, Users, Info, 
@@ -39,11 +40,12 @@ export default function EditPromotion() {
             end_date: promoData.end_date ? promoData.end_date.substring(0, 10) : '',
           });
         } else {
-          alert("Voucher tidak ditemukan!");
+          toast.error("Voucher tidak ditemukan!");
           navigate('/promotions');
         }
       } catch (error) {
         console.error("Error loading promo:", error);
+        toast.error("Gagal memuat data promo.");
       } finally {
         setIsLoading(false);
       }
@@ -68,10 +70,10 @@ export default function EditPromotion() {
         navigate('/promotions');
       } else {
         const serverError = response.message ? response.message : JSON.stringify(response.errors);
-        alert("❌ Gagal mengupdate kupon!\n\nAlasan: " + serverError);
+        toast.error("❌ Gagal mengupdate kupon!\n\nAlasan: " + serverError);
       }
     } catch (error) {
-      alert("Error Jaringan: " + error.message);
+      toast.error("Error Jaringan: " + error.message);
     } finally {
       setIsSubmitting(false);
     }

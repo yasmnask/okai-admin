@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import { Package, Plus, Search, Edit3, Trash2, MapPin } from "lucide-react";
 import { getProducts, deleteProduct } from "../services/api";
 
@@ -43,7 +44,7 @@ export default function ProductManagement() {
         await deleteProduct(id);
         fetchProducts();
       } catch (error) {
-        alert("Gagal menghapus produk");
+        toast.error("Gagal menghapus produk");
       }
     }
   };
@@ -151,9 +152,6 @@ export default function ProductManagement() {
                 Harga
               </th>
               <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
-                Stok & Lokasi
-              </th>
-              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
                 Status
               </th>
               <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
@@ -166,7 +164,7 @@ export default function ProductManagement() {
             {isLoading ? (
               <tr>
                 <td
-                  colSpan="6"
+                  colSpan="5"
                   className="p-20 text-center text-slate-400 dark:text-slate-600 font-bold animate-pulse"
                 >
                   Mengambil data produk dari server...
@@ -175,7 +173,7 @@ export default function ProductManagement() {
             ) : filteredProducts.length === 0 ? (
               <tr>
                 <td
-                  colSpan="6"
+                  colSpan="5"
                   className="p-20 text-center text-slate-400 dark:text-slate-300/30 font-bold italic"
                 >
                   Belum ada produk KAMBI yang terdaftar.
@@ -217,18 +215,6 @@ export default function ProductManagement() {
 
                   <td className="p-6 text-sm font-black text-slate-800 dark:text-slate-200">
                     {product.price}
-                  </td>
-
-                  <td className="p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                        {product.stock} Unit
-                      </span>
-                      <div className="flex items-center text-[10px] text-slate-400 font-medium italic">
-                        <MapPin size={10} className="mr-1 text-orange-400" />
-                        {product.warehouse}
-                      </div>
-                    </div>
                   </td>
 
                   <td className="p-6 text-center">

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from 'react-hot-toast';
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { logoutAdmin } from "../services/api";
 import {
@@ -54,6 +55,12 @@ export default function MainLayout() {
       name: "Products",
       icon: <Package size={20} />,
       path: "/product",
+      roles: ["super_admin", "admin"],
+    },
+    {
+      name: "Warehouses",
+      icon: <Box size={20} />,
+      path: "/warehouses",
       roles: ["super_admin", "admin"],
     },
     {

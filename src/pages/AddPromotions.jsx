@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { 
   ArrowLeft, Save, Ticket, Percent, 
   DollarSign, Calendar, Users, Info, 
@@ -42,10 +43,10 @@ export default function AddPromotion() {
       } else {
         // Sensor Error dari Server
         const serverError = response.message ? response.message : JSON.stringify(response.errors);
-        alert("❌ Gagal menyimpan kupon!\n\nAlasan: " + serverError);
+        toast.error("❌ Gagal menyimpan kupon!\n\nAlasan: " + serverError);
       }
     } catch (error) {
-      alert("Error Jaringan: Gagal menghubungi server.");
+      toast.error("Error Jaringan: Gagal menghubungi server.");
     } finally {
       setIsSubmitting(false);
     }

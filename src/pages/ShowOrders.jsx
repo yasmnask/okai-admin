@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import toast from 'react-hot-toast';
 // 🚩 PERUBAHAN 1: Menggunakan react-router-dom sebagai pengganti next/navigation & next/link
 import { useParams, useNavigate, Link } from "react-router-dom"; 
-import { ArrowLeft, Receipt, User, Truck, CreditCard, Loader2, Package } from "lucide-react";
-import { getOrderById } from "../services/api"; // Pastikan path ini benar mengarah ke api.js Anda
+import { ArrowLeft, Receipt, User, Truck, CreditCard, Loader2, Package, CheckCircle, RefreshCw } from "lucide-react";
+import { getOrderById, markOrderAsPaid, shipWithBiteship, simulateDelivery } from "../services/api"; 
 
 
 export default function ShowOrders() {
@@ -12,25 +13,119 @@ export default function ShowOrders() {
   
   const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [availableWarehouses, setAvailableWarehouses] = useState([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState("");
+  const [selectedCourier, setSelectedCourier] = useState("jne");
+  const [selectedCourierType, setSelectedCourierType] = useState("reg");
+
+  const fetchOrderDetail = async () => {
+    try {
+      const response = await getOrderById(id);
+      if (response.success) {
+        setOrder(response.data);
+        // Fetch available warehouses
+        fetchWarehousesForOrder(response.data.raw_id);
+      }
+    } catch (error) {
+      toast.error("Gagal memuat data pesanan.");
+      navigate("/orders"); 
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchWarehousesForOrder = async (rawId) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/orders/${rawId}/available-warehouses`, {
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.getItem("okai_admin"))?.token}`
+        }
+      });
+      const result = await response.json();
+      if (result.success) {
+        setAvailableWarehouses(result.data);
+      }
+    } catch (error) {
+      console.error("Gagal mengambil data gudang tersedia");
+    }
+  };
 
   useEffect(() => {
-    const fetchOrderDetail = async () => {
-      try {
-        const response = await getOrderById(id);
-        if (response.success) {
-          setOrder(response.data);
-        }
-      } catch (error) {
-        alert("Gagal memuat data pesanan.");
-        // 🚩 PERUBAHAN 3: router.push diganti menjadi navigate
-        navigate("/orders"); 
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (id) fetchOrderDetail();
   }, [id, navigate]);
+
+  const handleMarkAsPaid = async () => {
+    if (!window.confirm("Tandai pesanan ini sebagai Lunas (Paid)?")) return;
+    setIsProcessing(true);
+    try {
+      await markOrderAsPaid(order.raw_id);
+      toast.success("Pesanan berhasil ditandai Lunas!");
+      fetchOrderDetail();
+    } catch (error) {
+      toast.error("Gagal memperbarui status.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleShipWithBiteship = async () => {
+    if (!selectedWarehouse) {
+      toast.error("Pilih gudang asal pengiriman terlebih dahulu!");
+      return;
+    }
+
+    // Ambil data admin yang sedang login
+    const adminData = JSON.parse(localStorage.getItem("okai_admin")) || {};
+    let adminPhone = adminData.phone_number;
+
+    if (!adminPhone) {
+      adminPhone = window.prompt("Nomor telepon Anda belum terdaftar di profil. Silakan masukkan nomor telepon Anda untuk verifikasi pengiriman:", "08...");
+      if (!adminPhone || adminPhone === "08...") {
+        toast.error("Nomor telepon wajib diisi untuk memproses pengiriman Biteship!");
+        return;
+      }
+    }
+
+    if (!window.confirm("Serahkan pesanan ini ke Ekspedisi via Biteship?")) return;
+    setIsProcessing(true);
+    try {
+      const data = {
+        courier_company: selectedCourier,
+        courier_type: selectedCourierType,
+        warehouse_id: selectedWarehouse,
+        admin_phone: adminPhone
+      };
+      const result = await shipWithBiteship(order.raw_id, data);
+      
+      if (result.success) {
+        toast.success(result.message || "Berhasil diserahkan ke Ekspedisi!");
+        fetchOrderDetail();
+      } else {
+        const biteshipError = result.error_from_biteship?.error || result.message || "Gagal menghubungi Biteship.";
+        toast.error(`❌ Gagal: ${result.message}\n\nDetail: ${biteshipError}`);
+      }
+
+    } catch (error) {
+      toast.error("Terjadi kesalahan sistem saat memproses pengiriman.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSimulateDelivery = async () => {
+    if (!window.confirm("Simulasikan pengiriman fiktif (Tandai Delivered)?")) return;
+    setIsProcessing(true);
+    try {
+      await simulateDelivery(order.raw_id);
+      toast.success("Pesanan berhasil disimulasikan sebagai Terkirim!");
+      fetchOrderDetail();
+    } catch (error) {
+      toast.error("Gagal mensimulasikan pengiriman.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const formatIDR = (val) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val || 0);
@@ -61,11 +156,85 @@ export default function ShowOrders() {
             <h1 className="text-3xl font-bold text-[#2C352D] font-playfair flex items-center gap-3">
               <Receipt className="text-[#D4A373]" size={32} /> Detail Pesanan
             </h1>
-            <p className="text-[#5A665A] mt-2 font-medium">{order.invoice_no || `ORD-${order.id}`}</p>
+            <p className="text-[#5A665A] mt-2 font-medium">{order.invoice_no || `ORD-${order.raw_id}`}</p>
           </div>
-          <div className="px-4 py-2 bg-[#F3EFE4] text-[#3A5034] rounded-full text-sm font-bold uppercase tracking-widest border border-[#EAE6D9]">
-            Status: {order.status}
+          <div className="flex flex-col items-end gap-2">
+            <div className="px-4 py-2 bg-[#F3EFE4] text-[#3A5034] rounded-full text-sm font-bold uppercase tracking-widest border border-[#EAE6D9]">
+              Status: {order.status}
+            </div>
           </div>
+        </div>
+
+        {/* ADMIN ACTION PANEL */}
+        <div className="bg-white p-6 rounded-b-[2rem] border-x border-b border-[#EAE6D9] shadow-sm flex flex-col gap-4">
+            <div className="flex flex-wrap gap-3">
+              {order.status === 'pending' && (
+                <button disabled={isProcessing} onClick={handleMarkAsPaid} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition disabled:opacity-50">
+                  <CreditCard size={18} /> Tandai Lunas (Paid)
+                </button>
+              )}
+              
+              {order.status === 'paid' && (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
+                  <div className="flex-1 w-full sm:w-auto">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Pilih Gudang Pengirim</label>
+                    <select 
+                      value={selectedWarehouse} 
+                      onChange={(e) => setSelectedWarehouse(e.target.value)}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
+                    >
+                      <option value="">-- Pilih Gudang yang Memiliki Stok --</option>
+                      {availableWarehouses.map(wh => (
+                        <option key={wh.id_warehouse} value={wh.id_warehouse}>{wh.name} ({wh.city})</option>
+                      ))}
+                    </select>
+                    {availableWarehouses.length === 0 && (
+                      <p className="text-[10px] text-red-500 mt-1 font-bold">⚠️ Tidak ada gudang dengan stok mencukupi untuk semua item ini.</p>
+                    )}
+                  </div>
+                  <div className="flex-1 w-full sm:w-auto">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Kurir Pengiriman</label>
+                    <div className="flex gap-2">
+                      <select 
+                        value={selectedCourier} 
+                        onChange={(e) => setSelectedCourier(e.target.value)}
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
+                      >
+                        <option value="jne">JNE</option>
+                        <option value="sicepat">SiCepat</option>
+                        <option value="jnt">J&T</option>
+                        <option value="anteraja">AnterAja</option>
+                        <option value="gojek">GoSend</option>
+                        <option value="grab">GrabExpress</option>
+                      </select>
+                      <select 
+                        value={selectedCourierType} 
+                        onChange={(e) => setSelectedCourierType(e.target.value)}
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
+                      >
+                        <option value="reg">Regular (REG)</option>
+                        <option value="eco">Economy (ECO)</option>
+                        <option value="yes">Next Day (YES)</option>
+                        <option value="instant">Instant</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button 
+                    disabled={isProcessing || !selectedWarehouse} 
+                    onClick={handleShipWithBiteship} 
+                    className="flex items-center gap-2 px-6 py-2.5 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 transition disabled:opacity-50 disabled:bg-slate-300 mt-auto"
+                  >
+                    <Truck size={18} /> Kirim via Biteship (Shipped)
+                  </button>
+                </div>
+              )}
+
+              {order.status === 'shipped' && (
+                <button disabled={isProcessing} onClick={handleSimulateDelivery} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition disabled:opacity-50">
+                  <CheckCircle size={18} /> Simulasi Selesai (Delivered)
+                </button>
+              )}
+            </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">

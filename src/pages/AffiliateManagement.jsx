@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import {
   Search,
   Filter,
@@ -64,6 +65,7 @@ export default function AffiliateManagement() {
       if (resList.success) setAffiliates(resList.data);
     } catch (error) {
       console.error("Gagal sinkronisasi data:", error);
+      toast.error("Gagal sinkronisasi data.");
     } finally {
       setIsLoading(false);
     }
@@ -128,11 +130,11 @@ export default function AffiliateManagement() {
         setIsLoading(true);
         const res = await updateAffiliateStatus(id, action);
         if (res.success) {
-          alert(`Mitra berhasil di-${action === 'active' ? 'terima' : 'tolak'}!`);
+          toast.success(`Mitra berhasil di-${action === 'active' ? 'terima' : 'tolak'}!`);
           loadAllData(); // Segarkan data tabel
         }
       } catch (error) {
-        alert("Gagal memproses aksi. Pastikan backend sudah terhubung.");
+        toast.error("Gagal memproses aksi. Pastikan backend sudah terhubung.");
         setIsLoading(false);
       }
     }
@@ -146,18 +148,18 @@ export default function AffiliateManagement() {
     try {
       const res = await updateWithdrawalStatus(id, status);
       if (res.success) {
-        alert(`Berhasil di-${status}`);
+        toast.success(`Berhasil di-${status}`);
         loadAllData();
       }
     } catch (error) {
-      alert("Gagal memperbarui status");
+      toast.error("Gagal memperbarui status");
     }
   };
 
   // Fungsi Pembayaran Manual
   const handleManualPayment = async (e) => {
     e.preventDefault();
-    alert(`Pembayaran sebesar Rp ${paymentData.amount} berhasil diproses!`);
+    toast.success(`Pembayaran sebesar Rp ${paymentData.amount} berhasil diproses!`);
     setIsModalOpen(false);
     loadAllData();
   };
@@ -517,7 +519,7 @@ export default function AffiliateManagement() {
 
                       {/* Tombol History Komisi - Sementara menggunakan alert sebagai placeholder */}
                       <button
-                        onClick={() => alert(`Fitur History Komisi untuk ${aff.full_name} sedang dalam tahap pengembangan.`)}
+                        onClick={() => toast('Fitur History Komisi untuk ' + aff.full_name + ' sedang dalam tahap pengembangan.', { icon: 'ℹ️' })}
                         className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-[#E65100] dark:hover:text-orange-400 hover:bg-white dark:hover:bg-[#2a2d2a] rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
                       >
                         <DollarSign size={18} />

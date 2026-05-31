@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from 'react-hot-toast';
 import {
   ArrowLeft,
   Save,
@@ -36,7 +37,7 @@ export default function EditUser() {
 
           // Detektor Keamanan: Lempar kembali jika role tidak diizinkan diedit
           if (userData.role === "superadmin") {
-            alert(
+            toast.error(
               "Akses Ditolak: Anda tidak memiliki izin untuk mengedit profil Super Admin.",
             );
             navigate("/users");
@@ -50,7 +51,7 @@ export default function EditUser() {
             password: "", // Tetap kosongkan
           });
         } else {
-          alert("Pengguna tidak ditemukan!");
+          toast.error("Pengguna tidak ditemukan!");
           navigate("/users");
         }
       } catch (error) {
@@ -78,13 +79,13 @@ export default function EditUser() {
       if (response.success) {
         navigate("/users");
       } else {
-        alert(
+        toast.error(
           "Gagal menyimpan: " +
             JSON.stringify(response.errors || "Periksa kembali data Anda"),
         );
       }
     } catch (error) {
-      alert("Error: Terjadi masalah koneksi.");
+      toast.error("Error: Terjadi masalah koneksi.");
     } finally {
       setIsSubmitting(false);
     }
