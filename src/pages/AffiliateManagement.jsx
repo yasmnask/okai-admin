@@ -481,6 +481,7 @@ export default function AffiliateManagement() {
               <tr>
                 <td className="p-10 text-center text-slate-400 italic">Tidak ada partner yang cocok dengan filter atau pencarian.</td>
               </tr>
+<<<<<<< HEAD
             ) : (
               currentFilteredAffiliates.map((aff) => (
                 <tr key={aff.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
@@ -525,12 +526,60 @@ export default function AffiliateManagement() {
                         <DollarSign size={18} />
                       </button>
                     </div>
+=======
+            </thead>
+            <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
+              {currentFilteredAffiliates.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="p-16 text-center">
+                    <Search className="mx-auto mb-3 text-slate-300 dark:text-slate-600" size={32} />
+                    <p className="text-slate-400 italic">Tidak ada partner yang cocok.</p>
+>>>>>>> origin/dhandi
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                currentFilteredAffiliates.map((aff) => (
+                  <tr key={aff.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
+                    <td className="p-6">
+                      <p className="font-black text-slate-800 dark:text-slate-200 text-sm">
+                        {aff.full_name}
+                      </p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase mt-0.5">
+                        {aff.affiliate_code || "BELUM ADA KODE"}
+                      </p>
+                    </td>
+                    <td className="p-6 text-center font-black text-slate-600 dark:text-slate-400">
+                      {aff.commission_rate}%
+                    </td>
+                    <td className="p-6 text-center">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusBadgeColors(aff.status)}`}>
+                        {aff.status}
+                      </span>
+                    </td>
+                    <td className="p-6">
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => navigate(`/affiliate/${aff.id}`)}
+                          className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-[#2a2d2a] rounded-xl transition-all"
+                          title="Detail Mitra"
+                        >
+                          <ExternalLink size={18} />
+                        </button>
+                        <button
+                          onClick={() => alert(`Fitur History Komisi untuk ${aff.full_name} sedang dalam tahap pengembangan.`)}
+                          className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-[#E65100] dark:hover:text-orange-400 hover:bg-slate-100 dark:hover:bg-[#2a2d2a] rounded-xl transition-all"
+                          title="Riwayat Komisi"
+                        >
+                          <DollarSign size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {totalAffiliatePages > 1 && (
           <div className="p-4 border-t border-slate-50 dark:border-slate-800/50 flex justify-between items-center bg-slate-50/30 dark:bg-[#1a1d1a]">
