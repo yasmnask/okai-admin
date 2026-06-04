@@ -474,52 +474,6 @@ export default function AffiliateManagement() {
                 <th className="p-6 text-center">Status</th>
                 <th className="p-6 text-center">Aksi</th>
               </tr>
-<<<<<<< HEAD
-            ) : (
-              currentFilteredAffiliates.map((aff) => (
-                <tr key={aff.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
-                  <td className="p-6">
-                    <p className="font-black text-slate-800 dark:text-slate-200 text-sm">
-                      {aff.full_name}
-                    </p>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">
-                      {aff.affiliate_code || "BELUM ADA KODE"}
-                    </p>
-                  </td>
-                  <td className="p-6 text-center font-black text-slate-600 dark:text-slate-400">
-                    {aff.commission_rate}%
-                  </td>
-                  <td className="p-6 text-center">
-                    <span
-                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${aff.status === "active"
-                          ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                          : aff.status === "rejected"
-                            ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                            : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                        }`}
-                    >
-                      {aff.status}
-                    </span>
-                  </td>
-                  <td className="p-6">
-                    <div className="flex justify-center gap-2">
-                      {/* Tombol Detail Mitra - Langsung berpindah ke halaman detail */}
-                      <button
-                        onClick={() => navigate(`/affiliate/${aff.id}`)}
-                        className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-[#2a2d2a] rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
-                      >
-                        <ExternalLink size={18} />
-                      </button>
-
-                      {/* Tombol History Komisi - Sementara menggunakan alert sebagai placeholder */}
-                      <button
-                        onClick={() => toast('Fitur History Komisi untuk ' + aff.full_name + ' sedang dalam tahap pengembangan.', { icon: 'ℹ️' })}
-                        className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-[#E65100] dark:hover:text-orange-400 hover:bg-white dark:hover:bg-[#2a2d2a] rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
-                      >
-                        <DollarSign size={18} />
-                      </button>
-                    </div>
-=======
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
               {currentFilteredAffiliates.length === 0 ? (
@@ -527,7 +481,6 @@ export default function AffiliateManagement() {
                   <td colSpan="4" className="p-16 text-center">
                     <Search className="mx-auto mb-3 text-slate-300 dark:text-slate-600" size={32} />
                     <p className="text-slate-400 italic">Tidak ada partner yang cocok.</p>
->>>>>>> origin/dhandi
                   </td>
                 </tr>
               ) : (
@@ -551,6 +504,7 @@ export default function AffiliateManagement() {
                     </td>
                     <td className="p-6">
                       <div className="flex justify-center gap-2">
+                        {/* Tombol Detail Mitra - Langsung berpindah ke halaman detail */}
                         <button
                           onClick={() => navigate(`/affiliate/${aff.id}`)}
                           className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-[#2a2d2a] rounded-xl transition-all"
@@ -558,8 +512,10 @@ export default function AffiliateManagement() {
                         >
                           <ExternalLink size={18} />
                         </button>
+
+                        {/* Tombol History Komisi */}
                         <button
-                          onClick={() => alert(`Fitur History Komisi untuk ${aff.full_name} sedang dalam tahap pengembangan.`)}
+                          onClick={() => toast('Fitur History Komisi untuk ' + aff.full_name + ' sedang dalam tahap pengembangan.', { icon: 'ℹ️' })}
                           className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-[#E65100] dark:hover:text-orange-400 hover:bg-slate-100 dark:hover:bg-[#2a2d2a] rounded-xl transition-all"
                           title="Riwayat Komisi"
                         >
