@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from 'react-hot-toast';
 import {
   ArrowLeft,
   Save,
@@ -25,10 +26,8 @@ export default function EditProduct() {
     name: "",
     sku: "",
     category: "Electronic",
-    warehouse: "Gudang Utama (Surabaya)",
     description: "",
     price: "",
-    stock: 0,
     image_url: "",
     is_active: 1,
   });
@@ -47,11 +46,12 @@ export default function EditProduct() {
             is_active: parseInt(response.data.is_active),
           });
         } else {
-          alert("Produk tidak ditemukan!");
+          toast.error("Produk tidak ditemukan!");
           navigate("/product");
         }
       } catch (error) {
         console.error("Error loading product:", error);
+        toast.error("Gagal memuat data produk.");
       } finally {
         setIsLoading(false);
       }
@@ -70,10 +70,8 @@ export default function EditProduct() {
     payload.append("name", formData.name);
     payload.append("category", formData.category);
     payload.append("sku", formData.sku || "");
-    payload.append("warehouse", formData.warehouse);
     payload.append("description", formData.description || "");
     payload.append("price", parseFloat(formData.price) || 0);
-    payload.append("stock", parseInt(formData.stock) || 0);
     payload.append("is_active", formData.is_active ? 1 : 0);
 
     // 3. 🚩 TRIK LARAVEL: Karena ngirim file, kita nipu Laravel pakai POST tapi niatnya PUT
@@ -93,13 +91,13 @@ export default function EditProduct() {
       if (response.success) {
         navigate("/product");
       } else {
-        alert(
+        toast.error(
           "Gagal update: " +
             JSON.stringify(response.errors || "Cek form kembali"),
         );
       }
     } catch (error) {
-      alert("Error: " + error.message);
+      toast.error("Error: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -237,24 +235,6 @@ export default function EditProduct() {
                   />
                 </div>
               </div>
-              <div className="bg-slate-50 dark:bg-[#2a2d2a] p-4 rounded-2xl border border-slate-100 dark:border-transparent transition-colors">
-                <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block transition-colors">
-                  Stok Tersedia
-                </label>
-                <div className="flex items-center gap-2 text-lg font-black text-orange-600 dark:text-orange-400 transition-colors">
-                  <input
-                    type="number"
-                    value={formData.stock}
-                    onChange={(e) =>
-                      setFormData({ ...formData, stock: e.target.value })
-                    }
-                    className="bg-transparent w-full outline-none"
-                  />
-                  <span className="text-[10px] text-slate-300 dark:text-slate-600 uppercase">
-                    Unit
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -275,24 +255,6 @@ export default function EditProduct() {
                   <option value="Apparel">Apparel</option>
                   <option value="Footwear">Footwear</option>
                   <option value="Accessories">Accessories</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2 mb-2 transition-colors">
-                  <MapPin size={12} /> Warehouse
-                </label>
-                <select
-                  value={formData.warehouse}
-                  onChange={(e) =>
-                    setFormData({ ...formData, warehouse: e.target.value })
-                  }
-                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20 appearance-none cursor-pointer transition-colors"
-                >
-                  <option value="Gudang Utama (Surabaya)">
-                    Gudang Utama (Surabaya)
-                  </option>
-                  <option value="Gudang Jakarta">Gudang Jakarta</option>
-                  <option value="Gudang Sidoarjo">Gudang Sidoarjo</option>
                 </select>
               </div>
             </div>

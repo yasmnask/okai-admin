@@ -41,6 +41,7 @@ export default function Orders() {
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
+      toast.error("Gagal memuat data pesanan.");
     } finally {
       setIsLoading(false);
     }

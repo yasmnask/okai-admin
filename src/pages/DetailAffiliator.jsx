@@ -22,6 +22,7 @@ export default function DetailAffiliator() {
         }
       } catch (error) {
         console.error("Error:", error);
+        toast.error("Gagal memuat data mitra afiliasi.");
       } finally {
         setIsLoading(false);
       }

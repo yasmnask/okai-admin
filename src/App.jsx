@@ -5,6 +5,8 @@ import VerifyEmailPage from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import ProfileSettings from "./pages/ProfileSettings";
 import ProductManagement from "./pages/ProductManagement";
+import WarehouseManagement from "./pages/WarehouseManagement";
+import WarehouseDetail from "./pages/WarehouseDetail";
 import SystemSettings from "./pages/SystemSettings";
 import MainLayout from "./components/MainLayout";
 import Logistics from "./pages/Logistics";
@@ -23,6 +25,7 @@ import DetailAffiliator from "./pages/DetailAffiliator";
 import AddPromotion from "./pages/AddPromotions";
 import EditPromotion from "./pages/EditPromotions";
 import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
 
 // --- KOMPONEN PROTECTED ROUTE ---
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -56,6 +59,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <Toaster position="top-right" reverseOrder={false} />
       <Routes>
         {/* Rute Publik */}
         <Route path="/" element={<Navigate to="/login" />} />
@@ -83,6 +87,8 @@ export default function App() {
           
           {/* Superadmin & Admin Operasional */}
           <Route path="/product" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><ProductManagement /></ProtectedRoute>} />
+          <Route path="/warehouses" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><WarehouseManagement /></ProtectedRoute>} />
+          <Route path="/warehouse/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><WarehouseDetail /></ProtectedRoute>} />
           <Route path="/logistics" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Logistics/></ProtectedRoute>} />
           <Route path="/payments" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Payments /></ProtectedRoute>} />
           <Route path="/promotions" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Promotions /></ProtectedRoute>} />

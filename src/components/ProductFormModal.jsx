@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Save, Loader2, Package } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { addProduct } from '../services/api';
 
 export default function ProductFormModal({ isOpen, onClose, onRefresh }) {
@@ -24,7 +25,7 @@ export default function ProductFormModal({ isOpen, onClose, onRefresh }) {
       onRefresh(); // Panggil fungsi refresh di parent
       onClose(); // Tutup modal
     } catch (error) {
-      alert("Gagal simpan: " + error.message);
+      toast.error("Gagal simpan: " + error.message);
     } finally {
       setIsSubmitting(false);
     }

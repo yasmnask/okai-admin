@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import { getUsers, deleteUser } from "../services/api";
 import {
   Users,
@@ -56,7 +57,7 @@ export default function UserManagement() {
   const handleDelete = async (id, role) => {
     // Detektor Keamanan Frontend
     if (role === "Super Admin") {
-      alert(
+      toast.error(
         "⚠️ Ditolak: Anda tidak diizinkan menghapus akun dengan hak akses tingkat tinggi."
       );
       return;
@@ -67,7 +68,7 @@ export default function UserManagement() {
         await deleteUser(id);
         fetchUsers();
       } catch (error) {
-        alert(error.message);
+        toast.error(error.message);
       }
     }
   };

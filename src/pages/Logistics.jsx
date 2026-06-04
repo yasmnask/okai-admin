@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import {
   Truck,
   Search,
@@ -42,6 +43,7 @@ export default function Logistics() {
       }
     } catch (error) {
       console.error("Gagal memuat daftar pengiriman:", error);
+      toast.error("Gagal memuat daftar pengiriman.");
     } finally {
       setIsListLoading(false);
     }
@@ -55,7 +57,7 @@ export default function Logistics() {
     const targetCourier = courierOverride || courier;
 
     if (!targetResi) {
-      alert("Silakan masukkan nomor resi terlebih dahulu!");
+      toast.error("Silakan masukkan nomor resi terlebih dahulu!");
       return;
     }
 
@@ -68,10 +70,10 @@ export default function Logistics() {
       if (response.success) {
         setTrackingData(response.data);
       } else {
-        alert(response.message || "Data resi tidak ditemukan.");
+        toast.error(response.message || "Data resi tidak ditemukan.");
       }
     } catch (error) {
-      alert("Terjadi kesalahan koneksi ke server logistik.");
+      toast.error("Terjadi kesalahan koneksi ke server logistik.");
     } finally {
       setIsLoading(false);
     }

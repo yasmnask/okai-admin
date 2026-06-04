@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import { loginAdmin, getGoogleLoginUrl } from "../services/api"; // Hanya memanggil jalur reguler
 
 export default function LoginPage() {
@@ -36,13 +37,13 @@ export default function LoginPage() {
           navigate("/dashboard"); // Super Admin & Admin tetap ke dashboard utama
         }
       } else {
-        alert(
+        toast.error(
           "❌ Login gagal! Silakan periksa kembali email dan password Anda.",
         );
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert("Terjadi masalah koneksi dengan server.");
+      toast.error("Terjadi masalah koneksi dengan server.");
     } finally {
       setIsLoading(false);
     }
@@ -57,11 +58,11 @@ export default function LoginPage() {
       if (result.url) {
         window.location.href = result.url;
       } else {
-        alert("Gagal mendapatkan tautan login Google.");
+        toast.error("Gagal mendapatkan tautan login Google.");
       }
     } catch (error) {
       console.error("Google login error:", error);
-      alert("Terjadi masalah saat menghubungi server.");
+      toast.error("Terjadi masalah saat menghubungi server.");
     }
   };
 

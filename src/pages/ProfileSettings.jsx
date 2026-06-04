@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { KeyRound, Mail, User, ShieldCheck, AlertCircle, Moon, Sun } from "lucide-react";
+import toast from 'react-hot-toast';
 import { updateUser } from "../services/api";
 
 export default function ProfileSettings() {
@@ -8,6 +9,7 @@ export default function ProfileSettings() {
 
   const [formData, setFormData] = useState({
     name: "",
+    phone_number: "",
     password: "",
     password_confirmation: "",
   });
@@ -23,7 +25,27 @@ export default function ProfileSettings() {
     const currentRole = storedData.role ? storedData.role.toLowerCase() : "";
     setIsAllowed(currentRole === "admin" || currentRole === "superadmin"); // Tambahin superadmin kalau butuh
 
-    setFormData((prev) => ({ ...prev, name: storedData.name || "" }));
+    // Fetch detail terbaru dari backend untuk memastikan dapat phone_number
+    if (storedData.id) {
+      fetch(`http://localhost:8000/api/users/${storedData.id}`, {
+        headers: {
+          'Authorization': `Bearer ${storedData.token}`
+        }
+      })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) {
+          setFormData(prev => ({ 
+            ...prev, 
+            name: result.data.name || "",
+            phone_number: result.data.phone_number || ""
+          }));
+        }
+      })
+      .catch(err => {
+         setFormData(prev => ({ ...prev, name: storedData.name || "" }));
+      });
+    }
 
     // Cek status tema di LocalStorage pas halaman dibuka (Solusi bug refresh)
     const savedTheme = localStorage.getItem("theme");
@@ -51,23 +73,26 @@ export default function ProfileSettings() {
 
   const handleSubmit = async () => {
     if (!isAllowed) {
-      alert("Akses Ditolak: Fitur ubah profil ini hanya diperuntukkan bagi Admin Operasional.");
+      toast.error("Akses Ditolak: Fitur ubah profil ini hanya diperuntukkan bagi Admin Operasional.");
       return;
     }
 
     if (formData.password && formData.password !== formData.password_confirmation) {
-      alert("Validasi Gagal: Password Baru dan Ulangi Password tidak cocok!");
+      toast.error("Validasi Gagal: Password Baru dan Ulangi Password tidak cocok!");
       return;
     }
 
     if (formData.password && formData.password.length < 8) {
-      alert("Validasi Gagal: Password minimal harus 8 karakter.");
+      toast.error("Validasi Gagal: Password minimal harus 8 karakter.");
       return;
     }
 
     setIsSubmitting(true);
 
-    const payload = { name: formData.name };
+    const payload = { 
+      name: formData.name,
+      phone_number: formData.phone_number
+    };
     if (formData.password) {
       payload.password = formData.password;
     }
@@ -76,8 +101,8 @@ export default function ProfileSettings() {
       const response = await updateUser(adminData.id, payload);
 
       if (response.success) {
-        alert("✅ Profil berhasil diperbarui!");
-        const updatedData = { ...adminData, name: formData.name };
+        toast.success("✅ Profil berhasil diperbarui!");
+        const updatedData = { ...adminData, name: formData.name, phone_number: formData.phone_number };
         localStorage.setItem("okai_admin", JSON.stringify(updatedData));
 
         setFormData((prev) => ({
@@ -87,10 +112,10 @@ export default function ProfileSettings() {
         }));
       } else {
         const errorMsg = response.message || JSON.stringify(response.errors);
-        alert("❌ Gagal memperbarui profil: " + errorMsg);
+        toast.error("❌ Gagal memperbarui profil: " + errorMsg);
       }
     } catch (error) {
-      alert("Error Jaringan: Gagal menghubungi server.");
+      toast.error("Error Jaringan: Gagal menghubungi server.");
     } finally {
       setIsSubmitting(false);
     }
@@ -160,6 +185,22 @@ export default function ProfileSettings() {
                     disabled={!isAllowed || isSubmitting}
                     className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-[#3e3c3a] border-none rounded-2xl text-slate-500 dark:text-slate-100 text-sm focus:ring-2 focus:ring-orange-500/20 dark:focus:ring-[#E65100] outline-none font-medium disabled:opacity-50 transition-colors"
                     placeholder="Masukkan nama lengkap Anda..."
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-slate-400 dark:text-[#e1d4cc] uppercase tracking-widest mb-2 ml-1 transition-colors">
+                  Nomor Telepon (Wajib untuk Kurir)
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.phone_number}
+                    onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                    disabled={!isAllowed || isSubmitting}
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-[#3e3c3a] border-none rounded-2xl text-slate-500 dark:text-slate-100 text-sm focus:ring-2 focus:ring-orange-500/20 dark:focus:ring-[#E65100] outline-none font-medium disabled:opacity-50 transition-colors"
+                    placeholder="Contoh: 081234567890"
                   />
                 </div>
               </div>
