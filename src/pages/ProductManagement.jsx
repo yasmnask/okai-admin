@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 import { Package, Plus, Search, Edit3, Trash2, MapPin } from "lucide-react";
 import { getProducts, deleteProduct } from "../services/api";
 
@@ -152,6 +152,9 @@ export default function ProductManagement() {
                 Harga
               </th>
               <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
+                Program Afiliasi
+              </th>
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
                 Status
               </th>
               <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">
@@ -164,7 +167,7 @@ export default function ProductManagement() {
             {isLoading ? (
               <tr>
                 <td
-                  colSpan="5"
+                  colSpan="6"
                   className="p-20 text-center text-slate-400 dark:text-slate-600 font-bold animate-pulse"
                 >
                   Mengambil data produk dari server...
@@ -173,7 +176,7 @@ export default function ProductManagement() {
             ) : filteredProducts.length === 0 ? (
               <tr>
                 <td
-                  colSpan="5"
+                  colSpan="6"
                   className="p-20 text-center text-slate-400 dark:text-slate-300/30 font-bold italic"
                 >
                   Belum ada produk KAMBI yang terdaftar.
@@ -215,6 +218,18 @@ export default function ProductManagement() {
 
                   <td className="p-6 text-sm font-black text-slate-800 dark:text-slate-200">
                     {product.price}
+                  </td>
+
+                  <td className="p-6 text-center">
+                    {product.is_affiliate_enabled ? (
+                      <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
+                        🔥 Aktif ({product.affiliate_commission || 15}%)
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+                        Nonaktif
+                      </span>
+                    )}
                   </td>
 
                   <td className="p-6 text-center">
