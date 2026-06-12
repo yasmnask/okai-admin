@@ -15,7 +15,7 @@ export default function ShowOrders() {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [availableWarehouses, setAvailableWarehouses] = useState([]);
-  const [selectedWarehouse, setSelectedWarehouse] = useState("");
+  const [itemWarehouses, setItemWarehouses] = useState({});
   const [selectedCourier, setSelectedCourier] = useState("jne");
   const [selectedCourierType, setSelectedCourierType] = useState("reg");
 
@@ -70,17 +70,18 @@ export default function ShowOrders() {
   };
 
   const handleShipWithBiteship = async () => {
-    if (!selectedWarehouse) {
-      toast.error("Pilih gudang asal pengiriman terlebih dahulu!");
-      return;
+    // Cek apakah semua item sudah dipilih gudangnya
+    for (const item of order.order_items) {
+      if (!itemWarehouses[item.id]) {
+        toast.error(`Pilih gudang pengirim untuk item ${item.product?.name} terlebih dahulu!`);
+        return;
+      }
     }
 
-    // Ambil data admin yang sedang login
     const adminData = JSON.parse(localStorage.getItem("okai_admin")) || {};
     let adminPhone = adminData.phone_number;
-
     if (!adminPhone) {
-      adminPhone = window.prompt("Nomor telepon Anda belum terdaftar di profil. Silakan masukkan nomor telepon Anda untuk verifikasi pengiriman:", "08...");
+      adminPhone = window.prompt("Nomor telepon Anda belum terdaftar di profil. Silakan masukkan nomor telepon Anda:", "08...");
       if (!adminPhone || adminPhone === "08...") {
         toast.error("Nomor telepon wajib diisi untuk memproses pengiriman Biteship!");
         return;
@@ -93,7 +94,7 @@ export default function ShowOrders() {
       const data = {
         courier_company: selectedCourier,
         courier_type: selectedCourierType,
-        warehouse_id: selectedWarehouse,
+        item_warehouses: itemWarehouses,
         admin_phone: adminPhone
       };
       const result = await shipWithBiteship(order.raw_id, data);
@@ -105,7 +106,6 @@ export default function ShowOrders() {
         const biteshipError = result.error_from_biteship?.error || result.message || "Gagal menghubungi Biteship.";
         toast.error(`❌ Gagal: ${result.message}\n\nDetail: ${biteshipError}`);
       }
-
     } catch (error) {
       toast.error("Terjadi kesalahan sistem saat memproses pengiriman.");
     } finally {
@@ -177,20 +177,8 @@ export default function ShowOrders() {
               {order.status === 'paid' && (
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
                   <div className="flex-1 w-full sm:w-auto">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Pilih Gudang Pengirim</label>
-                    <select 
-                      value={selectedWarehouse} 
-                      onChange={(e) => setSelectedWarehouse(e.target.value)}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
-                    >
-                      <option value="">-- Pilih Gudang yang Memiliki Stok --</option>
-                      {availableWarehouses.map(wh => (
-                        <option key={wh.id_warehouse} value={wh.id_warehouse}>{wh.name} ({wh.city})</option>
-                      ))}
-                    </select>
-                    {availableWarehouses.length === 0 && (
-                      <p className="text-[10px] text-red-500 mt-1 font-bold">⚠️ Tidak ada gudang dengan stok mencukupi untuk semua item ini.</p>
-                    )}
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Pilih Gudang di Rincian Barang</p>
+                    <p className="text-xs text-slate-500">Pilih gudang asal pada tabel rincian barang di bawah sebelum menekan tombol kirim.</p>
                   </div>
                   <div className="flex-1 w-full sm:w-auto">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Kurir Pengiriman</label>
@@ -220,7 +208,7 @@ export default function ShowOrders() {
                     </div>
                   </div>
                   <button 
-                    disabled={isProcessing || !selectedWarehouse} 
+                    disabled={isProcessing} 
                     onClick={handleShipWithBiteship} 
                     className="flex items-center gap-2 px-6 py-2.5 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 transition disabled:opacity-50 disabled:bg-slate-300 mt-auto"
                   >
@@ -262,7 +250,17 @@ export default function ShowOrders() {
               <div className="space-y-3 text-sm">
                 <p><span className="text-[#5A665A] block text-xs">Alamat Tujuan</span> <span className="font-semibold text-[#2C352D]">{order.address || order.user?.address || "Menunggu alamat"}</span></p>
                 <p><span className="text-[#5A665A] block text-xs">Kurir & Layanan</span> <span className="font-semibold uppercase text-[#2C352D]">{order.courier_company || "Menunggu Sistem"} - {order.courier_type || "Reguler"}</span></p>
-                <p><span className="text-[#5A665A] block text-xs">Nomor Resi</span> <span className="font-semibold text-[#3A5034] tracking-wider bg-[#F3EFE4] px-2 py-1 rounded">{order.waybill_id || "Belum diterbitkan"}</span></p>
+                <p><span className="text-[#5A665A] block text-xs">Nomor Resi</span> 
+                  <span className="flex flex-wrap gap-1 mt-1">
+                    {order.waybill_id ? order.waybill_id.split(',').map((resi, idx) => (
+                      <span key={idx} className="font-semibold text-[#3A5034] text-xs tracking-wider bg-[#F3EFE4] px-2 py-1 rounded">
+                        {resi.trim()}
+                      </span>
+                    )) : (
+                      <span className="font-semibold text-[#3A5034] tracking-wider bg-[#F3EFE4] px-2 py-1 rounded">Belum diterbitkan</span>
+                    )}
+                  </span>
+                </p>
               </div>
             </div>
 
@@ -292,12 +290,34 @@ export default function ShowOrders() {
               
               <div className="space-y-4 mb-8">
                 {order.order_items?.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center gap-4 bg-[#FDFCF8] p-4 rounded-2xl border border-[#EAE6D9]/50">
-                    <div>
-                      <p className="font-semibold text-[#2C352D]">{item.product?.name || "Produk Tidak Dikenal"}</p>
-                      <p className="text-sm text-[#5A665A]">{item.quantity} x {formatIDR(item.price)}</p>
+                  <div key={item.id} className="flex flex-col gap-3 bg-[#FDFCF8] p-4 rounded-2xl border border-[#EAE6D9]/50">
+                    <div className="flex justify-between items-center gap-4">
+                      <div>
+                        <p className="font-semibold text-[#2C352D]">{item.product?.name || "Produk Tidak Dikenal"}</p>
+                        <p className="text-sm text-[#5A665A]">{item.quantity} x {formatIDR(item.price)}</p>
+                      </div>
+                      <p className="font-bold text-[#3A5034]">{formatIDR(item.price * item.quantity)}</p>
                     </div>
-                    <p className="font-bold text-[#3A5034]">{formatIDR(item.price * item.quantity)}</p>
+                    
+                    {/* Pemilihan Gudang per Item jika belum dikirim */}
+                    {order.status === 'paid' && (
+                      <div className="mt-2 pt-3 border-t border-[#EAE6D9]">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Kirim dari Gudang:</label>
+                        <select 
+                          value={itemWarehouses[item.id] || ""} 
+                          onChange={(e) => setItemWarehouses({...itemWarehouses, [item.id]: e.target.value})}
+                          className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
+                        >
+                          <option value="">-- Pilih Gudang yang Memiliki Stok --</option>
+                          {availableWarehouses[item.id] && availableWarehouses[item.id].map(wh => (
+                            <option key={wh.id_warehouse} value={wh.id_warehouse}>{wh.name} (Stok: {wh.stock})</option>
+                          ))}
+                        </select>
+                        {(!availableWarehouses[item.id] || availableWarehouses[item.id].length === 0) && (
+                          <p className="text-[10px] text-red-500 mt-1 font-bold">⚠️ Tidak ada gudang dengan stok mencukupi untuk item ini.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
