@@ -335,9 +335,6 @@ export default function Orders() {
                       >
                         <Eye size={18} />
                       </button>
-                      <button className="p-2 text-slate-400 hover:text-[#E65100] hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100">
-                        <MoreVertical size={18} />
-                      </button>
                     </div>
                   </td>
                 </tr>

@@ -26,16 +26,20 @@ export default function AddProduct() {
     return `KMB-${prefix}-${randomNum}`;
   };
 
-  // State Produk
+  // State Produk (DITAMBAH AFILIASI)
   const [formData, setFormData] = useState({
     name: '',
     category: 'Bubuk Premium', 
     sku: generateSKU('Bubuk Premium'), 
     description: '',
     price: '',
+    stock: '',
+    warehouse: '',
     image_url: '',    // URL gambar (dari galeri atau preview upload baru)
     image_file: null, // File fisik (HANYA JIKA upload baru)
-    is_active: 1
+    is_active: 1,
+    is_affiliate_enabledd: 0,      // State untuk saklar afiliasi
+    affiliate_commission: 15,    // State untuk persentase komisi (default 15%)
   });
 
   // ==========================================
@@ -101,6 +105,10 @@ export default function AddProduct() {
     payload.append('price', parseFloat(formData.price) || 0);
     payload.append('stock', parseInt(formData.stock) || 0);
     payload.append('is_active', formData.is_active ? 1 : 0);
+    
+    // DITAMBAH AFILIASI PAYLOAD
+    payload.append('is_affiliate_enabledd', formData.is_affiliate_enabledd ? 1 : 0);
+    payload.append('affiliate_commission', parseFloat(formData.affiliate_commission) || 0);
     
     // LOGIKA PENGIRIMAN GAMBAR KE BACKEND:
     if (formData.image_file) {
@@ -334,12 +342,53 @@ export default function AddProduct() {
               <p className="text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors">{formData.is_active ? 'Terbitkan Produk' : 'Simpan Draft'}</p>
             </div>
             <button 
+              type="button"
               onClick={() => setFormData({...formData, is_active: formData.is_active ? 0 : 1})}
               className={`w-14 h-8 rounded-full transition-all flex items-center px-1 ${formData.is_active ? 'bg-green-500 dark:bg-green-600' : 'bg-slate-200 dark:bg-slate-700'}`}
             >
               <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-all transform ${formData.is_active ? 'translate-x-6' : 'translate-x-0'}`}></div>
             </button>
           </div>
+
+          {/* AFILIASI TOGGLE */}
+          <div className="bg-white dark:bg-[#1a1d1a] p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800/50 transition-colors">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-[10px] font-black text-purple-400 dark:text-purple-500 uppercase tracking-widest transition-colors flex items-center gap-1">
+                  🔥 Program Afiliasi
+                </p>
+                <p className="text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors">
+                  {formData.is_affiliate_enabledd ? 'Aktif di Bursa' : 'Tidak Aktif'}
+                </p>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setFormData({...formData, is_affiliate_enabledd: formData.is_affiliate_enabledd ? 0 : 1})}
+                className={`w-14 h-8 rounded-full transition-all flex items-center px-1 ${formData.is_affiliate_enabledd ? 'bg-purple-500 dark:bg-purple-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+              >
+                <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-all transform ${formData.is_affiliate_enabledd ? 'translate-x-6' : 'translate-x-0'}`}></div>
+              </button>
+            </div>
+
+            {/* Jika Afiliasi Aktif, Munculkan Input Persentase Komisi */}
+            {formData.is_affiliate_enabledd ? (
+               <div className="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-2xl border border-purple-100 dark:border-purple-800/50 mt-4 animate-in slide-in-from-top-2 duration-300">
+                  <label className="text-[9px] font-black text-purple-500 dark:text-purple-400 uppercase tracking-widest mb-1 block">Komisi Afiliator (%)</label>
+                  <div className="flex items-center gap-2 text-lg font-black dark:text-white">
+                    <input 
+                      type="number" 
+                      min="0" 
+                      max="100"
+                      value={formData.affiliate_commission} 
+                      onChange={(e) => setFormData({...formData, affiliate_commission: e.target.value})} 
+                      className="bg-transparent w-full outline-none text-purple-700 dark:text-purple-300 placeholder:text-purple-300" 
+                    />
+                    <span className="text-purple-400 dark:text-purple-600">%</span>
+                  </div>
+               </div>
+            ) : null}
+          </div>
+          {/* END AFILIASI TOGGLE */}
 
           {/* TOMBOL BUKA MEDIA LIBRARY */}
           <div className="bg-[#1E293B] dark:bg-[#2a2d2a] p-8 rounded-[3rem] shadow-2xl dark:shadow-none text-white relative transition-colors">
