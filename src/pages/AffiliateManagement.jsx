@@ -180,12 +180,6 @@ export default function AffiliateManagement() {
             Monitoring Performa Mitra OKAI
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-[#E65100] text-white px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-orange-900/20 dark:shadow-black/50 hover:scale-105 transition-all"
-        >
-          <DollarSign size={18} /> Bayar Komisi
-        </button>
       </div>
 
       {/* STATS GRID */}

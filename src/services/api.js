@@ -460,3 +460,26 @@ export const updateProductStock = async (warehouseId, data) => {
   });
   return response.json();
 };
+
+// ==========================================
+// 7. MANAJEMEN ULASAN (REVIEWS)
+// ==========================================
+
+export async function getProductReviews(productId) {
+  const response = await fetch(`${API_URL}/products/${productId}/reviews`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Gagal memuat ulasan produk.");
+  return response.json();
+}
+
+export async function replyToReview(reviewId, adminReplyText) {
+  const response = await fetch(`${API_URL}/reviews/${reviewId}/reply`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ admin_reply: adminReplyText }),
+  });
+  if (!response.ok) throw new Error("Gagal mengirim balasan.");
+  return response.json();
+}
