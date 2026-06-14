@@ -37,7 +37,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   
   // 2. Cek apakah role diizinkan masuk ke rute ini?
   if (allowedRoles && !allowedRoles.includes(userRole)) {
-    // FIX: Kalau yang nyasar Affiliate, kembalikan ke /affiliate. Kalau admin nyasar, ke /dashboard
+    // Kalau yang nyasar Affiliate, kembalikan ke /affiliate. Kalau admin nyasar, ke /dashboard
     return userRole === 'affiliate' ? <Navigate to="/affiliate" replace /> : <Navigate to="/dashboard" replace />;
   }
 
@@ -72,11 +72,15 @@ export default function App() {
         <Route path="/users/create" element={<ProtectedRoute allowedRoles={['super_admin']}><AddUser /></ProtectedRoute>} />
         <Route path="/users/edit/:id" element={<ProtectedRoute allowedRoles={['super_admin']}><EditUser /></ProtectedRoute>} />
         <Route path="/orders/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><ShowOrders /></ProtectedRoute>} />
+        
+        {/* 👇 RUTE BARU UNTUK PROMOSI (TAMBAH & EDIT) 👇 */}
+        <Route path="/promotions/addpromotion" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><AddPromotion /></ProtectedRoute>} />
+        <Route path="/promotions/edit/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><EditPromotion /></ProtectedRoute>} />
 
         {/* Rute dengan Sidebar (MainLayout) */}
         <Route element={<MainLayout />}>
           
-          {/* FIX: Profile & Affiliate dibungkus ProtectedRoute biar gak bisa diakses orang tanpa login */}
+          {/* Profile & Affiliate dibungkus ProtectedRoute biar gak bisa diakses orang tanpa login */}
           <Route path="/profile" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><ProfileSettings /></ProtectedRoute>} />
           <Route path="/affiliate" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><Affiliate /></ProtectedRoute>} />
           <Route path="/affiliate/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><DetailAffiliator /></ProtectedRoute>} />
