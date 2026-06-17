@@ -483,3 +483,24 @@ export async function replyToReview(reviewId, adminReplyText) {
   if (!response.ok) throw new Error("Gagal mengirim balasan.");
   return response.json();
 }
+
+// ==========================================
+// 8. BUSINESS ANALYTICS
+// ==========================================
+export const getAnalyticsDashboard = async () => {
+  const response = await fetch(`${API_URL}/analytics/dashboard`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Gagal memuat data Analytics.");
+  return response.json();
+};
+
+export const getDashboardSummary = async () => {
+  const response = await fetch(`${API_URL}/dashboard/summary`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Gagal memuat data Dashboard.");
+  return response.json();
+};

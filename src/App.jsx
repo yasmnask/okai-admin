@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
 import VerifyEmailPage from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import ProfileSettings from "./pages/ProfileSettings";
@@ -24,6 +23,7 @@ import AddUser from "./pages/AddUser";
 import DetailAffiliator from "./pages/DetailAffiliator";
 import AddPromotion from "./pages/AddPromotions";
 import EditPromotion from "./pages/EditPromotions";
+import HomepageSettings from "./pages/HomepageSettings"; // 👈 IMPORT HALAMAN BARU
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 
@@ -32,12 +32,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   const adminData = JSON.parse(localStorage.getItem("okai_admin"));
   const userRole = adminData?.role?.toLowerCase();
 
-  // 1. Cek apakah user sudah login? Kalau belum, tendang ke halaman login
+  // 1. Cek apakah user sudah login? Kalau belum, tendang ke login
   if (!adminData) return <Navigate to="/login" replace />;
   
   // 2. Cek apakah role diizinkan masuk ke rute ini?
   if (allowedRoles && !allowedRoles.includes(userRole)) {
-    // Kalau yang nyasar Affiliate, kembalikan ke /affiliate. Kalau admin nyasar, ke /dashboard
     return userRole === 'affiliate' ? <Navigate to="/affiliate" replace /> : <Navigate to="/dashboard" replace />;
   }
 
@@ -46,7 +45,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 export default function App() {
 
-  // 👇 INI OBAT BUG DARK MODE-NYA 👇
+  // 👇 OBAT BUG DARK MODE 👇
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
@@ -73,14 +72,13 @@ export default function App() {
         <Route path="/users/edit/:id" element={<ProtectedRoute allowedRoles={['super_admin']}><EditUser /></ProtectedRoute>} />
         <Route path="/orders/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><ShowOrders /></ProtectedRoute>} />
         
-        {/* 👇 RUTE BARU UNTUK PROMOSI (TAMBAH & EDIT) 👇 */}
+        {/* Rute Promosi */}
         <Route path="/promotions/addpromotion" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><AddPromotion /></ProtectedRoute>} />
         <Route path="/promotions/edit/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><EditPromotion /></ProtectedRoute>} />
 
         {/* Rute dengan Sidebar (MainLayout) */}
         <Route element={<MainLayout />}>
           
-          {/* Profile & Affiliate dibungkus ProtectedRoute biar gak bisa diakses orang tanpa login */}
           <Route path="/profile" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><ProfileSettings /></ProtectedRoute>} />
           <Route path="/affiliate" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><Affiliate /></ProtectedRoute>} />
           <Route path="/affiliate/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><DetailAffiliator /></ProtectedRoute>} />
@@ -89,6 +87,9 @@ export default function App() {
           <Route path="/users" element={<ProtectedRoute allowedRoles={['super_admin']}><UserManagement /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute allowedRoles={['super_admin']}><SystemSettings /></ProtectedRoute>} />
           
+          {/* 👇 RUTE BARU: HOMEPAGE SETTINGS 👇 */}
+          <Route path="/homepage-settings" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><HomepageSettings /></ProtectedRoute>} />
+
           {/* Superadmin & Admin Operasional */}
           <Route path="/product" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><ProductManagement /></ProtectedRoute>} />
           <Route path="/warehouses" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><WarehouseManagement /></ProtectedRoute>} />
@@ -99,7 +100,7 @@ export default function App() {
           <Route path="/orders" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Orders /></ProtectedRoute>} />
           <Route path="/analytics" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Analytics /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Dashboard /></ProtectedRoute>} />
-
+          
         </Route>
       </Routes>
     </BrowserRouter>
