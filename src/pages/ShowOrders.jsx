@@ -14,40 +14,22 @@ export default function ShowOrders() {
   const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [availableWarehouses, setAvailableWarehouses] = useState([]);
-  const [itemWarehouses, setItemWarehouses] = useState({});
   const [selectedCourier, setSelectedCourier] = useState("jne");
   const [selectedCourierType, setSelectedCourierType] = useState("reg");
+  const [shippingMode, setShippingMode] = useState("biteship");
+  const [manualAwb, setManualAwb] = useState("");
 
   const fetchOrderDetail = async () => {
     try {
       const response = await getOrderById(id);
       if (response.success) {
         setOrder(response.data);
-        // Fetch available warehouses
-        fetchWarehousesForOrder(response.data.raw_id);
       }
     } catch (error) {
       toast.error("Gagal memuat data pesanan.");
       navigate("/orders"); 
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const fetchWarehousesForOrder = async (rawId) => {
-    try {
-      const response = await fetch(`http://localhost:8000/api/orders/${rawId}/available-warehouses`, {
-        headers: {
-          'Authorization': `Bearer ${JSON.parse(localStorage.getItem("okai_admin"))?.token}`
-        }
-      });
-      const result = await response.json();
-      if (result.success) {
-        setAvailableWarehouses(result.data);
-      }
-    } catch (error) {
-      console.error("Gagal mengambil data gudang tersedia");
     }
   };
 
@@ -59,7 +41,7 @@ export default function ShowOrders() {
     if (!window.confirm("Tandai pesanan ini sebagai Lunas (Paid)?")) return;
     setIsProcessing(true);
     try {
-      await markOrderAsPaid(order.raw_id);
+      await markOrderAsPaid(order.id);
       toast.success("Pesanan berhasil ditandai Lunas!");
       fetchOrderDetail();
     } catch (error) {
@@ -70,12 +52,9 @@ export default function ShowOrders() {
   };
 
   const handleShipWithBiteship = async () => {
-    // Cek apakah semua item sudah dipilih gudangnya
-    for (const item of order.order_items) {
-      if (!itemWarehouses[item.id]) {
-        toast.error(`Pilih gudang pengirim untuk item ${item.product?.name} terlebih dahulu!`);
-        return;
-      }
+    if (!order.warehouse_id) {
+      toast.error("Gudang asal belum ditentukan untuk pesanan ini!");
+      return;
     }
 
     const adminData = JSON.parse(localStorage.getItem("okai_admin")) || {};
@@ -91,13 +70,20 @@ export default function ShowOrders() {
     if (!window.confirm("Serahkan pesanan ini ke Ekspedisi via Biteship?")) return;
     setIsProcessing(true);
     try {
+      // Map every item to the order's warehouse_id
+      const itemWarehouses = {};
+      const items = order.items || order.order_items || [];
+      items.forEach(item => {
+        itemWarehouses[item.id] = order.warehouse_id;
+      });
+
       const data = {
         courier_company: selectedCourier,
         courier_type: selectedCourierType,
         item_warehouses: itemWarehouses,
         admin_phone: adminPhone
       };
-      const result = await shipWithBiteship(order.raw_id, data);
+      const result = await shipWithBiteship(order.id, data);
       
       if (result.success) {
         toast.success(result.message || "Berhasil diserahkan ke Ekspedisi!");
@@ -126,7 +112,7 @@ export default function ShowOrders() {
         courier_company: selectedCourier,
         awb_number: manualAwb
       };
-      const result = await shipManual(order.raw_id, data);
+      const result = await shipManual(order.id, data);
       
       if (result.success) {
         toast.success(result.message || "Status berhasil diubah ke Shipped!");
@@ -145,11 +131,36 @@ export default function ShowOrders() {
     if (!window.confirm("Simulasikan pengiriman fiktif (Tandai Delivered)?")) return;
     setIsProcessing(true);
     try {
-      await simulateDelivery(order.raw_id);
+      await simulateDelivery(order.id);
       toast.success("Pesanan berhasil disimulasikan sebagai Terkirim!");
       fetchOrderDetail();
     } catch (error) {
       toast.error("Gagal mensimulasikan pengiriman.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSyncTracking = async () => {
+    setIsProcessing(true);
+    try {
+      const adminData = JSON.parse(localStorage.getItem("okai_admin")) || {};
+      const response = await fetch(`http://localhost:8000/api/orders/${order.id}/sync-tracking`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${adminData.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const result = await response.json();
+      if (result.success) {
+        toast.success(result.message);
+        fetchOrderDetail();
+      } else {
+        toast.error(result.message || "Gagal sinkronisasi status.");
+      }
+    } catch (error) {
+      toast.error("Terjadi kesalahan sistem saat sinkronisasi.");
     } finally {
       setIsProcessing(false);
     }
@@ -169,6 +180,8 @@ export default function ShowOrders() {
 
   if (!order) return null;
 
+  const orderItems = order.items || order.order_items || [];
+
   return (
     <div className="min-h-screen bg-[#FDFCF8] pt-10 pb-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
@@ -184,7 +197,7 @@ export default function ShowOrders() {
             <h1 className="text-3xl font-bold text-[#2C352D] font-playfair flex items-center gap-3">
               <Receipt className="text-[#D4A373]" size={32} /> Detail Pesanan
             </h1>
-            <p className="text-[#5A665A] mt-2 font-medium">{order.invoice_no || `ORD-${order.raw_id}`}</p>
+            <p className="text-[#5A665A] mt-2 font-medium">{order.invoice_no || `ORD-${order.id}`}</p>
           </div>
           <div className="flex flex-col items-end gap-2">
             <div className="px-4 py-2 bg-[#F3EFE4] text-[#3A5034] rounded-full text-sm font-bold uppercase tracking-widest border border-[#EAE6D9]">
@@ -233,11 +246,7 @@ export default function ShowOrders() {
                   {shippingMode === "biteship" ? (
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full bg-white p-4 rounded-xl border border-slate-200">
                       <div className="flex-1 w-full sm:w-auto">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Pilih Gudang di Rincian Barang</p>
-                        <p className="text-xs text-slate-500">Pilih gudang asal pada tabel rincian barang di bawah sebelum menekan tombol kirim.</p>
-                      </div>
-                      <div className="flex-1 w-full sm:w-auto">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Kurir Pengiriman</label>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Kurir Pengiriman</p>
                         <div className="flex gap-2">
                           <select 
                             value={selectedCourier} 
@@ -309,9 +318,14 @@ export default function ShowOrders() {
               )}
 
               {order.status === 'shipped' && (
-                <button disabled={isProcessing} onClick={handleSimulateDelivery} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition disabled:opacity-50">
-                  <CheckCircle size={18} /> Simulasi Selesai (Delivered)
-                </button>
+                <>
+                  <button disabled={isProcessing} onClick={handleSyncTracking} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition disabled:opacity-50">
+                    <RefreshCw className={isProcessing ? "animate-spin" : ""} size={18} /> Sinkronisasi Status (Biteship)
+                  </button>
+                  <button disabled={isProcessing} onClick={handleSimulateDelivery} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition disabled:opacity-50">
+                    <CheckCircle size={18} /> Tandai Selesai (Delivered)
+                  </button>
+                </>
               )}
             </div>
         </div>
@@ -380,7 +394,7 @@ export default function ShowOrders() {
               </h2>
               
               <div className="space-y-4 mb-8">
-                {order.order_items?.map((item) => (
+                {orderItems.map((item) => (
                   <div key={item.id} className="flex flex-col gap-3 bg-[#FDFCF8] p-4 rounded-2xl border border-[#EAE6D9]/50">
                     <div className="flex justify-between items-center gap-4">
                       <div>
@@ -389,26 +403,6 @@ export default function ShowOrders() {
                       </div>
                       <p className="font-bold text-[#3A5034]">{formatIDR(item.price * item.quantity)}</p>
                     </div>
-                    
-                    {/* Pemilihan Gudang per Item jika belum dikirim */}
-                    {order.status === 'paid' && (
-                      <div className="mt-2 pt-3 border-t border-[#EAE6D9]">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Kirim dari Gudang:</label>
-                        <select 
-                          value={itemWarehouses[item.id] || ""} 
-                          onChange={(e) => setItemWarehouses({...itemWarehouses, [item.id]: e.target.value})}
-                          className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
-                        >
-                          <option value="">-- Pilih Gudang yang Memiliki Stok --</option>
-                          {availableWarehouses[item.id] && availableWarehouses[item.id].map(wh => (
-                            <option key={wh.id_warehouse} value={wh.id_warehouse}>{wh.name} (Stok: {wh.stock})</option>
-                          ))}
-                        </select>
-                        {(!availableWarehouses[item.id] || availableWarehouses[item.id].length === 0) && (
-                          <p className="text-[10px] text-red-500 mt-1 font-bold">⚠️ Tidak ada gudang dengan stok mencukupi untuk item ini.</p>
-                        )}
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -417,12 +411,18 @@ export default function ShowOrders() {
               <div className="border-t border-[#EAE6D9] pt-6 space-y-3 text-sm">
                 <div className="flex justify-between text-[#5A665A]">
                   <span>Subtotal Produk</span>
-                  <span className="font-medium text-[#2C352D]">{formatIDR(order.total_price - (order.shipping_cost || 0))}</span>
+                  <span className="font-medium text-[#2C352D]">{formatIDR(orderItems.reduce((acc, item) => acc + (item.price * item.quantity), 0))}</span>
                 </div>
                 <div className="flex justify-between text-[#5A665A]">
                   <span>Ongkos Kirim</span>
                   <span className="font-medium text-[#2C352D]">{formatIDR(order.shipping_cost || 0)}</span>
                 </div>
+                {order.discount_amount > 0 && (
+                  <div className="flex justify-between text-red-600">
+                    <span>Diskon</span>
+                    <span className="font-medium">-{formatIDR(order.discount_amount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center pt-4 border-t border-[#EAE6D9] mt-4">
                   <span className="text-sm font-bold text-[#5A665A] uppercase tracking-widest">Total Akhir</span>
                   <span className="text-3xl font-bold text-[#3A5034] tracking-tight">{formatIDR(order.total_price)}</span>

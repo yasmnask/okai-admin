@@ -21,7 +21,8 @@ export default function WarehouseManagement() {
     address: "",
     city: "",
     province: "",
-    postal_code: ""
+    postal_code: "",
+    user_id: ""
   });
 
   const fetchWarehouses = async () => {
@@ -43,8 +44,7 @@ export default function WarehouseManagement() {
       const res = await getUsers();
       if (res && res.success) {
         // Filter user yang memiliki role 'admin'
-        const admins = res.data.filter(u => u.roles && u.roles.some(r => r.name === 'admin'));
-        setAdminUsers(admins);
+        setAdminUsers(res.data.filter(u => u.role === 'admin' || (u.roles && u.roles.some(r => r.name === 'admin'))));
       }
     } catch (error) {
       console.error("Error fetching admins:", error);
@@ -65,7 +65,8 @@ export default function WarehouseManagement() {
         address: warehouse.address || "",
         city: warehouse.city || "",
         province: warehouse.province || "",
-        postal_code: warehouse.postal_code || ""
+        postal_code: warehouse.postal_code || "",
+        user_id: warehouse.user_id || ""
       });
     } else {
       setIsEditing(false);
@@ -75,7 +76,8 @@ export default function WarehouseManagement() {
         address: "",
         city: "",
         province: "",
-        postal_code: ""
+        postal_code: "",
+        user_id: ""
       });
     }
     setIsModalOpen(true);
@@ -88,7 +90,8 @@ export default function WarehouseManagement() {
       address: "",
       city: "",
       province: "",
-      postal_code: ""
+      postal_code: "",
+      user_id: ""
     });
   };
 
@@ -97,8 +100,10 @@ export default function WarehouseManagement() {
     try {
       if (isEditing) {
         await updateWarehouse(currentWarehouseId, formData);
+        toast.success("Gudang berhasil diperbarui!");
       } else {
         await addWarehouse(formData);
+        toast.success("Gudang berhasil ditambahkan!");
       }
       handleCloseModal();
       fetchWarehouses();
@@ -111,6 +116,7 @@ export default function WarehouseManagement() {
     if (window.confirm("Yakin ingin menghapus gudang ini?")) {
       try {
         await deleteWarehouse(id);
+        toast.success("Gudang berhasil dihapus!");
         fetchWarehouses();
       } catch (error) {
         toast.error("Gagal menghapus gudang.");
@@ -168,13 +174,13 @@ export default function WarehouseManagement() {
           <tbody className="divide-y divide-slate-50 dark:divide-black">
             {isLoading ? (
               <tr>
-                <td colSpan="3" className="p-20 text-center text-slate-400 dark:text-slate-600 font-bold animate-pulse">
+                <td colSpan="4" className="p-20 text-center text-slate-400 dark:text-slate-600 font-bold animate-pulse">
                   Mengambil data gudang dari server...
                 </td>
               </tr>
             ) : filteredWarehouses.length === 0 ? (
               <tr>
-                <td colSpan="3" className="p-20 text-center text-slate-400 dark:text-slate-300/30 font-bold italic">
+                <td colSpan="4" className="p-20 text-center text-slate-400 dark:text-slate-300/30 font-bold italic">
                   Belum ada data gudang terdaftar.
                 </td>
               </tr>
@@ -187,6 +193,17 @@ export default function WarehouseManagement() {
                   <td className="p-6">
                     <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{warehouse.city || "-"}, {warehouse.province || "-"}</p>
                     <p className="text-xs text-slate-400">{warehouse.address || "Alamat belum diatur"}</p>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-[#E65100] font-bold text-xs">
+                            {warehouse.user?.name?.charAt(0) || "?"}
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{warehouse.user?.name || "Belum Ada"}</p>
+                            <p className="text-[10px] text-slate-400 font-medium">{warehouse.user?.email || "Manager tidak diset"}</p>
+                        </div>
+                    </div>
                   </td>
                   <td className="p-6">
                     <div className="flex justify-center items-center gap-2">

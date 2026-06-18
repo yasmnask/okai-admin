@@ -27,7 +27,7 @@ export default function EditProduct() {
   const [formData, setFormData] = useState({
     name: "",
     sku: "",
-    category: "Electronic",
+    category: "Bubuk Premium",
     description: "",
     price: "",
     image_url: "",
@@ -36,6 +36,16 @@ export default function EditProduct() {
     is_affiliate_enabled: 0,
     commission_type: 'percent', // 👈 Tipe baru
     commission_value: 15,       // 👈 Nilai baru
+    // Dimensions for Biteship
+    weight: 1000,
+    length: 10,
+    width: 10,
+    height: 10,
+    // Dropship settings
+    is_dropship_enabled: 0,
+    dropship_min_qty: 1,
+    dropship_discount_type: 'percent',
+    dropship_discount_value: 0
   });
 
   // ==========================================
@@ -90,6 +100,15 @@ export default function EditProduct() {
             is_affiliate_enabled: parseInt(response.data.is_affiliate_enabled || 0),
             commission_type: response.data.commission_type || 'percent',       // 👈 Ambil data tipe komisi
             commission_value: parseFloat(response.data.commission_value || 0), // 👈 Ambil data nilai komisi
+            // Data baru
+            weight: parseInt(response.data.weight || 1000),
+            length: parseInt(response.data.length || 10),
+            width: parseInt(response.data.width || 10),
+            height: parseInt(response.data.height || 10),
+            is_dropship_enabled: parseInt(response.data.is_dropship_enabled || 0),
+            dropship_min_qty: parseInt(response.data.dropship_min_qty || 1),
+            dropship_discount_type: response.data.dropship_discount_type || 'percent',
+            dropship_discount_value: parseFloat(response.data.dropship_discount_value || 0),
           });
         } else {
           toast.error("Produk tidak ditemukan!");
@@ -121,6 +140,16 @@ export default function EditProduct() {
     payload.append("is_affiliate_enabled", formData.is_affiliate_enabled ? 1 : 0);
     payload.append("commission_type", formData.commission_type);
     payload.append("commission_value", parseFloat(formData.commission_value) || 0);
+
+    // Dimensions & Dropship
+    payload.append('weight', parseInt(formData.weight) || 1000);
+    payload.append('length', parseInt(formData.length) || 10);
+    payload.append('width', parseInt(formData.width) || 10);
+    payload.append('height', parseInt(formData.height) || 10);
+    payload.append('is_dropship_enabled', formData.is_dropship_enabled ? 1 : 0);
+    payload.append('dropship_min_qty', parseInt(formData.dropship_min_qty) || 1);
+    payload.append('dropship_discount_type', formData.dropship_discount_type);
+    payload.append('dropship_discount_value', parseFloat(formData.dropship_discount_value) || 0);
     
     payload.append("_method", "PUT");
 
@@ -334,9 +363,10 @@ export default function EditProduct() {
 
         {/* KANAN: METADATA & SIDEBAR */}
         <div className="xl:col-span-4 space-y-6">
+          {/* HARGA & STOK */}
           <div className="bg-white dark:bg-[#1a1d1a] p-8 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800/50 transition-colors">
             <h3 className="font-black text-slate-800 dark:text-white text-xs uppercase tracking-widest mb-6 flex items-center gap-2 transition-colors">
-              <Settings size={16} className="text-[#E65100]" /> Inventory
+              <Settings size={16} className="text-[#E65100]" /> Inventory & Shipping
             </h3>
             <div className="space-y-4">
               <div className="bg-slate-50 dark:bg-[#2a2d2a] p-4 rounded-2xl border border-slate-100 dark:border-transparent transition-colors">
@@ -355,6 +385,26 @@ export default function EditProduct() {
                   />
                 </div>
               </div>
+
+              {/* Weight & Dimensions */}
+              <div className="grid grid-cols-2 gap-3">
+                 <div className="bg-slate-50 dark:bg-[#2a2d2a] p-3 rounded-2xl border border-slate-100 dark:border-transparent transition-colors">
+                    <label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block transition-colors">Berat (Gram)</label>
+                    <input type="number" value={formData.weight} onChange={(e) => setFormData({...formData, weight: e.target.value})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="1000" />
+                 </div>
+                 <div className="bg-slate-50 dark:bg-[#2a2d2a] p-3 rounded-2xl border border-slate-100 dark:border-transparent transition-colors">
+                    <label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block transition-colors">Panjang (cm)</label>
+                    <input type="number" value={formData.length} onChange={(e) => setFormData({...formData, length: e.target.value})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="10" />
+                 </div>
+                 <div className="bg-slate-50 dark:bg-[#2a2d2a] p-3 rounded-2xl border border-slate-100 dark:border-transparent transition-colors">
+                    <label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block transition-colors">Lebar (cm)</label>
+                    <input type="number" value={formData.width} onChange={(e) => setFormData({...formData, width: e.target.value})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="10" />
+                 </div>
+                 <div className="bg-slate-50 dark:bg-[#2a2d2a] p-3 rounded-2xl border border-slate-100 dark:border-transparent transition-colors">
+                    <label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block transition-colors">Tinggi (cm)</label>
+                    <input type="number" value={formData.height} onChange={(e) => setFormData({...formData, height: e.target.value})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="10" />
+                 </div>
+              </div>
             </div>
           </div>
 
@@ -371,10 +421,6 @@ export default function EditProduct() {
                   }
                   className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-2xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20 appearance-none cursor-pointer transition-colors"
                 >
-                  <option value="Electronic">Electronic</option>
-                  <option value="Apparel">Apparel</option>
-                  <option value="Footwear">Footwear</option>
-                  <option value="Accessories">Accessories</option>
                   <option value="Bubuk Premium">Bubuk Premium</option>
                   <option value="Herbal Spesial">Herbal Spesial</option>
                   <option value="Paket Keluarga">Paket Keluarga</option>
@@ -470,6 +516,64 @@ export default function EditProduct() {
             ) : null}
           </div>
           {/* END AFILIASI TOGGLE */}
+
+          {/* DROPSHIP TOGGLE & PENGATURAN DISKON */}
+          <div className="bg-white dark:bg-[#1a1d1a] p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800/50 transition-colors">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-[10px] font-black text-blue-400 dark:text-blue-500 uppercase tracking-widest transition-colors flex items-center gap-1">
+                  📦 Program Dropship
+                </p>
+                <p className="text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors">
+                  {formData.is_dropship_enabled ? 'Aktif' : 'Tidak Aktif'}
+                </p>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setFormData({...formData, is_dropship_enabled: formData.is_dropship_enabled ? 0 : 1})}
+                className={`w-14 h-8 rounded-full transition-all flex items-center px-1 ${formData.is_dropship_enabled ? 'bg-blue-500 dark:bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+              >
+                <div className={`w-6 h-6 bg-white rounded-full shadow-md transition-all transform ${formData.is_dropship_enabled ? 'translate-x-6' : 'translate-x-0'}`}></div>
+              </button>
+            </div>
+
+            {/* Jika Dropship Aktif */}
+            {formData.is_dropship_enabled ? (
+               <div className="bg-blue-50 dark:bg-blue-900/10 p-5 rounded-2xl border border-blue-100 dark:border-blue-800/50 mt-4 animate-in slide-in-from-top-2 duration-300 space-y-4">
+                 
+                 {/* Min Qty Dropship */}
+                 <div>
+                    <label className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-2 block">Minimal Pembelian</label>
+                    <input type="number" value={formData.dropship_min_qty} onChange={(e) => setFormData({...formData, dropship_min_qty: e.target.value})} className="w-full p-3 bg-white dark:bg-[#1a1d1a] border border-blue-200 dark:border-blue-800 rounded-xl text-xs font-bold outline-none text-blue-700 dark:text-blue-300" placeholder="1" />
+                 </div>
+
+                 {/* Tipe Diskon Dropship */}
+                 <div>
+                   <label className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-2 block">Tipe Diskon Dropship</label>
+                   <select 
+                     value={formData.dropship_discount_type}
+                     onChange={(e) => setFormData({...formData, dropship_discount_type: e.target.value})}
+                     className="w-full p-3 bg-white dark:bg-[#1a1d1a] border border-blue-200 dark:border-blue-800 rounded-xl text-xs font-bold outline-none text-blue-700 dark:text-blue-300"
+                   >
+                     <option value="percent">Persentase (%)</option>
+                     <option value="fixed">Nominal Fix (Rp)</option>
+                   </select>
+                 </div>
+
+                 {/* Nilai Diskon Dropship */}
+                 <div>
+                    <label className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-2 block">Nilai Diskon</label>
+                    <div className="flex items-center gap-2 bg-white dark:bg-[#1a1d1a] border border-blue-200 dark:border-blue-800 rounded-xl p-3">
+                       {formData.dropship_discount_type === 'fixed' && <span className="text-blue-400 text-sm">Rp</span>}
+                       <input type="number" value={formData.dropship_discount_value} onChange={(e) => setFormData({...formData, dropship_discount_value: e.target.value})} className="bg-transparent w-full outline-none text-blue-700 dark:text-blue-300 font-bold text-sm" placeholder="0" />
+                       {formData.dropship_discount_type === 'percent' && <span className="text-blue-400 text-sm">%</span>}
+                    </div>
+                 </div>
+
+               </div>
+            ) : null}
+          </div>
+          {/* END DROPSHIP TOGGLE */}
 
           {/* TOMBOL BUKA MEDIA LIBRARY */}
           <div className="bg-[#1E293B] dark:bg-[#2a2d2a] p-8 rounded-[3rem] shadow-2xl dark:shadow-none text-white relative transition-colors">
