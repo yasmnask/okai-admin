@@ -531,7 +531,7 @@ export default function AffiliateManagement() {
             <thead className="bg-slate-50/50 dark:bg-slate-800/20 text-[10px] font-black uppercase text-slate-400 tracking-widest">
               <tr>
                 <th className="p-6">Informasi Mitra</th>
-                <th className="p-6 text-center">Komisi (%)</th>
+                {/* ❌ Kolom Komisi (%) Dihapus di Sini */}
                 <th className="p-6 text-center">Status</th>
                 <th className="p-6 text-center">Aksi</th>
               </tr>
@@ -539,7 +539,7 @@ export default function AffiliateManagement() {
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
               {currentFilteredAffiliates.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="p-16 text-center">
+                  <td colSpan="3" className="p-16 text-center">
                     <Search className="mx-auto mb-3 text-slate-300 dark:text-slate-600" size={32} />
                     <p className="text-slate-400 italic">Tidak ada partner yang cocok.</p>
                   </td>
@@ -555,9 +555,7 @@ export default function AffiliateManagement() {
                         {aff.affiliate_code || "BELUM ADA KODE"}
                       </p>
                     </td>
-                    <td className="p-6 text-center font-black text-slate-600 dark:text-slate-400">
-                      {aff.commission_rate}%
-                    </td>
+                    {/* ❌ Data Komisi Dihapus di Sini */}
                     <td className="p-6 text-center">
                       <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusBadgeColors(aff.status)}`}>
                         {aff.status}
@@ -565,7 +563,6 @@ export default function AffiliateManagement() {
                     </td>
                     <td className="p-6">
                       <div className="flex justify-center gap-2">
-                        {/* Tombol Detail Mitra - Langsung berpindah ke halaman detail */}
                         <button
                           onClick={() => navigate(`/affiliate/${aff.id}`)}
                           className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-[#2a2d2a] rounded-xl transition-all"
@@ -573,8 +570,6 @@ export default function AffiliateManagement() {
                         >
                           <ExternalLink size={18} />
                         </button>
-
-                        {/* Tombol History Komisi */}
                         <button
                           onClick={() => toast('Fitur History Komisi untuk ' + aff.full_name + ' sedang dalam tahap pengembangan.', { icon: 'ℹ️' })}
                           className="p-2.5 text-slate-400 dark:text-slate-500 hover:text-[#E65100] dark:hover:text-orange-400 hover:bg-slate-100 dark:hover:bg-[#2a2d2a] rounded-xl transition-all"
@@ -603,51 +598,7 @@ export default function AffiliateManagement() {
           </div>
         )}
       </div>
-
-      {/* MODAL BAYAR KOMISI */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#1a1d1a] w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl border dark:border-slate-800/50 animate-in fade-in zoom-in duration-300">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-xl font-black text-slate-800 dark:text-white">
-                Proses <span className="text-[#E65100]">Bayar</span>
-              </h3>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 dark:text-slate-500 transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleManualPayment} className="space-y-5">
-              <div>
-                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">Pilih Mitra</label>
-                <select
-                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
-                  onChange={(e) => setPaymentData({ ...paymentData, affiliate_id: e.target.value })}
-                  required
-                >
-                  <option value="">-- Pilih Partner --</option>
-                  {affiliates.filter(a => a.status === 'active').map((aff) => (
-                    <option key={aff.id} value={aff.id}>{aff.full_name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">Nominal Transfer (Rp)</label>
-                <input
-                  type="number"
-                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500/20 placeholder:text-slate-400 dark:placeholder:text-slate-600"
-                  placeholder="0"
-                  onChange={(e) => setPaymentData({ ...paymentData, amount: e.target.value })}
-                  required
-                />
-              </div>
-              <button type="submit" className="w-full py-4 bg-[#1E293B] dark:bg-white dark:text-black text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-black dark:hover:bg-slate-200 transition-all">
-                <Send size={16} /> Kirim Dana
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* (Modal Bayar Komisi tetap ada jika nanti dibutuhkan) */}
     </div>
   );
 }

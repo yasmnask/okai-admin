@@ -34,7 +34,8 @@ export default function EditProduct() {
     image_file: null, // Tambahan untuk file fisik
     is_active: 1,
     is_affiliate_enabled: 0,
-    affiliate_commission: 15,
+    commission_type: 'percent', // 👈 Tipe baru
+    commission_value: 15,       // 👈 Nilai baru
   });
 
   // ==========================================
@@ -69,7 +70,7 @@ export default function EditProduct() {
       const previewUrl = URL.createObjectURL(file);
       setFormData({
         ...formData,
-        image_file: file,     
+        image_file: file,    
         image_url: previewUrl 
       });
       setIsMediaOpen(false);
@@ -87,7 +88,8 @@ export default function EditProduct() {
             ...response.data,
             is_active: parseInt(response.data.is_active || 0),
             is_affiliate_enabled: parseInt(response.data.is_affiliate_enabled || 0),
-            affiliate_commission: parseFloat(response.data.affiliate_commission || 15),
+            commission_type: response.data.commission_type || 'percent',       // 👈 Ambil data tipe komisi
+            commission_value: parseFloat(response.data.commission_value || 0), // 👈 Ambil data nilai komisi
           });
         } else {
           toast.error("Produk tidak ditemukan!");
@@ -114,8 +116,11 @@ export default function EditProduct() {
     payload.append("description", formData.description || "");
     payload.append("price", parseFloat(formData.price) || 0);
     payload.append("is_active", formData.is_active ? 1 : 0);
+    
+    // 👈 KIRIM PAYLOAD AFILIASI BARU
     payload.append("is_affiliate_enabled", formData.is_affiliate_enabled ? 1 : 0);
-    payload.append("affiliate_commission", parseFloat(formData.affiliate_commission) || 0);
+    payload.append("commission_type", formData.commission_type);
+    payload.append("commission_value", parseFloat(formData.commission_value) || 0);
     
     payload.append("_method", "PUT");
 
@@ -403,7 +408,7 @@ export default function EditProduct() {
             </button>
           </div>
 
-          {/* AFILIASI TOGGLE */}
+          {/* AFILIASI TOGGLE & PENGATURAN KOMISI */}
           <div className="bg-white dark:bg-[#1a1d1a] p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800/50 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -423,20 +428,44 @@ export default function EditProduct() {
               </button>
             </div>
 
+            {/* Jika Afiliasi Aktif, Munculkan Opsi Tipe & Nilai Komisi */}
             {formData.is_affiliate_enabled ? (
-               <div className="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-2xl border border-purple-100 dark:border-purple-800/50 mt-4 animate-in slide-in-from-top-2 duration-300">
-                  <label className="text-[9px] font-black text-purple-500 dark:text-purple-400 uppercase tracking-widest mb-1 block">Komisi Afiliator (%)</label>
-                  <div className="flex items-center gap-2 text-lg font-black dark:text-white">
-                    <input 
-                      type="number" 
-                      min="0" 
-                      max="100"
-                      value={formData.affiliate_commission || ""} 
-                      onChange={(e) => setFormData({...formData, affiliate_commission: e.target.value})} 
-                      className="bg-transparent w-full outline-none text-purple-700 dark:text-purple-300 placeholder:text-purple-300" 
-                    />
-                    <span className="text-purple-400 dark:text-purple-600">%</span>
-                  </div>
+               <div className="bg-purple-50 dark:bg-purple-900/10 p-5 rounded-2xl border border-purple-100 dark:border-purple-800/50 mt-4 animate-in slide-in-from-top-2 duration-300 space-y-4">
+                 
+                 {/* Input Tipe Komisi */}
+                 <div>
+                   <label className="text-[9px] font-black text-purple-500 dark:text-purple-400 uppercase tracking-widest mb-2 block">
+                     Tipe Komisi
+                   </label>
+                   <select 
+                     value={formData.commission_type}
+                     onChange={(e) => setFormData({...formData, commission_type: e.target.value, commission_value: ''})}
+                     className="w-full p-3 bg-white dark:bg-[#1a1d1a] border border-purple-200 dark:border-purple-800 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-purple-500/20 text-purple-700 dark:text-purple-300"
+                   >
+                     <option value="percent">Persentase (%)</option>
+                     <option value="fixed">Nominal Fix (Rp)</option>
+                   </select>
+                 </div>
+
+                 {/* Input Nilai Komisi */}
+                 <div>
+                   <label className="text-[9px] font-black text-purple-500 dark:text-purple-400 uppercase tracking-widest mb-2 block">
+                     Nilai Komisi
+                   </label>
+                   <div className="flex items-center gap-2 text-lg font-black dark:text-white bg-white dark:bg-[#1a1d1a] border border-purple-200 dark:border-purple-800 rounded-xl p-3">
+                     {formData.commission_type === 'fixed' && <span className="text-purple-400 dark:text-purple-600 text-sm">Rp</span>}
+                     <input 
+                       type="number" 
+                       min="0" 
+                       value={formData.commission_value || ""} 
+                       onChange={(e) => setFormData({...formData, commission_value: e.target.value})} 
+                       className="bg-transparent w-full outline-none text-purple-700 dark:text-purple-300 placeholder:text-purple-300/50 text-sm" 
+                       placeholder={formData.commission_type === 'percent' ? "Contoh: 15" : "Contoh: 20000"}
+                     />
+                     {formData.commission_type === 'percent' && <span className="text-purple-400 dark:text-purple-600 text-sm">%</span>}
+                   </div>
+                 </div>
+
                </div>
             ) : null}
           </div>

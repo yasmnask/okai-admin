@@ -33,11 +33,16 @@ export default function EditPromotion() {
         if (response.success) {
           const promoData = response.data;
           
-          // 2. Format Tanggal Laravel (YYYY-MM-DD HH:MM:SS) menjadi format input date HTML (YYYY-MM-DD)
+          // Helper untuk memastikan format tanggal aman dipotong ke YYYY-MM-DD
+          const formatDate = (dateString) => {
+            if (!dateString) return '';
+            return dateString.substring(0, 10);
+          };
+
           setFormData({
             ...promoData,
-            start_date: promoData.start_date ? promoData.start_date.substring(0, 10) : '',
-            end_date: promoData.end_date ? promoData.end_date.substring(0, 10) : '',
+            start_date: formatDate(promoData.start_date),
+            end_date: formatDate(promoData.end_date),
           });
         } else {
           toast.error("Voucher tidak ditemukan!");
@@ -57,7 +62,7 @@ export default function EditPromotion() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // 3. Pastikan tipe data dikonversi ke angka sebelum dikirim
+    // Pastikan tipe data dikonversi ke angka sebelum dikirim
     const payload = {
       ...formData,
       value: Number(formData.value),
@@ -184,8 +189,25 @@ export default function EditPromotion() {
               <Clock size={16} className="text-[#E65100]" /> Masa Berlaku
             </h3>
             <div className="space-y-4">
-              <input type="date" value={formData.start_date} onChange={(e) => setFormData({...formData, start_date: e.target.value})} className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-2xl text-xs font-bold outline-none transition-colors" style={{ colorScheme: 'light dark' }} />
-              <input type="date" value={formData.end_date} onChange={(e) => setFormData({...formData, end_date: e.target.value})} className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-2xl text-xs font-bold outline-none transition-colors" style={{ colorScheme: 'light dark' }} />
+              <div>
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 mb-2 block transition-colors">Tanggal Mulai</label>
+                <input 
+                  type="date" 
+                  value={formData.start_date} 
+                  onChange={(e) => setFormData({...formData, start_date: e.target.value})} 
+                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-2xl text-sm font-bold outline-none transition-colors border border-transparent focus:border-orange-500" 
+                />
+              </div>
+              
+              <div>
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 mb-2 block transition-colors">Tanggal Berakhir</label>
+                <input 
+                  type="date" 
+                  value={formData.end_date} 
+                  onChange={(e) => setFormData({...formData, end_date: e.target.value})} 
+                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-2xl text-sm font-bold outline-none transition-colors border border-transparent focus:border-orange-500" 
+                />
+              </div>
             </div>
           </div>
 

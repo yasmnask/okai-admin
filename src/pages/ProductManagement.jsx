@@ -130,6 +130,7 @@ export default function ProductManagement() {
       setIsSubmittingReply(false);
     }
   };
+  
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
       <Star
@@ -143,6 +144,10 @@ export default function ProductManagement() {
       />
     ));
   };
+
+  // Helper Format Rupiah untuk komisi fixed
+  const formatIDR = (val) => 
+    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(val || 0);
 
   // Kategori resmi KAMBI
   const baseCategories = [
@@ -318,7 +323,8 @@ export default function ProductManagement() {
                   <td className="p-6 text-center">
                     {product.is_affiliate_enabled ? (
                       <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
-                        🔥 Aktif ({product.affiliate_commission || 15}%)
+                        {/* 👇 MENYESUAIKAN TIPE KOMISI DARI DATABASE BARU */}
+                        🔥 Aktif ({product.commission_type === 'fixed' ? formatIDR(product.commission_value) : `${product.commission_value || 0}%`})
                       </span>
                     ) : (
                       <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
@@ -371,7 +377,7 @@ export default function ProductManagement() {
           </tbody>
         </table>
 
-        {/* PAGINATION (Sesuai kode aslimu) */}
+        {/* PAGINATION */}
         <div className="p-6 border-t border-slate-50 dark:border-black flex justify-between items-center text-xs font-bold text-slate-400 dark:text-slate-300">
           <p>Showing 1 to {filteredProducts.length} Products</p>
           <div className="flex gap-2">
@@ -494,7 +500,6 @@ export default function ProductManagement() {
                         </div>
                       )}
 
-                      {/* Cari blok kode Area Balasan di ProductManagement.jsx kamu, lalu ganti dengan ini */}
                       <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                         {replyingToReviewId === review.id ? (
                           // Form Input saat tombol Balas/Edit diklik
