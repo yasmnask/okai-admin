@@ -27,9 +27,13 @@ import {
 export default function AffiliateManagement() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
-  const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
+  const [withdrawals, setWithdrawals] = useState([]);
   const [affiliates, setAffiliates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Computed states
+  const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending');
+  const withdrawalHistory = withdrawals.filter(w => w.status !== 'pending');
 
   // State Paginasi
   const [affiliatePage, setAffiliatePage] = useState(1);
@@ -55,11 +59,11 @@ export default function AffiliateManagement() {
       const [resStats, resWithdraws, resList] = await Promise.all([
         getAffiliateStats(),
         getWithdrawals(),
-        getAffiliateList(),
+        getAffiliateList()
       ]);
 
       if (resStats.success) setStats(resStats.data);
-      if (resWithdraws.success) setPendingWithdrawals(resWithdraws.data);
+      if (resWithdraws.success) setWithdrawals(resWithdraws.data);
       if (resList.success) setAffiliates(resList.data);
     } catch (error) {
       console.error("Gagal sinkronisasi data:", error);
@@ -391,6 +395,69 @@ export default function AffiliateManagement() {
                           Reject
                         </button>
                       </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* TABLE RIWAYAT PENCAIRAN */}
+      <div className="bg-white dark:bg-[#1a1d1a] rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-800/50 overflow-hidden mb-8 transition-colors">
+        <div className="p-7 border-b border-slate-50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-800/10 flex justify-between items-center">
+          <h3 className="font-black text-slate-800 dark:text-white text-lg flex items-center gap-3">
+            <Clock className="text-slate-500" /> Riwayat Pencairan
+          </h3>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left whitespace-nowrap">
+            <thead className="bg-slate-50/50 dark:bg-slate-800/20 text-[10px] font-black uppercase text-slate-400 tracking-widest">
+              <tr>
+                <th className="p-6">Nama Mitra</th>
+                <th className="p-6">Nominal Pengajuan</th>
+                <th className="p-6 text-center">Status</th>
+                <th className="p-6 text-center">Tanda Terima</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
+              {withdrawalHistory.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="p-16 text-center">
+                    <Inbox className="mx-auto mb-3 text-slate-300 dark:text-slate-600" size={32} />
+                    <p className="text-slate-400 italic">Belum ada riwayat pencairan.</p>
+                  </td>
+                </tr>
+              ) : (
+                withdrawalHistory.map((req) => (
+                  <tr key={req.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
+                    <td className="p-6 font-bold text-slate-800 dark:text-slate-200">
+                      {req.affiliate?.full_name}
+                      <p className="text-xs font-normal text-slate-400 mt-1">{req.bank_name} - {req.account_number}</p>
+                    </td>
+                    <td className="p-6 font-black text-slate-700 dark:text-slate-300">
+                      {formatIDR(req.amount)}
+                    </td>
+                    <td className="p-6 text-center">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${req.status === 'approved' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'}`}>
+                        {req.status}
+                      </span>
+                    </td>
+                    <td className="p-6 text-center">
+                      {req.status === 'approved' ? (
+                        <a
+                          href={`http://localhost:8000/affiliate/receipt/${req.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-[#E65100] text-white text-[10px] font-black uppercase rounded-xl hover:bg-orange-600 transition-colors"
+                        >
+                          Cetak
+                        </a>
+                      ) : (
+                        <span className="text-slate-400 text-xs italic">-</span>
+                      )}
                     </td>
                   </tr>
                 ))

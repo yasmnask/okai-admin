@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
 import { Plus, Search, Edit3, Trash2, MapPin, Eye } from "lucide-react";
-import { getWarehouses, deleteWarehouse, addWarehouse, updateWarehouse } from "../services/api";
+import { getWarehouses, deleteWarehouse, addWarehouse, updateWarehouse, getUsers } from "../services/api";
 
 export default function WarehouseManagement() {
   const navigate = useNavigate();
   const [warehouses, setWarehouses] = useState([]);
+  const [adminUsers, setAdminUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
 
@@ -37,8 +38,22 @@ export default function WarehouseManagement() {
     }
   };
 
+  const fetchAdmins = async () => {
+    try {
+      const res = await getUsers();
+      if (res && res.success) {
+        // Filter user yang memiliki role 'admin'
+        const admins = res.data.filter(u => u.roles && u.roles.some(r => r.name === 'admin'));
+        setAdminUsers(admins);
+      }
+    } catch (error) {
+      console.error("Error fetching admins:", error);
+    }
+  };
+
   useEffect(() => {
     fetchWarehouses();
+    fetchAdmins();
   }, []);
 
   const handleOpenModal = (warehouse = null) => {
@@ -146,6 +161,7 @@ export default function WarehouseManagement() {
             <tr className="bg-slate-50/50 dark:bg-[#3e3c3a] border-b border-slate-100 dark:border-black">
               <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">Nama Gudang</th>
               <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">Alamat</th>
+              <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest">Admin Pengelola</th>
               <th className="p-6 text-xs font-black text-slate-400 dark:text-slate-300 uppercase tracking-widest text-center">Aksi</th>
             </tr>
           </thead>
@@ -223,6 +239,15 @@ export default function WarehouseManagement() {
               <div>
                 <label className="text-xs font-bold text-slate-500 mb-1 block">Kode Pos</label>
                 <input type="text" value={formData.postal_code} onChange={(e) => setFormData({...formData, postal_code: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-500/20" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 mb-1 block">Admin Pengelola (Opsional)</label>
+                <select value={formData.user_id} onChange={(e) => setFormData({...formData, user_id: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-500/20">
+                  <option value="">-- Tidak Ada --</option>
+                  {adminUsers.map(admin => (
+                    <option key={admin.id} value={admin.id}>{admin.name} ({admin.email})</option>
+                  ))}
+                </select>
               </div>
               
               <div className="pt-6 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800/50">

@@ -330,6 +330,15 @@ export const shipWithBiteship = async (id, data) => {
   return response.json();
 };
 
+export const shipManual = async (id, data) => {
+  const response = await fetch(`${API_URL}/orders/${id}/ship-manual`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};
+
 export const simulateDelivery = async (id) => {
   const response = await fetch(`${API_URL}/orders/${id}/simulate-delivery`, {
     method: "POST",
@@ -481,5 +490,28 @@ export async function replyToReview(reviewId, adminReplyText) {
     body: JSON.stringify({ admin_reply: adminReplyText }),
   });
   if (!response.ok) throw new Error("Gagal mengirim balasan.");
+  return response.json();
+}
+
+// ==========================================
+// 8. PENGATURAN SISTEM (SYSTEM SETTINGS)
+// ==========================================
+
+export async function getSystemSettings() {
+  const response = await fetch(`${API_URL}/system-settings`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Gagal memuat pengaturan sistem.");
+  return response.json();
+}
+
+export async function updateSystemSettings(data) {
+  const response = await fetch(`${API_URL}/system-settings`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error("Gagal menyimpan pengaturan sistem.");
   return response.json();
 }

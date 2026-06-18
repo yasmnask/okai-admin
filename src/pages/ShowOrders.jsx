@@ -113,6 +113,34 @@ export default function ShowOrders() {
     }
   };
 
+  const handleShipManual = async () => {
+    if (!manualAwb.trim()) {
+      toast.error("Nomor Resi (AWB) harus diisi!");
+      return;
+    }
+
+    if (!window.confirm(`Kirim manual via ${selectedCourier.toUpperCase()} dengan resi ${manualAwb}?`)) return;
+    setIsProcessing(true);
+    try {
+      const data = {
+        courier_company: selectedCourier,
+        awb_number: manualAwb
+      };
+      const result = await shipManual(order.raw_id, data);
+      
+      if (result.success) {
+        toast.success(result.message || "Status berhasil diubah ke Shipped!");
+        fetchOrderDetail();
+      } else {
+        toast.error(`❌ Gagal: ${result.message}`);
+      }
+    } catch (error) {
+      toast.error("Terjadi kesalahan sistem saat memproses pengiriman manual.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleSimulateDelivery = async () => {
     if (!window.confirm("Simulasikan pengiriman fiktif (Tandai Delivered)?")) return;
     setIsProcessing(true);
@@ -175,45 +203,108 @@ export default function ShowOrders() {
               )}
               
               {order.status === 'paid' && (
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
-                  <div className="flex-1 w-full sm:w-auto">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Pilih Gudang di Rincian Barang</p>
-                    <p className="text-xs text-slate-500">Pilih gudang asal pada tabel rincian barang di bawah sebelum menekan tombol kirim.</p>
+                <div className="flex flex-col w-full gap-4">
+                  {/* PILIH METODE PENGIRIMAN */}
+                  <div className="flex gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 w-fit">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="shippingMode" 
+                        value="biteship" 
+                        checked={shippingMode === "biteship"} 
+                        onChange={(e) => setShippingMode(e.target.value)} 
+                        className="accent-orange-600"
+                      />
+                      <span className="text-sm font-bold text-slate-700">Request Penjemputan (Biteship)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="shippingMode" 
+                        value="manual" 
+                        checked={shippingMode === "manual"} 
+                        onChange={(e) => setShippingMode(e.target.value)} 
+                        className="accent-orange-600"
+                      />
+                      <span className="text-sm font-bold text-slate-700">Kirim Manual</span>
+                    </label>
                   </div>
-                  <div className="flex-1 w-full sm:w-auto">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Kurir Pengiriman</label>
-                    <div className="flex gap-2">
-                      <select 
-                        value={selectedCourier} 
-                        onChange={(e) => setSelectedCourier(e.target.value)}
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
+
+                  {shippingMode === "biteship" ? (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full bg-white p-4 rounded-xl border border-slate-200">
+                      <div className="flex-1 w-full sm:w-auto">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Pilih Gudang di Rincian Barang</p>
+                        <p className="text-xs text-slate-500">Pilih gudang asal pada tabel rincian barang di bawah sebelum menekan tombol kirim.</p>
+                      </div>
+                      <div className="flex-1 w-full sm:w-auto">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Kurir Pengiriman</label>
+                        <div className="flex gap-2">
+                          <select 
+                            value={selectedCourier} 
+                            onChange={(e) => setSelectedCourier(e.target.value)}
+                            className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
+                          >
+                            <option value="jne">JNE</option>
+                            <option value="sicepat">SiCepat</option>
+                            <option value="jnt">J&T</option>
+                            <option value="anteraja">AnterAja</option>
+                            <option value="gojek">GoSend</option>
+                            <option value="grab">GrabExpress</option>
+                          </select>
+                          <select 
+                            value={selectedCourierType} 
+                            onChange={(e) => setSelectedCourierType(e.target.value)}
+                            className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
+                          >
+                            <option value="reg">Regular (REG)</option>
+                            <option value="eco">Economy (ECO)</option>
+                            <option value="yes">Next Day (YES)</option>
+                            <option value="instant">Instant</option>
+                          </select>
+                        </div>
+                      </div>
+                      <button 
+                        disabled={isProcessing} 
+                        onClick={handleShipWithBiteship} 
+                        className="flex items-center gap-2 px-6 py-2.5 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 transition disabled:opacity-50 disabled:bg-slate-300 mt-auto"
                       >
-                        <option value="jne">JNE</option>
-                        <option value="sicepat">SiCepat</option>
-                        <option value="jnt">J&T</option>
-                        <option value="anteraja">AnterAja</option>
-                        <option value="gojek">GoSend</option>
-                        <option value="grab">GrabExpress</option>
-                      </select>
-                      <select 
-                        value={selectedCourierType} 
-                        onChange={(e) => setSelectedCourierType(e.target.value)}
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
-                      >
-                        <option value="reg">Regular (REG)</option>
-                        <option value="eco">Economy (ECO)</option>
-                        <option value="yes">Next Day (YES)</option>
-                        <option value="instant">Instant</option>
-                      </select>
+                        <Truck size={18} /> Kirim via Biteship (Shipped)
+                      </button>
                     </div>
-                  </div>
-                  <button 
-                    disabled={isProcessing} 
-                    onClick={handleShipWithBiteship} 
-                    className="flex items-center gap-2 px-6 py-2.5 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 transition disabled:opacity-50 disabled:bg-slate-300 mt-auto"
-                  >
-                    <Truck size={18} /> Kirim via Biteship (Shipped)
-                  </button>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row items-end gap-4 w-full bg-white p-4 rounded-xl border border-slate-200">
+                      <div className="flex-1 w-full">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Kurir</label>
+                        <select 
+                          value={selectedCourier} 
+                          onChange={(e) => setSelectedCourier(e.target.value)}
+                          className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
+                        >
+                          <option value="jne">JNE</option>
+                          <option value="sicepat">SiCepat</option>
+                          <option value="jnt">J&T</option>
+                          <option value="anteraja">AnterAja</option>
+                        </select>
+                      </div>
+                      <div className="flex-1 w-full">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Nomor Resi (AWB)</label>
+                        <input 
+                          type="text" 
+                          placeholder="Masukkan resi pengiriman..."
+                          value={manualAwb}
+                          onChange={(e) => setManualAwb(e.target.value)}
+                          className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20"
+                        />
+                      </div>
+                      <button 
+                        disabled={isProcessing || !manualAwb.trim()} 
+                        onClick={handleShipManual} 
+                        className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition disabled:opacity-50 mt-auto w-full sm:w-auto"
+                      >
+                        <Truck size={18} /> Update Status Shipped
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
