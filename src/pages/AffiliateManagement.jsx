@@ -22,6 +22,7 @@ import {
   updateWithdrawalStatus,
   getAffiliateList,
   updateAffiliateStatus,
+  markWithdrawalAsPaid,
 } from "../services/api";
 
 export default function AffiliateManagement() {
@@ -52,6 +53,11 @@ export default function AffiliateManagement() {
     amount: "",
     note: "",
   });
+
+  // State Modal Tanda Terima (Receipt)
+  const [selectedReceipt, setSelectedReceipt] = useState(null);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
 
   const loadAllData = async () => {
     try {
@@ -139,6 +145,32 @@ export default function AffiliateManagement() {
     }
   };
 
+  const handleOpenReceipt = (req) => {
+    setSelectedReceipt(req);
+    setIsReceiptModalOpen(true);
+  };
+
+  const handleMarkAsPaid = async (id) => {
+    if (!window.confirm("Tandai komisi ini sebagai SUDAH DIBAYAR (PAID)? Tindakan ini tidak dapat dibatalkan.")) return;
+    try {
+      setIsPaying(true);
+      const res = await markWithdrawalAsPaid(id);
+      if (res.success) {
+        toast.success(res.message || "Status berhasil diubah menjadi PAID!");
+        // Update local modal data
+        setSelectedReceipt(prev => prev ? { ...prev, status: 'paid' } : null);
+        // Refresh dashboard data
+        loadAllData();
+      } else {
+        toast.error(res.message || "Gagal mengubah status.");
+      }
+    } catch (error) {
+      toast.error(error.message || "Gagal memproses pembayaran. Hubungi admin.");
+    } finally {
+      setIsPaying(false);
+    }
+  };
+
   const handleManualPayment = async (e) => {
     e.preventDefault();
     toast.success(`Pembayaran sebesar Rp ${paymentData.amount} berhasil diproses!`);
@@ -163,6 +195,17 @@ export default function AffiliateManagement() {
       default:
         return "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400";
     }
+  };
+
+  const getDisplayBankInfo = (req) => {
+    if (!req) return '-';
+    const bank = (req.bank_name && req.bank_name !== '-') ? req.bank_name : (req.affiliate?.bank_name || '-');
+    const accNum = (req.account_number && req.account_number !== '-') ? req.account_number : (req.affiliate?.account_number || '-');
+    const accHolder = (req.affiliate?.account_holder_name && req.affiliate?.account_holder_name !== '-')
+      ? req.affiliate.account_holder_name
+      : ((req.account_name && req.account_name !== '-') ? req.account_name : '');
+      
+    return `${bank} - ${accNum}${accHolder ? ` (a.n. ${accHolder})` : ''}`;
   };
 
   if (isLoading)
@@ -375,7 +418,7 @@ export default function AffiliateManagement() {
                   <tr key={req.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
                     <td className="p-6 font-bold text-slate-800 dark:text-slate-200">
                       {req.affiliate?.full_name}
-                      <p className="text-xs font-normal text-slate-400 mt-1">{req.bank_name} - {req.account_number}</p>
+                      <p className="text-xs font-normal text-slate-400 mt-1">{getDisplayBankInfo(req)}</p>
                     </td>
                     <td className="p-6 font-black text-[#E65100] dark:text-orange-400">
                       {formatIDR(req.amount)}
@@ -435,26 +478,24 @@ export default function AffiliateManagement() {
                   <tr key={req.id} className="hover:bg-slate-50/50 dark:hover:bg-[#3e3c3a]/20 transition-colors">
                     <td className="p-6 font-bold text-slate-800 dark:text-slate-200">
                       {req.affiliate?.full_name}
-                      <p className="text-xs font-normal text-slate-400 mt-1">{req.bank_name} - {req.account_number}</p>
+                      <p className="text-xs font-normal text-slate-400 mt-1">{getDisplayBankInfo(req)}</p>
                     </td>
                     <td className="p-6 font-black text-slate-700 dark:text-slate-300">
                       {formatIDR(req.amount)}
                     </td>
                     <td className="p-6 text-center">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${req.status === 'approved' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'}`}>
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${req.status === 'approved' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : req.status === 'paid' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'}`}>
                         {req.status}
                       </span>
                     </td>
                     <td className="p-6 text-center">
-                      {req.status === 'approved' ? (
-                        <a
-                          href={`http://localhost:8000/affiliate/receipt/${req.id}`}
-                          target="_blank"
-                          rel="noreferrer"
+                      {(req.status === 'approved' || req.status === 'paid') ? (
+                        <button
+                          onClick={() => handleOpenReceipt(req)}
                           className="inline-flex items-center gap-2 px-4 py-2 bg-[#E65100] text-white text-[10px] font-black uppercase rounded-xl hover:bg-orange-600 transition-colors"
                         >
-                          Cetak
-                        </a>
+                          {req.status === 'approved' ? 'Proses & Cetak' : 'Lihat / Cetak'}
+                        </button>
                       ) : (
                         <span className="text-slate-400 text-xs italic">-</span>
                       )}
@@ -598,7 +639,148 @@ export default function AffiliateManagement() {
           </div>
         )}
       </div>
-      {/* (Modal Bayar Komisi tetap ada jika nanti dibutuhkan) */}
+
+      {/* MODAL TANDA TERIMA (RECEIPT MODAL) */}
+      {isReceiptModalOpen && selectedReceipt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 no-print overflow-y-auto">
+          <div className="bg-white dark:bg-[#1a1d1a] rounded-[2rem] border border-slate-100 dark:border-slate-800 max-w-2xl w-full p-8 shadow-2xl relative">
+            
+            {/* Close Button */}
+            <button 
+              onClick={() => setIsReceiptModalOpen(false)}
+              className="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Printable Content Wrapper */}
+            <div id="print-area" className="bg-white p-6 rounded-2xl text-slate-800 font-sans">
+              <style>{`
+                @media print {
+                  body * {
+                    visibility: hidden !important;
+                  }
+                  #print-area, #print-area * {
+                    visibility: visible !important;
+                  }
+                  #print-area {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    padding: 0px !important;
+                    margin: 0px !important;
+                    box-shadow: none !important;
+                    border: none !important;
+                  }
+                  .modal-actions-print {
+                    display: none !important;
+                  }
+                }
+              `}</style>
+              
+              <div style={{ textAlign: 'center', borderBottom: '2px solid #333', paddingBottom: '15px', marginBottom: '20px' }}>
+                <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 'bold', fontFamily: 'serif', color: '#111' }}>
+                  BUKTI TANDA TERIMA PENCAIRAN KOMISI
+                </h2>
+                <p style={{ margin: '5px 0 0 0', fontSize: '13px', color: '#555' }}>
+                  ID Request: REQ-{String(selectedReceipt.id).padStart(5, '0')}
+                </p>
+                <div style={{ marginTop: '8px', fontSize: '12px', fontWeight: 'bold' }}>
+                  STATUS: {selectedReceipt.status === 'paid' ? (
+                    <span style={{ color: '#16a34a', backgroundColor: '#dcfce7', padding: '3px 10px', borderRadius: '9999px', fontSize: '10px', textTransform: 'uppercase' }}>Sudah Dibayar (PAID)</span>
+                  ) : (
+                    <span style={{ color: '#d97706', backgroundColor: '#fef3c7', padding: '3px 10px', borderRadius: '9999px', fontSize: '10px', textTransform: 'uppercase' }}>Disetujui (APPROVED)</span>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '25px', fontSize: '14px', lineHeight: '1.6' }}>
+                <p style={{ margin: '0 0 15px 0' }}>Telah diserahkan komisi program affiliate kepada:</p>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    <tr>
+                      <th style={{ textAlign: 'left', width: '35%', padding: '6px 0', fontWeight: 'bold' }}>Nama Afiliator</th>
+                      <td style={{ padding: '6px 0' }}>: {selectedReceipt.affiliate?.full_name || '-'}</td>
+                    </tr>
+                    <tr>
+                      <th style={{ textAlign: 'left', padding: '6px 0', fontWeight: 'bold' }}>Kode Referral</th>
+                      <td style={{ padding: '6px 0' }}>: {selectedReceipt.affiliate?.affiliate_code || '-'}</td>
+                    </tr>
+                    <tr>
+                      <th style={{ textAlign: 'left', padding: '6px 0', fontWeight: 'bold' }}>Bank / Rekening</th>
+                      <td style={{ padding: '6px 0' }}>
+                        : {getDisplayBankInfo(selectedReceipt)}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style={{ textAlign: 'left', padding: '6px 0', fontWeight: 'bold' }}>Tanggal Request</th>
+                      <td style={{ padding: '6px 0' }}>: {selectedReceipt.created_at ? new Date(selectedReceipt.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                    </tr>
+                    <tr>
+                      <th style={{ textAlign: 'left', padding: '6px 0', fontWeight: 'bold' }}>Tanggal Diupdate</th>
+                      <td style={{ padding: '6px 0' }}>: {selectedReceipt.updated_at ? new Date(selectedReceipt.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{ 
+                fontSize: '18px', 
+                fontWeight: 'bold', 
+                textAlign: 'center', 
+                padding: '15px', 
+                backgroundColor: '#f8fafc', 
+                border: '1px dashed #cbd5e1', 
+                borderRadius: '8px',
+                marginBottom: '30px',
+                color: '#E65100'
+              }}>
+                Total Pencairan: {formatIDR(selectedReceipt.amount)}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px', fontSize: '13px' }}>
+                <div style={{ textAlign: 'center', width: '200px' }}>
+                  <p style={{ margin: '0 0 50px 0' }}>Pihak Manajemen,</p>
+                  <div style={{ borderBottom: '1px solid #333', margin: '0 auto 5px auto', width: '150px' }}></div>
+                  <p style={{ margin: 0, fontWeight: 'bold' }}>Okai Store Admin</p>
+                </div>
+                <div style={{ textAlign: 'center', width: '200px' }}>
+                  <p style={{ margin: '0 0 50px 0' }}>Penerima,</p>
+                  <div style={{ borderBottom: '1px solid #333', margin: '0 auto 5px auto', width: '150px' }}></div>
+                  <p style={{ margin: 0, fontWeight: 'bold' }}>{selectedReceipt.affiliate?.full_name || 'Afiliator'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Action Buttons */}
+            <div className="modal-actions-print mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+              {selectedReceipt.status === 'approved' && (
+                <button
+                  disabled={isPaying}
+                  onClick={() => handleMarkAsPaid(selectedReceipt.id)}
+                  className="px-6 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition disabled:opacity-50 text-xs uppercase"
+                >
+                  {isPaying ? 'Memproses...' : 'Tandai Sudah Dibayar'}
+                </button>
+              )}
+              <button
+                onClick={() => window.print()}
+                className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition text-xs uppercase"
+              >
+                Cetak ke PDF
+              </button>
+              <button
+                onClick={() => setIsReceiptModalOpen(false)}
+                className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold rounded-xl hover:bg-slate-200 transition text-xs uppercase"
+              >
+                Tutup
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }

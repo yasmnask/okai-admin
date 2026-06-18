@@ -374,6 +374,14 @@ export const updateWithdrawalStatus = async (id, status, adminNote = "") => {
   return response.json();
 };
 
+export const markWithdrawalAsPaid = async (id) => {
+  const response = await fetch(`${API_URL}/affiliate/withdrawals/${id}/pay`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
 export const getAffiliateList = async () => {
   const response = await fetch(`${API_URL}/affiliate/list`, {
     headers: getAuthHeaders(),
