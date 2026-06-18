@@ -6,6 +6,7 @@ import {
   ExternalLink, CheckCircle2, AlertCircle
 } from 'lucide-react';
 import { getAffiliateById } from '../services/api';
+import toast from 'react-hot-toast'; // Pastikan toast di-import
 
 export default function DetailAffiliator() {
   const { id } = useParams();
@@ -40,7 +41,7 @@ export default function DetailAffiliator() {
     <div className="p-8 text-center">
       <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
       <h2 className="text-xl font-bold">Data tidak ditemukan</h2>
-      <button onClick={() => navigate('/affiliates')} className="mt-4 text-[#E65100] font-bold">Kembali</button>
+      <button onClick={() => navigate('/affiliate')} className="mt-4 text-[#E65100] font-bold">Kembali</button>
     </div>
   );
 
@@ -49,7 +50,7 @@ export default function DetailAffiliator() {
       {/* HEADER */}
       <div className="flex items-center gap-4 mb-10">
         <button 
-          onClick={() => navigate('/affiliates')}
+          onClick={() => navigate('/affiliate')}
           className="p-2.5 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-[#E65100] transition-all shadow-sm"
         >
           <ArrowLeft size={22} />
@@ -132,14 +133,13 @@ export default function DetailAffiliator() {
               </div>
             </div>
             <div className="space-y-4">
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-400 font-medium">Kode Referal</span>
-                <span className="text-sm font-black text-orange-400">{data.program_details.affiliate_code}</span>
+                <span className="text-sm font-black text-orange-400 bg-orange-900/30 px-3 py-1 rounded-xl">
+                  {data.program_details.affiliate_code || "BELUM ADA"}
+                </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-slate-400 font-medium">Rate Komisi</span>
-                <span className="text-sm font-black">{data.program_details.commission_rate}</span>
-              </div>
+              {/* ❌ Bagian Rate Komisi Dihapus Dari Sini */}
             </div>
           </div>
 
