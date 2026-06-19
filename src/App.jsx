@@ -66,39 +66,39 @@ export default function App() {
         <Route path="/verify-email/:id/:hash" element={<VerifyEmailPage />} />
 
         {/* Rute Admin/Superadmin (Tanpa Sidebar/Layout) */}
-        <Route path="/product/create" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><AddProduct /></ProtectedRoute>} />
-        <Route path="/product/edit/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><EditProduct /></ProtectedRoute>} />
+        <Route path="/product/create" element={<ProtectedRoute allowedRoles={['super_admin']}><AddProduct /></ProtectedRoute>} />
+        <Route path="/product/edit/:id" element={<ProtectedRoute allowedRoles={['super_admin']}><EditProduct /></ProtectedRoute>} />
         <Route path="/users/create" element={<ProtectedRoute allowedRoles={['super_admin']}><AddUser /></ProtectedRoute>} />
         <Route path="/users/edit/:id" element={<ProtectedRoute allowedRoles={['super_admin']}><EditUser /></ProtectedRoute>} />
         <Route path="/orders/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><ShowOrders /></ProtectedRoute>} />
         
         {/* Rute Promosi */}
-        <Route path="/promotions/addpromotion" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><AddPromotion /></ProtectedRoute>} />
-        <Route path="/promotions/edit/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><EditPromotion /></ProtectedRoute>} />
+        <Route path="/promotions/addpromotion" element={<ProtectedRoute allowedRoles={['super_admin']}><AddPromotion /></ProtectedRoute>} />
+        <Route path="/promotions/edit/:id" element={<ProtectedRoute allowedRoles={['super_admin']}><EditPromotion /></ProtectedRoute>} />
 
         {/* Rute dengan Sidebar (MainLayout) */}
         <Route element={<MainLayout />}>
           
           <Route path="/profile" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><ProfileSettings /></ProtectedRoute>} />
-          <Route path="/affiliate" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><Affiliate /></ProtectedRoute>} />
-          <Route path="/affiliate/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin', 'affiliate']}><DetailAffiliator /></ProtectedRoute>} />
+          <Route path="/affiliate" element={<ProtectedRoute allowedRoles={['super_admin', 'affiliate']}><Affiliate /></ProtectedRoute>} />
+          <Route path="/affiliate/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'affiliate']}><DetailAffiliator /></ProtectedRoute>} />
 
           {/* Hanya Superadmin */}
           <Route path="/users" element={<ProtectedRoute allowedRoles={['super_admin']}><UserManagement /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute allowedRoles={['super_admin']}><SystemSettings /></ProtectedRoute>} />
           
           {/* 👇 RUTE BARU: HOMEPAGE SETTINGS 👇 */}
-          <Route path="/homepage-settings" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><HomepageSettings /></ProtectedRoute>} />
+          <Route path="/homepage-settings" element={<ProtectedRoute allowedRoles={['super_admin']}><HomepageSettings /></ProtectedRoute>} />
 
           {/* Superadmin & Admin Operasional */}
           <Route path="/product" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><ProductManagement /></ProtectedRoute>} />
           <Route path="/warehouses" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><WarehouseManagement /></ProtectedRoute>} />
           <Route path="/warehouse/:id" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><WarehouseDetail /></ProtectedRoute>} />
           <Route path="/logistics" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Logistics/></ProtectedRoute>} />
-          <Route path="/payments" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Payments /></ProtectedRoute>} />
-          <Route path="/promotions" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Promotions /></ProtectedRoute>} />
+          <Route path="/payments" element={<ProtectedRoute allowedRoles={['super_admin']}><Payments /></ProtectedRoute>} />
+          <Route path="/promotions" element={<ProtectedRoute allowedRoles={['super_admin']}><Promotions /></ProtectedRoute>} />
           <Route path="/orders" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Orders /></ProtectedRoute>} />
-          <Route path="/analytics" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Analytics /></ProtectedRoute>} />
+          <Route path="/analytics" element={<ProtectedRoute allowedRoles={['super_admin']}><Analytics /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['super_admin', 'admin']}><Dashboard /></ProtectedRoute>} />
           
         </Route>

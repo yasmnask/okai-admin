@@ -24,6 +24,8 @@ import {
 
 export default function ProductManagement() {
   const navigate = useNavigate();
+  const adminData = JSON.parse(localStorage.getItem("okai_admin"));
+  const userRole = adminData?.role?.toLowerCase();
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -186,12 +188,14 @@ export default function ProductManagement() {
             Kelola katalog produk susu premium dan merchandise KAMBI
           </p>
         </div>
-        <button
-          onClick={() => navigate("/product/create")}
-          className="flex items-center gap-2 bg-[#E65100] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 dark:shadow-black hover:scale-105 transition-transform"
-        >
-          <Plus size={20} /> Tambah Produk Baru
-        </button>
+        {userRole !== "admin" && (
+          <button
+            onClick={() => navigate("/product/create")}
+            className="flex items-center gap-2 bg-[#E65100] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 dark:shadow-black hover:scale-105 transition-transform"
+          >
+            <Plus size={20} /> Tambah Produk Baru
+          </button>
+        )}
       </div>
 
       {/* FILTER & SEARCH */}
@@ -355,20 +359,24 @@ export default function ProductManagement() {
                       >
                         <MessageSquare size={18} />
                       </button>
-                      <button
-                        onClick={() => navigate(`/product/edit/${product.id}`)}
-                        title="Edit Produk"
-                        className="p-2 text-slate-400 hover:text-[#E65100] hover:bg-white dark:hover:bg-[#3e3c3a] rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100 dark:hover:border-slate-700"
-                      >
-                        <Edit3 size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        title="Hapus Produk"
-                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-[#3e3c3a] rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100 dark:hover:border-slate-700"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                      {userRole !== "admin" && (
+                        <>
+                          <button
+                            onClick={() => navigate(`/product/edit/${product.id}`)}
+                            title="Edit Produk"
+                            className="p-2 text-slate-400 hover:text-[#E65100] hover:bg-white dark:hover:bg-[#3e3c3a] rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100 dark:hover:border-slate-700"
+                          >
+                            <Edit3 size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(product.id)}
+                            title="Hapus Produk"
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-[#3e3c3a] rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100 dark:hover:border-slate-700"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

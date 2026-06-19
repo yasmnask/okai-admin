@@ -50,7 +50,7 @@ export default function MainLayout() {
       name: "Affiliate",
       icon: <Handshake size={20} />,
       path: "/affiliate",
-      roles: ["super_admin", "admin", "affiliate"],
+      roles: ["super_admin", "affiliate"],
     },
     {
       name: "Products",
@@ -80,13 +80,13 @@ export default function MainLayout() {
       name: "Promotions",
       icon: <Ticket size={20} />,
       path: "/promotions",
-      roles: ["super_admin", "admin"],
+      roles: ["super_admin"],
     },
     {
       name: "Analytics",
       icon: <BarChart3 size={20} />,
       path: "/analytics",
-      roles: ["super_admin", "admin"],
+      roles: ["super_admin"],
     },
     {
       name: "Profile Settings",
@@ -105,7 +105,7 @@ export default function MainLayout() {
       name: "Homepage Settings",
       icon: <LayoutTemplate size={20} />,
       path: "/homepage-settings",
-      roles: ["super_admin", "admin"],
+      roles: ["super_admin"],
     },
   ];
 

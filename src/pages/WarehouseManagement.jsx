@@ -6,6 +6,8 @@ import { getWarehouses, deleteWarehouse, addWarehouse, updateWarehouse, getUsers
 
 export default function WarehouseManagement() {
   const navigate = useNavigate();
+  const adminData = JSON.parse(localStorage.getItem("okai_admin"));
+  const userRole = adminData?.role?.toLowerCase();
   const [warehouses, setWarehouses] = useState([]);
   const [adminUsers, setAdminUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,8 +45,8 @@ export default function WarehouseManagement() {
     try {
       const res = await getUsers();
       if (res && res.success) {
-        // Filter user yang memiliki role 'admin'
-        setAdminUsers(res.data.filter(u => u.role === 'admin' || (u.roles && u.roles.some(r => r.name === 'admin'))));
+        // Filter user yang memiliki role 'admin' (case-insensitive)
+        setAdminUsers(res.data.filter(u => u.role?.toLowerCase() === 'admin'));
       }
     } catch (error) {
       console.error("Error fetching admins:", error);
@@ -140,12 +142,14 @@ export default function WarehouseManagement() {
             Kelola data gudang dan stok produk di setiap lokasi.
           </p>
         </div>
-        <button
-          onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 bg-[#E65100] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 dark:shadow-black hover:scale-105 transition-transform"
-        >
-          <Plus size={20} /> Tambah Gudang Baru
-        </button>
+        {userRole !== "admin" && (
+          <button
+            onClick={() => handleOpenModal()}
+            className="flex items-center gap-2 bg-[#E65100] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 dark:shadow-black hover:scale-105 transition-transform"
+          >
+            <Plus size={20} /> Tambah Gudang Baru
+          </button>
+        )}
       </div>
 
       <div className="bg-white dark:bg-[#3e3c3a] p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-0 dark:shadow-black flex flex-col md:flex-row gap-4 mb-8">
@@ -213,9 +217,11 @@ export default function WarehouseManagement() {
                       <button onClick={() => handleOpenModal(warehouse)} className="p-2 text-slate-400 hover:text-[#E65100] hover:bg-white dark:hover:bg-[#3e3c3a] rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
                         <Edit3 size={18} />
                       </button>
-                      <button onClick={() => handleDelete(warehouse.id_warehouse)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-[#3e3c3a] rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
-                        <Trash2 size={18} />
-                      </button>
+                      {userRole !== "admin" && (
+                        <button onClick={() => handleDelete(warehouse.id_warehouse)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-[#3e3c3a] rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -259,11 +265,18 @@ export default function WarehouseManagement() {
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 mb-1 block">Admin Pengelola (Opsional)</label>
-                <select value={formData.user_id} onChange={(e) => setFormData({...formData, user_id: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-500/20">
+                <select disabled={userRole === 'admin'} value={formData.user_id} onChange={(e) => setFormData({...formData, user_id: e.target.value})} className="w-full p-3 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
                   <option value="">-- Tidak Ada --</option>
-                  {adminUsers.map(admin => (
-                    <option key={admin.id} value={admin.id}>{admin.name} ({admin.email})</option>
-                  ))}
+                  {adminUsers
+                    .filter(admin => {
+                      // Check if this admin is already assigned to another warehouse
+                      const isAssignedToOther = warehouses.some(w => w.user_id === admin.id && w.id_warehouse !== currentWarehouseId);
+                      return !isAssignedToOther;
+                    })
+                    .map(admin => (
+                      <option key={admin.id} value={admin.id}>{admin.name} ({admin.email})</option>
+                    ))
+                  }
                 </select>
               </div>
               
