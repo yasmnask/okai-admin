@@ -13,6 +13,7 @@ const COLORS = ["#E65100", "#FB8C00", "#FFB74D", "#FFE0B2"];
 
 export default function Analytics() {
   const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState("");
   const [data, setData] = useState({
     stats: { total_items_sold: 0, avg_order_value: 0, affiliate_sales: 0, new_customers: 0 },
     revenue_chart: [],
@@ -24,8 +25,9 @@ export default function Analytics() {
 
   useEffect(() => {
     const fetchAnalytics = async () => {
+      setLoading(true);
       try {
-        const response = await getAnalyticsDashboard();
+        const response = await getAnalyticsDashboard(days);
         if (response.success) {
           setData(response.data);
         }
@@ -37,7 +39,50 @@ export default function Analytics() {
     };
 
     fetchAnalytics();
-  }, []);
+  }, [days]);
+
+  const handleExport = () => {
+    // Generate CSV content
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    csvContent += "OKAI Business Analytics Report\n";
+    csvContent += `Generated at: ${new Date().toLocaleString()}\n`;
+    csvContent += `Timeframe: ${days === "30" ? "Last 30 Days" : "All Time"}\n\n`;
+    
+    csvContent += "--- Summary Statistics ---\n";
+    csvContent += `Total Items Sold,${data.stats.total_items_sold}\n`;
+    csvContent += `Average Order Value,${data.stats.avg_order_value}\n`;
+    csvContent += `Affiliate Sales,${data.stats.affiliate_sales}\n`;
+    csvContent += `New Customers,${data.stats.new_customers}\n\n`;
+    
+    csvContent += "--- Top Performing Products ---\n";
+    csvContent += "Product Name,Sales Count,Growth\n";
+    data.top_products.forEach(p => {
+      csvContent += `"${p.name.replace(/"/g, '""')}",${p.sales},${p.growth}\n`;
+    });
+    csvContent += "\n";
+    
+    csvContent += "--- Revenue Growth ---\n";
+    csvContent += "Timeframe,Revenue\n";
+    data.revenue_chart.forEach(r => {
+      csvContent += `"${r.name}",${r.revenue}\n`;
+    });
+    csvContent += "\n";
+    
+    csvContent += "--- Sales by Category ---\n";
+    csvContent += "Category,Sales Count\n";
+    data.category_chart.forEach(c => {
+      csvContent += `"${c.name}",${c.value}\n`;
+    });
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `okai_analytics_${days === "30" ? "30days_" : "alltime_"}${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   if (loading) {
     return (
@@ -60,10 +105,20 @@ export default function Analytics() {
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 bg-white dark:bg-[#1a1d1a] border border-slate-200 dark:border-[#2c2f2c] text-slate-600 dark:text-slate-300 px-5 py-3 rounded-2xl font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-[#2c2f2c] transition-all">
-            <Calendar size={18} /> Last 30 Days
+          <button 
+            onClick={() => setDays(days === "30" ? "" : "30")}
+            className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-bold shadow-sm border transition-all ${
+              days === "30" 
+                ? "bg-[#E65100] text-white border-[#E65100]" 
+                : "bg-white dark:bg-[#1a1d1a] border-slate-200 dark:border-[#2c2f2c] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#2c2f2c]"
+            }`}
+          >
+            <Calendar size={18} /> {days === "30" ? "Last 30 Days (Active)" : "Last 30 Days"}
           </button>
-          <button className="flex items-center gap-2 bg-[#E65100] text-white px-5 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 dark:shadow-black hover:bg-orange-700 transition-colors">
+          <button 
+            onClick={handleExport}
+            className="flex items-center gap-2 bg-[#E65100] text-white px-5 py-3 rounded-2xl font-bold shadow-lg shadow-orange-100 dark:shadow-black hover:bg-orange-700 transition-colors"
+          >
             <Download size={18} /> Export Data
           </button>
         </div>

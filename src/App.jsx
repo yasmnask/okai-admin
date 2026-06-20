@@ -28,9 +28,10 @@ import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 
 // --- KOMPONEN PROTECTED ROUTE ---
-const ProtectedRoute = ({ children, allowedRoles }) => {
+const ProtectedRoute = ({ children, allowedRoles, allowedEmails }) => {
   const adminData = JSON.parse(localStorage.getItem("okai_admin"));
   const userRole = adminData?.role?.toLowerCase();
+  const userEmail = adminData?.email?.toLowerCase();
 
   // 1. Cek apakah user sudah login? Kalau belum, tendang ke login
   if (!adminData) return <Navigate to="/login" replace />;
@@ -38,6 +39,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   // 2. Cek apakah role diizinkan masuk ke rute ini?
   if (allowedRoles && !allowedRoles.includes(userRole)) {
     return userRole === 'affiliate' ? <Navigate to="/affiliate" replace /> : <Navigate to="/dashboard" replace />;
+  }
+
+  // 3. Cek apakah email diizinkan masuk ke rute ini?
+  if (allowedEmails && !allowedEmails.includes(userEmail)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -85,7 +91,7 @@ export default function App() {
 
           {/* Hanya Superadmin */}
           <Route path="/users" element={<ProtectedRoute allowedRoles={['super_admin']}><UserManagement /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute allowedRoles={['super_admin']}><SystemSettings /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute allowedRoles={['super_admin']} allowedEmails={['admin@gmail.com']}><SystemSettings /></ProtectedRoute>} />
           
           {/* 👇 RUTE BARU: HOMEPAGE SETTINGS 👇 */}
           <Route path="/homepage-settings" element={<ProtectedRoute allowedRoles={['super_admin']}><HomepageSettings /></ProtectedRoute>} />

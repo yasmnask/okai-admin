@@ -32,6 +32,7 @@ export default function MainLayout() {
   // Ambil data user untuk cek role
   const adminData = JSON.parse(localStorage.getItem("okai_admin"));
   const userRole = adminData?.role?.toLowerCase();
+  const userEmail = adminData?.email?.toLowerCase();
 
   const menuItems = [
     {
@@ -153,7 +154,11 @@ export default function MainLayout() {
 
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
           {menuItems
-            .filter((item) => item.roles.includes(userRole))
+            .filter((item) => {
+              if (!item.roles.includes(userRole)) return false;
+              if (item.name === "System Settings" && userEmail !== 'admin@gmail.com') return false;
+              return true;
+            })
             .map((item) => (
               <button
                 key={item.name}

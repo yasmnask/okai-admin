@@ -527,8 +527,9 @@ export async function updateSystemSettings(data) {
 // ==========================================
 // 9. BUSINESS ANALYTICS
 // ==========================================
-export const getAnalyticsDashboard = async () => {
-  const response = await fetch(`${API_URL}/analytics/dashboard`, {
+export const getAnalyticsDashboard = async (days = '') => {
+  const url = days ? `${API_URL}/analytics/dashboard?days=${days}` : `${API_URL}/analytics/dashboard`;
+  const response = await fetch(url, {
     method: "GET",
     headers: getAuthHeaders(),
   });
