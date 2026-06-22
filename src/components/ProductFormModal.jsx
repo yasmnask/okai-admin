@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Save, Loader2, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { addProduct } from '../services/api';
+import { formatPrice, formatNumber, parseNumber } from '../utils/numberFormat';
 
 export default function ProductFormModal({ isOpen, onClose, onRefresh }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,11 +53,11 @@ export default function ProductFormModal({ isOpen, onClose, onRefresh }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Price (IDR)</label>
-              <input required type="number" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} className="w-full mt-1 p-4 bg-slate-50 border-none rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500/20 font-bold" placeholder="0" />
+              <input required type="text" value={formatPrice(formData.price)} onChange={(e) => setFormData({...formData, price: parseNumber(e.target.value)})} className="w-full mt-1 p-4 bg-slate-50 border-none rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500/20 font-bold" placeholder="0" />
             </div>
             <div>
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Stock</label>
-              <input required type="number" value={formData.stock} onChange={(e) => setFormData({...formData, stock: e.target.value})} className="w-full mt-1 p-4 bg-slate-50 border-none rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500/20 font-bold" placeholder="0" />
+              <input required type="text" value={formatNumber(formData.stock)} onChange={(e) => setFormData({...formData, stock: parseNumber(e.target.value)})} className="w-full mt-1 p-4 bg-slate-50 border-none rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500/20 font-bold" placeholder="0" />
             </div>
           </div>
           <div>

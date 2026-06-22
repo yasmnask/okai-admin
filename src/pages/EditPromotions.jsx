@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 // 1. Import fungsi API Edit & Tarik Data
 import { getPromotionById, updatePromotion } from '../services/api';
+import { formatPrice, formatNumber, parseNumber } from '../utils/numberFormat';
 
 export default function EditPromotion() {
   const { id } = useParams();
@@ -172,9 +173,9 @@ export default function EditPromotion() {
                   {formData.type === 'percentage' ? '%' : 'Rp'}
                 </span>
                 <input 
-                  type="number" 
-                  value={formData.value}
-                  onChange={(e) => setFormData({...formData, value: e.target.value})}
+                  type="text" 
+                  value={formData.type === 'fixed_amount' ? formatPrice(formData.value || "") : formatNumber(formData.value || "")}
+                  onChange={(e) => setFormData({...formData, value: parseNumber(e.target.value)})}
                   className="w-full pl-12 pr-6 py-5 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-[1.5rem] text-lg font-black outline-none transition-colors" 
                 />
               </div>
@@ -219,9 +220,9 @@ export default function EditPromotion() {
               <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 block transition-colors">Maksimal Pemakaian (User)</label>
               <div className="flex items-center gap-3">
                 <input 
-                  type="number" 
-                  value={formData.max_usage}
-                  onChange={(e) => setFormData({...formData, max_usage: e.target.value})}
+                  type="text" 
+                  value={formatNumber(formData.max_usage || "")}
+                  onChange={(e) => setFormData({...formData, max_usage: parseNumber(e.target.value)})}
                   className="bg-transparent w-full text-xl font-black outline-none text-slate-700 dark:text-white transition-colors" 
                 />
                 <span className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase transition-colors">Kupon</span>

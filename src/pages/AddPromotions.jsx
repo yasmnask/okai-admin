@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 // 1. Import fungsi API
 import { addPromotion } from '../services/api';
+import { formatPrice, formatNumber, parseNumber } from '../utils/numberFormat';
 
 export default function AddPromotion() {
   const navigate = useNavigate();
@@ -150,9 +151,9 @@ export default function AddPromotion() {
                     {formData.type === 'percentage' ? '%' : 'Rp'}
                   </span>
                   <input 
-                    type="number" 
-                    value={formData.value}
-                    onChange={(e) => setFormData({...formData, value: e.target.value})}
+                    type="text" 
+                    value={formData.type === 'fixed_amount' ? formatPrice(formData.value) : formatNumber(formData.value)}
+                    onChange={(e) => setFormData({...formData, value: parseNumber(e.target.value)})}
                     className="w-full pl-12 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-lg font-black outline-none focus:ring-2 focus:ring-orange-500/20" 
                     placeholder="0"
                   />
@@ -198,9 +199,9 @@ export default function AddPromotion() {
               <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Maksimal Pemakaian (User)</label>
               <div className="flex items-center gap-3">
                 <input 
-                  type="number" 
-                  value={formData.max_usage}
-                  onChange={(e) => setFormData({...formData, max_usage: e.target.value})}
+                  type="text" 
+                  value={formatNumber(formData.max_usage)}
+                  onChange={(e) => setFormData({...formData, max_usage: parseNumber(e.target.value)})}
                   className="bg-transparent w-full text-xl font-black outline-none text-slate-700" 
                   placeholder="500"
                 />

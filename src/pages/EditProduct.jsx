@@ -17,6 +17,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { getProductById, updateProduct } from "../services/api";
+import { formatPrice, formatNumber, parseNumber } from '../utils/numberFormat';
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -376,10 +377,10 @@ export default function EditProduct() {
                 <div className="flex items-center gap-2 text-lg font-black dark:text-white transition-colors">
                   <span className="text-slate-300 dark:text-slate-600">Rp</span>
                   <input
-                    type="number"
-                    value={formData.price || ""}
+                    type="text"
+                    value={formatPrice(formData.price || "")}
                     onChange={(e) =>
-                      setFormData({ ...formData, price: e.target.value })
+                      setFormData({ ...formData, price: parseNumber(e.target.value) })
                     }
                     className="bg-transparent w-full outline-none"
                   />
@@ -390,19 +391,19 @@ export default function EditProduct() {
               <div className="grid grid-cols-2 gap-3">
                  <div className="bg-slate-50 dark:bg-[#2a2d2a] p-3 rounded-2xl border border-slate-100 dark:border-transparent transition-colors">
                     <label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block transition-colors">Berat (Gram)</label>
-                    <input type="number" value={formData.weight} onChange={(e) => setFormData({...formData, weight: e.target.value})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="1000" />
+                    <input type="text" value={formatNumber(formData.weight)} onChange={(e) => setFormData({...formData, weight: parseNumber(e.target.value)})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="1,000" />
                  </div>
                  <div className="bg-slate-50 dark:bg-[#2a2d2a] p-3 rounded-2xl border border-slate-100 dark:border-transparent transition-colors">
                     <label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block transition-colors">Panjang (cm)</label>
-                    <input type="number" value={formData.length} onChange={(e) => setFormData({...formData, length: e.target.value})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="10" />
+                    <input type="text" value={formatNumber(formData.length)} onChange={(e) => setFormData({...formData, length: parseNumber(e.target.value)})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="10" />
                  </div>
                  <div className="bg-slate-50 dark:bg-[#2a2d2a] p-3 rounded-2xl border border-slate-100 dark:border-transparent transition-colors">
                     <label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block transition-colors">Lebar (cm)</label>
-                    <input type="number" value={formData.width} onChange={(e) => setFormData({...formData, width: e.target.value})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="10" />
+                    <input type="text" value={formatNumber(formData.width)} onChange={(e) => setFormData({...formData, width: parseNumber(e.target.value)})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="10" />
                  </div>
                  <div className="bg-slate-50 dark:bg-[#2a2d2a] p-3 rounded-2xl border border-slate-100 dark:border-transparent transition-colors">
                     <label className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 block transition-colors">Tinggi (cm)</label>
-                    <input type="number" value={formData.height} onChange={(e) => setFormData({...formData, height: e.target.value})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="10" />
+                    <input type="text" value={formatNumber(formData.height)} onChange={(e) => setFormData({...formData, height: parseNumber(e.target.value)})} className="bg-transparent w-full outline-none text-sm font-bold dark:text-white" placeholder="10" />
                  </div>
               </div>
             </div>
@@ -501,12 +502,11 @@ export default function EditProduct() {
                    <div className="flex items-center gap-2 text-lg font-black dark:text-white bg-white dark:bg-[#1a1d1a] border border-purple-200 dark:border-purple-800 rounded-xl p-3">
                      {formData.commission_type === 'fixed' && <span className="text-purple-400 dark:text-purple-600 text-sm">Rp</span>}
                      <input 
-                       type="number" 
-                       min="0" 
-                       value={formData.commission_value || ""} 
-                       onChange={(e) => setFormData({...formData, commission_value: e.target.value})} 
+                       type="text" 
+                       value={formData.commission_type === 'fixed' ? formatPrice(formData.commission_value || "") : formatNumber(formData.commission_value || "")} 
+                       onChange={(e) => setFormData({...formData, commission_value: parseNumber(e.target.value)})} 
                        className="bg-transparent w-full outline-none text-purple-700 dark:text-purple-300 placeholder:text-purple-300/50 text-sm" 
-                       placeholder={formData.commission_type === 'percent' ? "Contoh: 15" : "Contoh: 20000"}
+                       placeholder={formData.commission_type === 'percent' ? "Contoh: 15" : "Contoh: 20.000"}
                      />
                      {formData.commission_type === 'percent' && <span className="text-purple-400 dark:text-purple-600 text-sm">%</span>}
                    </div>
@@ -544,7 +544,7 @@ export default function EditProduct() {
                  {/* Min Qty Dropship */}
                  <div>
                     <label className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-2 block">Minimal Pembelian</label>
-                    <input type="number" value={formData.dropship_min_qty} onChange={(e) => setFormData({...formData, dropship_min_qty: e.target.value})} className="w-full p-3 bg-white dark:bg-[#1a1d1a] border border-blue-200 dark:border-blue-800 rounded-xl text-xs font-bold outline-none text-blue-700 dark:text-blue-300" placeholder="1" />
+                    <input type="text" value={formatNumber(formData.dropship_min_qty)} onChange={(e) => setFormData({...formData, dropship_min_qty: parseNumber(e.target.value)})} className="w-full p-3 bg-white dark:bg-[#1a1d1a] border border-blue-200 dark:border-blue-800 rounded-xl text-xs font-bold outline-none text-blue-700 dark:text-blue-300" placeholder="1" />
                  </div>
 
                  {/* Tipe Diskon Dropship */}
@@ -565,7 +565,7 @@ export default function EditProduct() {
                     <label className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-2 block">Nilai Diskon</label>
                     <div className="flex items-center gap-2 bg-white dark:bg-[#1a1d1a] border border-blue-200 dark:border-blue-800 rounded-xl p-3">
                        {formData.dropship_discount_type === 'fixed' && <span className="text-blue-400 text-sm">Rp</span>}
-                       <input type="number" value={formData.dropship_discount_value} onChange={(e) => setFormData({...formData, dropship_discount_value: e.target.value})} className="bg-transparent w-full outline-none text-blue-700 dark:text-blue-300 font-bold text-sm" placeholder="0" />
+                       <input type="text" value={formData.dropship_discount_type === 'fixed' ? formatPrice(formData.dropship_discount_value) : formatNumber(formData.dropship_discount_value)} onChange={(e) => setFormData({...formData, dropship_discount_value: parseNumber(e.target.value)})} className="bg-transparent w-full outline-none text-blue-700 dark:text-blue-300 font-bold text-sm" placeholder="0" />
                        {formData.dropship_discount_type === 'percent' && <span className="text-blue-400 text-sm">%</span>}
                     </div>
                  </div>

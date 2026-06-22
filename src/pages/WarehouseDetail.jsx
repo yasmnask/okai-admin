@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import toast from 'react-hot-toast';
 import { ArrowLeft, Box, Plus, Search, Edit3, Save, MapPin } from "lucide-react";
 import { getWarehouseById, updateProductStock, getProducts } from "../services/api";
+import { formatNumber, parseNumber } from '../utils/numberFormat';
 
 export default function WarehouseDetail() {
   const { id } = useParams();
@@ -203,10 +204,9 @@ export default function WarehouseDetail() {
                 <label className="text-xs font-bold text-slate-500 mb-1 block">Stok Tersedia</label>
                 <input 
                   required 
-                  type="number" 
-                  min="0"
-                  value={stockFormData.stock} 
-                  onChange={(e) => setStockFormData({...stockFormData, stock: parseInt(e.target.value) || 0})} 
+                  type="text" 
+                  value={formatNumber(stockFormData.stock)} 
+                  onChange={(e) => setStockFormData({...stockFormData, stock: parseInt(parseNumber(e.target.value)) || 0})} 
                   className="w-full p-3 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-500/20" 
                 />
               </div>
