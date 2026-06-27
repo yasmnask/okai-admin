@@ -59,6 +59,10 @@ export default function AffiliateManagement() {
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
 
+  // State Modal Detail Pendaftaran Mitra
+  const [selectedPendingAffiliate, setSelectedPendingAffiliate] = useState(null);
+  const [isPendingModalOpen, setIsPendingModalOpen] = useState(false);
+
   const loadAllData = async () => {
     try {
       setIsLoading(true);
@@ -351,6 +355,16 @@ export default function AffiliateManagement() {
 
                     <td className="p-6 align-top">
                       <div className="flex justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedPendingAffiliate(aff);
+                            setIsPendingModalOpen(true);
+                          }}
+                          className="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-black uppercase rounded-xl hover:bg-slate-200 transition-colors cursor-pointer"
+                        >
+                          Lihat
+                        </button>
                         <button
                           onClick={() => handleAffiliateAction(aff.id, 'active')}
                           className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase rounded-xl shadow-md shadow-blue-100 dark:shadow-none hover:bg-blue-700 transition-colors"
@@ -775,6 +789,93 @@ export default function AffiliateManagement() {
                 className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold rounded-xl hover:bg-slate-200 transition text-xs uppercase"
               >
                 Tutup
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DETAIL PENDAFTARAN MITRA */}
+      {isPendingModalOpen && selectedPendingAffiliate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-[#1a1d1a] rounded-[2rem] border border-slate-100 dark:border-slate-800 max-w-lg w-full p-8 shadow-2xl relative animate-scaleUp">
+            
+            {/* Close Button */}
+            <button 
+              onClick={() => setIsPendingModalOpen(false)}
+              className="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="mb-6">
+              <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-lg border border-blue-100 dark:border-blue-800/50 uppercase tracking-widest">
+                Pengajuan Mitra
+              </span>
+              <h2 className="text-xl font-black text-slate-800 dark:text-white mt-3">
+                Detail Data Pendaftar
+              </h2>
+              <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                Tinjau informasi pendaftaran sebelum menyetujui atau menolak.
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-8 text-sm">
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-slate-100/50 dark:border-slate-800/50">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Nama Lengkap</p>
+                <p className="font-bold text-slate-800 dark:text-slate-200">{selectedPendingAffiliate.full_name}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-slate-100/50 dark:border-slate-800/50">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Email</p>
+                  <p className="font-bold text-slate-800 dark:text-slate-200 text-xs truncate" title={selectedPendingAffiliate.email}>{selectedPendingAffiliate.email || "-"}</p>
+                </div>
+                <div className="p-4 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-slate-100/50 dark:border-slate-800/50">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">WhatsApp</p>
+                  <p className="font-bold text-[#E65100] text-xs">{selectedPendingAffiliate.phone || "-"}</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-slate-100/50 dark:border-slate-800/50">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Sosial Media</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 bg-slate-200/50 dark:bg-slate-800 px-2.5 py-1 rounded-md">
+                    {selectedPendingAffiliate.social_platform}
+                  </span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">
+                    {selectedPendingAffiliate.social_username}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-slate-100/50 dark:border-slate-800/50">
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Rencana Promosi</p>
+                <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed text-xs max-h-[120px] overflow-y-auto pr-1">
+                  {selectedPendingAffiliate.promotional_plan || "Tidak menuliskan rencana promosi."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  handleAffiliateAction(selectedPendingAffiliate.id, 'rejected');
+                  setIsPendingModalOpen(false);
+                }}
+                className="flex-1 py-3.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-xs uppercase rounded-xl hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-all cursor-pointer"
+              >
+                Tolak
+              </button>
+              <button
+                onClick={() => {
+                  handleAffiliateAction(selectedPendingAffiliate.id, 'active');
+                  setIsPendingModalOpen(false);
+                }}
+                className="flex-1 py-3.5 bg-blue-600 text-white font-bold text-xs uppercase rounded-xl hover:bg-blue-700 transition-all cursor-pointer"
+              >
+                Terima
               </button>
             </div>
 
