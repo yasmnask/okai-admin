@@ -15,7 +15,8 @@ export default function Analytics() {
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState("");
   const [data, setData] = useState({
-    stats: { total_items_sold: 0, avg_order_value: 0, affiliate_sales: 0, new_customers: 0 },
+    // REVISI: Mengubah affiliate_sales menjadi affiliate_revenue
+    stats: { total_items_sold: 0, avg_order_value: 0, affiliate_revenue: 0, new_customers: 0 },
     revenue_chart: [],
     category_chart: [],
     top_products: []
@@ -52,7 +53,8 @@ export default function Analytics() {
     csvContent += "--- Summary Statistics ---\n";
     csvContent += `Total Items Sold,${data.stats.total_items_sold}\n`;
     csvContent += `Average Order Value,${data.stats.avg_order_value}\n`;
-    csvContent += `Affiliate Sales,${data.stats.affiliate_sales}\n`;
+    // REVISI: Menyesuaikan key untuk export CSV
+    csvContent += `Affiliate Revenue,${data.stats.affiliate_revenue}\n`;
     csvContent += `New Customers,${data.stats.new_customers}\n\n`;
     
     csvContent += "--- Top Performing Products ---\n";
@@ -146,8 +148,9 @@ export default function Analytics() {
             text: "text-purple-600 dark:text-purple-400",
           },
           {
-            label: "Penjualan Mitra",
-            value: data.stats.affiliate_sales + " Pesanan",
+            // REVISI: Mengubah label dan memformat nilai menjadi IDR
+            label: "Affiliate Revenue",
+            value: formatIDR(data.stats.affiliate_revenue),
             trend: "Affiliate & Dropship",
             up: true,
             icon: <Handshake size={20} />,
