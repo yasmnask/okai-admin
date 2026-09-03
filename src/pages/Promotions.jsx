@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { getPromotions, deletePromotion } from "../services/api";
 import {
   Ticket,
@@ -51,7 +52,7 @@ export default function Promotions() {
         await deletePromotion(id);
         fetchPromotions();
       } catch (error) {
-        alert("Gagal menghapus kupon: " + error.message);
+        toast.error("Gagal menghapus kupon: " + error.message);
       }
     }
   };

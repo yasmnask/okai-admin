@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 import { getUsers, deleteUser } from "../services/api";
 import {
   Users,
@@ -55,8 +56,8 @@ export default function UserManagement() {
 
   const handleDelete = async (id, role) => {
     // Detektor Keamanan Frontend
-    if (role === "Super Admin" || role === "Affiliate") {
-      alert(
+    if (role === "Super Admin") {
+      toast.error(
         "⚠️ Ditolak: Anda tidak diizinkan menghapus akun dengan hak akses tingkat tinggi."
       );
       return;
@@ -67,7 +68,7 @@ export default function UserManagement() {
         await deleteUser(id);
         fetchUsers();
       } catch (error) {
-        alert(error.message);
+        toast.error(error.message);
       }
     }
   };
@@ -142,8 +143,6 @@ export default function UserManagement() {
           >
             <option value="All">All Roles</option>
             <option value="Admin">Admin</option>
-            <option value="Customer">Customer</option>
-            <option value="Affiliate">Affiliate</option>
             <option value="Super Admin">Super Admin</option>
           </select>
 

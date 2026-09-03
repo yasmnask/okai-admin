@@ -250,6 +250,13 @@ export async function deletePromotion(id) {
   return response.json();
 }
 
+export const getActiveShipments = async () => {
+  const response = await fetch(`${API_URL}/active-shipments`, {
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
 // ==========================================
 // 5. MANAJEMEN PESANAN (ORDERS)
 // ==========================================
@@ -262,6 +269,83 @@ export async function getOrders() {
   if (!response.ok) throw new Error("Gagal memuat data pesanan.");
   return response.json();
 }
+
+// Fungsi Lacak Resi via Laravel
+export async function trackResi(awb, courier) {
+  const response = await fetch(`${API_URL}/track?awb=${awb}&courier=${courier}`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Gagal melacak resi dari server.");
+  return response.json();
+}
+
+// Anda tidak perlu lagi melakukan import axios atau axiosInstance
+
+export const getOrderById = async (orderId) => {
+  try {
+    // 1. Ambil token dari brankas lokal
+    const token = localStorage.getItem("token"); // Sesuaikan jika namanya "kambi_token"
+
+    // 2. Gunakan fetch bawaan browser
+    const response = await fetch(`${API_URL}/orders/${orderId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        // Menempelkan token ke setiap permintaan
+        "Authorization": token ? `Bearer ${token}` : "", 
+      },
+    });
+
+    // 3. Pengecekan manual apakah server menolak (misal: 401 atau 404)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // 4. Ubah format teks menjadi objek JavaScript
+    const data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.error("Gagal mengambil detail pesanan:", error);
+    throw error;
+  }
+};
+
+export const markOrderAsPaid = async (id) => {
+  const response = await fetch(`${API_URL}/orders/${id}/mark-paid`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
+export const shipWithBiteship = async (id, data) => {
+  const response = await fetch(`${API_URL}/orders/${id}/ship`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};
+
+export const shipManual = async (id, data) => {
+  const response = await fetch(`${API_URL}/orders/${id}/ship-manual`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};
+
+export const simulateDelivery = async (id) => {
+  const response = await fetch(`${API_URL}/orders/${id}/simulate-delivery`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
 
 // ==========================================
 // 6. MANAJEMEN AFFILIATE (AFFILIATE)
@@ -290,6 +374,14 @@ export const updateWithdrawalStatus = async (id, status, adminNote = "") => {
   return response.json();
 };
 
+export const markWithdrawalAsPaid = async (id) => {
+  const response = await fetch(`${API_URL}/affiliate/withdrawals/${id}/pay`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
 export const getAffiliateList = async () => {
   const response = await fetch(`${API_URL}/affiliate/list`, {
     headers: getAuthHeaders(),
@@ -313,3 +405,143 @@ export async function updateAffiliateStatus(id, newStatus) {
   }
   return response.json();
 }
+
+// Fungsi untuk mengambil detail data affiliator berdasarkan ID
+export async function getAffiliateById(id) {
+  const response = await fetch(`${API_URL}/affiliates/${id}`, {
+    method: "GET",
+    headers: getAuthHeaders(), // Mengasumsikan Anda memiliki fungsi untuk menyertakan token
+  });
+  
+  if (!response.ok) throw new Error("Gagal mengambil detail data mitra.");
+  return response.json();
+}
+
+// ==========================================
+// API WAREHOUSES
+// ==========================================
+export const getWarehouses = async () => {
+  const response = await fetch(`${API_URL}/warehouses`, {
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
+export const getWarehouseById = async (id) => {
+  const response = await fetch(`${API_URL}/warehouses/${id}`, {
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
+export const addWarehouse = async (data) => {
+  const response = await fetch(`${API_URL}/warehouses`, {
+    method: "POST",
+    headers: {
+      ...getAuthHeaders(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};
+
+export const updateWarehouse = async (id, data) => {
+  const response = await fetch(`${API_URL}/warehouses/${id}`, {
+    method: "PUT",
+    headers: {
+      ...getAuthHeaders(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};
+
+export const deleteWarehouse = async (id) => {
+  const response = await fetch(`${API_URL}/warehouses/${id}`, {
+    method: "DELETE",
+    headers: getAuthHeaders(),
+  });
+  return response.json();
+};
+
+export const updateProductStock = async (warehouseId, data) => {
+  const response = await fetch(`${API_URL}/warehouses/${warehouseId}/products`, {
+    method: "POST",
+    headers: {
+      ...getAuthHeaders(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  return response.json();
+};
+
+// ==========================================
+// 7. MANAJEMEN ULASAN (REVIEWS)
+// ==========================================
+
+export async function getProductReviews(productId) {
+  const response = await fetch(`${API_URL}/products/${productId}/reviews`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Gagal memuat ulasan produk.");
+  return response.json();
+}
+
+export async function replyToReview(reviewId, adminReplyText) {
+  const response = await fetch(`${API_URL}/reviews/${reviewId}/reply`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ admin_reply: adminReplyText }),
+  });
+  if (!response.ok) throw new Error("Gagal mengirim balasan.");
+  return response.json();
+}
+
+// ==========================================
+// 8. PENGATURAN SISTEM (SYSTEM SETTINGS)
+// ==========================================
+
+export async function getSystemSettings() {
+  const response = await fetch(`${API_URL}/system-settings`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Gagal memuat pengaturan sistem.");
+  return response.json();
+}
+
+export async function updateSystemSettings(data) {
+  const response = await fetch(`${API_URL}/system-settings`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error("Gagal menyimpan pengaturan sistem.");
+  return response.json();
+}
+
+// ==========================================
+// 9. BUSINESS ANALYTICS
+// ==========================================
+export const getAnalyticsDashboard = async (days = '') => {
+  const url = days ? `${API_URL}/analytics/dashboard?days=${days}` : `${API_URL}/analytics/dashboard`;
+  const response = await fetch(url, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Gagal memuat data Analytics.");
+  return response.json();
+};
+
+export const getDashboardSummary = async () => {
+  const response = await fetch(`${API_URL}/dashboard/summary`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) throw new Error("Gagal memuat data Dashboard.");
+  return response.json();
+};

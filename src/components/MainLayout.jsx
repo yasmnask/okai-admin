@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from 'react-hot-toast';
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { logoutAdmin } from "../services/api";
 import {
@@ -17,6 +18,7 @@ import {
   UserCog,
   Menu,
   X,
+  LayoutTemplate // 👈 Import Ikon Baru
 } from "lucide-react";
 
 export default function MainLayout() {
@@ -30,6 +32,7 @@ export default function MainLayout() {
   // Ambil data user untuk cek role
   const adminData = JSON.parse(localStorage.getItem("okai_admin"));
   const userRole = adminData?.role?.toLowerCase();
+  const userEmail = adminData?.email?.toLowerCase();
 
   const menuItems = [
     {
@@ -48,7 +51,7 @@ export default function MainLayout() {
       name: "Affiliate",
       icon: <Handshake size={20} />,
       path: "/affiliate",
-      roles: ["super_admin", "admin", "affiliate"],
+      roles: ["super_admin", "affiliate"],
     },
     {
       name: "Products",
@@ -57,15 +60,15 @@ export default function MainLayout() {
       roles: ["super_admin", "admin"],
     },
     {
-      name: "Orders",
-      icon: <FileText size={20} />,
-      path: "/orders",
+      name: "Warehouses",
+      icon: <Box size={20} />,
+      path: "/warehouses",
       roles: ["super_admin", "admin"],
     },
     {
-      name: "Payments",
-      icon: <CreditCard size={20} />,
-      path: "/payments",
+      name: "Orders",
+      icon: <FileText size={20} />,
+      path: "/orders",
       roles: ["super_admin", "admin"],
     },
     {
@@ -78,13 +81,13 @@ export default function MainLayout() {
       name: "Promotions",
       icon: <Ticket size={20} />,
       path: "/promotions",
-      roles: ["super_admin", "admin"],
+      roles: ["super_admin"],
     },
     {
       name: "Analytics",
       icon: <BarChart3 size={20} />,
       path: "/analytics",
-      roles: ["super_admin", "admin"],
+      roles: ["super_admin"],
     },
     {
       name: "Profile Settings",
@@ -96,6 +99,13 @@ export default function MainLayout() {
       name: "System Settings",
       icon: <Settings size={20} />,
       path: "/settings",
+      roles: ["super_admin"],
+    },
+    // 👇 TAMBAHAN MENU BARU 👇
+    {
+      name: "Homepage Settings",
+      icon: <LayoutTemplate size={20} />,
+      path: "/homepage-settings",
       roles: ["super_admin"],
     },
   ];
@@ -113,7 +123,7 @@ export default function MainLayout() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F8FAFC] text-[#1E293B]">
+    <div className="flex h-screen overflow-hidden bg-[#F8FAFC] dark:bg-[#121212] text-[#1E293B]">
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/30 z-40 lg:hidden"
@@ -121,7 +131,7 @@ export default function MainLayout() {
         />
       )}
       <aside
-        className={`fixed z-50 top-0 left-0 h-screen w-72 bg-white dark:bg-[#1a1d1a] border-r border-slate-200 dark:border-0 dark:shadow-black dark:shadow-2xl transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static lg:flex flex-col h-full`}
+        className={`fixed z-50 top-0 left-0 h-screen w-72 bg-white dark:bg-[#1a1d1a] border-r border-slate-200 dark:border-0 dark:shadow-black dark:shadow-2xl transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static lg:flex flex-col`}
       >
         <div className="p-8">
           <div className="flex items-center gap-3">
@@ -136,7 +146,7 @@ export default function MainLayout() {
                 Admin Portal
               </span>
             </div>
-            <button onClick={() => setIsOpen(false)} className="lg:hidden">
+            <button onClick={() => setIsOpen(false)} className="lg:hidden text-slate-500 dark:text-slate-300">
               <X size={22} />
             </button>
           </div>
@@ -144,8 +154,11 @@ export default function MainLayout() {
 
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
           {menuItems
-            // --- FILTER BERDASARKAN ROLE ---
-            .filter((item) => item.roles.includes(userRole))
+            .filter((item) => {
+              if (!item.roles.includes(userRole)) return false;
+              if (item.name === "System Settings" && userEmail !== 'admin@gmail.com') return false;
+              return true;
+            })
             .map((item) => (
               <button
                 key={item.name}
@@ -156,7 +169,7 @@ export default function MainLayout() {
                 className={`w-full flex items-center px-4 py-3 rounded-xl transition-all ${
                   location.pathname === item.path
                     ? "bg-[#E65100] text-white shadow-md shadow-orange-100 dark:shadow-black"
-                    : "bg-white dark:bg-[#3e3c3a] text-slate-500 dark:text-white hover:bg-orange-50 dark:hover:bg-[#1a1e1a] hover:text-[#E65100]"
+                    : "bg-white dark:bg-[#1a1d1a] text-slate-500 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-[#2c2f2c] hover:text-[#E65100] dark:hover:text-[#E65100]"
                 }`}
               >
                 <span className="mr-3">{item.icon}</span>
@@ -165,18 +178,18 @@ export default function MainLayout() {
             ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-100 dark:border-0">
+        <div className="p-4 border-t border-slate-100 dark:border-[#2c2f2c]">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center px-4 py-3 text-slate-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all font-semibold text-sm"
+            className="w-full flex items-center px-4 py-3 text-slate-500 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-500 rounded-xl transition-all font-semibold text-sm"
           >
             <LogOut size={20} className="mr-3" /> Logout
           </button>
         </div>
       </aside>
-      <main className="flex-1 overflow-y-auto overflow-x-hidden">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden bg-[#F8FAFC] dark:bg-[#121212]">
         <div className="lg:hidden p-4">
-          <button onClick={() => setIsOpen(true)}>
+          <button onClick={() => setIsOpen(true)} className="text-slate-500 dark:text-slate-300">
             <Menu size={24} />
           </button>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { 
   ArrowLeft, Save, Ticket, Percent, 
   DollarSign, Calendar, Users, Info, 
@@ -7,6 +8,7 @@ import {
 } from 'lucide-react';
 // 1. Import fungsi API Edit & Tarik Data
 import { getPromotionById, updatePromotion } from '../services/api';
+import { formatPrice, formatNumber, parseNumber } from '../utils/numberFormat';
 
 export default function EditPromotion() {
   const { id } = useParams();
@@ -32,18 +34,24 @@ export default function EditPromotion() {
         if (response.success) {
           const promoData = response.data;
           
-          // 2. Format Tanggal Laravel (YYYY-MM-DD HH:MM:SS) menjadi format input date HTML (YYYY-MM-DD)
+          // Helper untuk memastikan format tanggal aman dipotong ke YYYY-MM-DD
+          const formatDate = (dateString) => {
+            if (!dateString) return '';
+            return dateString.substring(0, 10);
+          };
+
           setFormData({
             ...promoData,
-            start_date: promoData.start_date ? promoData.start_date.substring(0, 10) : '',
-            end_date: promoData.end_date ? promoData.end_date.substring(0, 10) : '',
+            start_date: formatDate(promoData.start_date),
+            end_date: formatDate(promoData.end_date),
           });
         } else {
-          alert("Voucher tidak ditemukan!");
+          toast.error("Voucher tidak ditemukan!");
           navigate('/promotions');
         }
       } catch (error) {
         console.error("Error loading promo:", error);
+        toast.error("Gagal memuat data promo.");
       } finally {
         setIsLoading(false);
       }
@@ -55,7 +63,7 @@ export default function EditPromotion() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // 3. Pastikan tipe data dikonversi ke angka sebelum dikirim
+    // Pastikan tipe data dikonversi ke angka sebelum dikirim
     const payload = {
       ...formData,
       value: Number(formData.value),
@@ -68,10 +76,10 @@ export default function EditPromotion() {
         navigate('/promotions');
       } else {
         const serverError = response.message ? response.message : JSON.stringify(response.errors);
-        alert("❌ Gagal mengupdate kupon!\n\nAlasan: " + serverError);
+        toast.error("❌ Gagal mengupdate kupon!\n\nAlasan: " + serverError);
       }
     } catch (error) {
-      alert("Error Jaringan: " + error.message);
+      toast.error("Error Jaringan: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -165,9 +173,9 @@ export default function EditPromotion() {
                   {formData.type === 'percentage' ? '%' : 'Rp'}
                 </span>
                 <input 
-                  type="number" 
-                  value={formData.value}
-                  onChange={(e) => setFormData({...formData, value: e.target.value})}
+                  type="text" 
+                  value={formData.type === 'fixed_amount' ? formatPrice(formData.value || "") : formatNumber(formData.value || "")}
+                  onChange={(e) => setFormData({...formData, value: parseNumber(e.target.value)})}
                   className="w-full pl-12 pr-6 py-5 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-[1.5rem] text-lg font-black outline-none transition-colors" 
                 />
               </div>
@@ -182,8 +190,25 @@ export default function EditPromotion() {
               <Clock size={16} className="text-[#E65100]" /> Masa Berlaku
             </h3>
             <div className="space-y-4">
-              <input type="date" value={formData.start_date} onChange={(e) => setFormData({...formData, start_date: e.target.value})} className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-2xl text-xs font-bold outline-none transition-colors" style={{ colorScheme: 'light dark' }} />
-              <input type="date" value={formData.end_date} onChange={(e) => setFormData({...formData, end_date: e.target.value})} className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-2xl text-xs font-bold outline-none transition-colors" style={{ colorScheme: 'light dark' }} />
+              <div>
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 mb-2 block transition-colors">Tanggal Mulai</label>
+                <input 
+                  type="date" 
+                  value={formData.start_date} 
+                  onChange={(e) => setFormData({...formData, start_date: e.target.value})} 
+                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-2xl text-sm font-bold outline-none transition-colors border border-transparent focus:border-orange-500" 
+                />
+              </div>
+              
+              <div>
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1 mb-2 block transition-colors">Tanggal Berakhir</label>
+                <input 
+                  type="date" 
+                  value={formData.end_date} 
+                  onChange={(e) => setFormData({...formData, end_date: e.target.value})} 
+                  className="w-full p-4 bg-slate-50 dark:bg-[#2a2d2a] dark:text-white rounded-2xl text-sm font-bold outline-none transition-colors border border-transparent focus:border-orange-500" 
+                />
+              </div>
             </div>
           </div>
 
@@ -195,9 +220,9 @@ export default function EditPromotion() {
               <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 block transition-colors">Maksimal Pemakaian (User)</label>
               <div className="flex items-center gap-3">
                 <input 
-                  type="number" 
-                  value={formData.max_usage}
-                  onChange={(e) => setFormData({...formData, max_usage: e.target.value})}
+                  type="text" 
+                  value={formatNumber(formData.max_usage || "")}
+                  onChange={(e) => setFormData({...formData, max_usage: parseNumber(e.target.value)})}
                   className="bg-transparent w-full text-xl font-black outline-none text-slate-700 dark:text-white transition-colors" 
                 />
                 <span className="text-[10px] font-black text-slate-300 dark:text-slate-600 uppercase transition-colors">Kupon</span>

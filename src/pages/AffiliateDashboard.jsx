@@ -1,5 +1,6 @@
 import React from 'react';
 import { DollarSign, CheckCircle2, Clock, Send } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AffiliateDashboard() {
   const adminData = JSON.parse(localStorage.getItem("okai_admin"));
@@ -19,7 +20,7 @@ export default function AffiliateDashboard() {
           </p>
         </div>
         <button 
-          onClick={() => alert('Fitur Request Pencairan sedang dikembangkan.')}
+          onClick={() => toast('Fitur Request Pencairan sedang dikembangkan.', { icon: 'ℹ️' })}
           className="flex items-center gap-2 bg-[#1E293B] dark:bg-white text-white dark:text-[#1E293B] px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-slate-900/20 dark:shadow-black/50 hover:scale-105 dark:hover:bg-slate-200 transition-all"
         >
           <Send size={18} /> Tarik Saldo

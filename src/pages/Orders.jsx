@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { getOrders } from "../services/api";
 import {
   Package,
@@ -16,9 +17,11 @@ import {
   MapPin,
   Loader2,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Orders() {
   // 1. State dari Naufal (Untuk Data API)
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,6 +42,7 @@ export default function Orders() {
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
+      toast.error("Gagal memuat data pesanan.");
     } finally {
       setIsLoading(false);
     }
@@ -287,7 +291,7 @@ export default function Orders() {
                   </td>
                   <td className="p-6">
                     <p className="font-medium text-slate-600 line-clamp-1">
-                      {order.items}
+                      {order.items_string}
                     </p>
                     <p className="font-black text-slate-800 text-xs mt-1">
                       {order.total}
@@ -303,15 +307,14 @@ export default function Orders() {
                   </td>
                   <td className="p-6">
                     <span
-                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center w-fit gap-1 ${
-                        order.status === "Delivered"
-                          ? "bg-green-100 text-green-600"
-                          : order.status === "Shipped"
-                            ? "bg-purple-100 text-purple-600"
-                            : order.status === "Processing"
-                              ? "bg-blue-100 text-blue-600"
-                              : "bg-orange-100 text-orange-600"
-                      }`}
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center w-fit gap-1 ${order.status === "Delivered"
+                        ? "bg-green-100 text-green-600"
+                        : order.status === "Shipped"
+                          ? "bg-purple-100 text-purple-600"
+                          : order.status === "Processing"
+                            ? "bg-blue-100 text-blue-600"
+                            : "bg-orange-100 text-orange-600"
+                        }`}
                     >
                       {order.status === "Delivered" ? (
                         <CheckCircle2 size={12} />
@@ -327,11 +330,11 @@ export default function Orders() {
                   </td>
                   <td className="p-6">
                     <div className="flex justify-center items-center gap-2">
-                      <button className="p-2 text-slate-400 hover:text-blue-500 hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100">
+                      <button
+                        onClick={() => navigate(`/orders/${order.id}`)}
+                        className="p-2 text-slate-400 hover:text-blue-500 hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100"
+                      >
                         <Eye size={18} />
-                      </button>
-                      <button className="p-2 text-slate-400 hover:text-[#E65100] hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-slate-100">
-                        <MoreVertical size={18} />
                       </button>
                     </div>
                   </td>
